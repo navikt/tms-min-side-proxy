@@ -61,7 +61,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "io.ktor.server.netty.EngineMain"
+    mainClassName = "no.nav.tms.min.side.proxy.ApplicationKt"
 }
 
 tasks {

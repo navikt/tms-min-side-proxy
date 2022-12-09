@@ -13,14 +13,4 @@ data class Environment(
     val sykefravaerApiBaseUrl: String = getEnvVar("SYKEFRAVAER_API_URL"),
     val utkastClientId: String = getEnvVar("UTKAST_CLIENT_ID"),
     val utastBaseUrl: String = getEnvVar("UTKAST_BASE_URL"),
-
-    // InfluxDB
-    /*
-    val influxdbHost: String = getEnvVar("INFLUXDB_HOST"),
-    val influxdbPort: Int = IntEnvVar.getEnvVarAsInt("INFLUXDB_PORT"),
-    val influxdbName: String = getEnvVar("INFLUXDB_DATABASE_NAME"),
-    val influxdbUser: String = getEnvVar("INFLUXDB_USER"),
-    val influxdbPassword: String = getEnvVar("INFLUXDB_PASSWORD"),
-    val influxdbRetentionPolicy: String = getEnvVar("INFLUXDB_RETENTION_POLICY"),
-    */
 )

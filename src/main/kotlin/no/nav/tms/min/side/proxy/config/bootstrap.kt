@@ -7,23 +7,34 @@ import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.routing.*
 import io.ktor.serialization.*
-import io.ktor.util.*
+import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.arbeid.arbeidApi
+import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
 import no.nav.tms.min.side.proxy.dittnav.dittnavApi
+import no.nav.tms.min.side.proxy.health.HealthService
 import no.nav.tms.min.side.proxy.health.healthApi
+import no.nav.tms.min.side.proxy.sykefravaer.SykefravaerConsumer
 import no.nav.tms.min.side.proxy.sykefravaer.sykefraverApi
+import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
 import no.nav.tms.min.side.proxy.utkast.utkastApi
 import no.nav.tms.token.support.idporten.sidecar.LoginLevel
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 
-@KtorExperimentalAPI
-fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()) {
-    val environment = Environment()
+fun Application.mainModule(
+    corsAllowedOrigins: String,
+    corsAllowedSchemes: String,
+    healthService: HealthService,
+    arbeidConsumer: ArbeidConsumer,
+    dittnavConsumer: DittnavConsumer,
+    sykefravaerConsumer: SykefravaerConsumer,
+    utkastConsumer: UtkastConsumer,
+    httpClient: HttpClient
+) {
 
     install(DefaultHeaders)
 
     install(CORS) {
-        host(environment.corsAllowedOrigins, schemes = listOf(environment.corsAllowedSchemes))
+        host(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
         allowCredentials = true
         header(HttpHeaders.ContentType)
         method(HttpMethod.Options)
@@ -39,17 +50,17 @@ fun Application.mainModule(appContext: ApplicationContext = ApplicationContext()
     }
 
     routing {
-        healthApi(appContext.healthService)
+        healthApi(healthService)
 
         authenticate {
-            arbeidApi(appContext.arbeidConsumer)
-            dittnavApi(appContext.dittnavConsumer)
-            sykefraverApi(appContext.sykefravaerConsumer)
-            utkastApi(appContext.utkastConsumer)
+            arbeidApi(arbeidConsumer)
+            dittnavApi(dittnavConsumer)
+            sykefraverApi(sykefravaerConsumer)
+            utkastApi(utkastConsumer)
         }
     }
 
-    configureShutdownHook(appContext.httpClient)
+    configureShutdownHook(httpClient)
 }
 
 private fun Application.configureShutdownHook(httpClient: HttpClient) {
