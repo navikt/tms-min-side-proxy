@@ -48,32 +48,21 @@ dependencies {
     testImplementation(Junit.api)
     testImplementation(Ktor.clientMock)
     testImplementation(Ktor.clientMockJvm)
-    testImplementation(Kluent.kluent)
-    testImplementation(Mockk.mockk)
-    testImplementation(Jjwt.api)
+    testImplementation(Ktor2.Test.serverTestHost)
 
-    testRuntimeOnly(Bouncycastle.bcprovJdk15on)
     testRuntimeOnly(Jjwt.impl)
     testRuntimeOnly(Junit.engine)
+    testImplementation(Junit.params)
+    testImplementation(Ktor2.Server.authJwt)
+    testImplementation(Jjwt.api)
+    testImplementation(NAV.tokenValidatorKtor)
+    testImplementation(Mockk.mockk)
+
+
 }
 
 application {
     mainClassName = "no.nav.tms.min.side.proxy.ApplicationKt"
-}
-
-tasks {
-    withType<Test> {
-        useJUnitPlatform()
-        testLogging {
-            exceptionFormat = TestExceptionFormat.FULL
-            events("passed", "skipped", "failed")
-        }
-    }
-
-    register("runServer", JavaExec::class) {
-        main = application.mainClassName
-        classpath = sourceSets["main"].runtimeClasspath
-    }
 }
 
 apply(plugin = Shadow.pluginId)
