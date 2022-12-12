@@ -1,12 +1,18 @@
 package no.nav.tms.min.side.proxy.config
 
-import io.ktor.application.*
-import io.ktor.auth.*
-import io.ktor.client.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.routing.*
-import io.ktor.serialization.*
+
+import io.ktor.client.HttpClient
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.routing.routing
 import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.arbeid.arbeidApi
 import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
@@ -34,10 +40,10 @@ fun Application.mainModule(
     install(DefaultHeaders)
 
     install(CORS) {
-        host(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
+        allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
         allowCredentials = true
-        header(HttpHeaders.ContentType)
-        method(HttpMethod.Options)
+        allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Options)
     }
 
     install(ContentNegotiation) {

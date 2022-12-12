@@ -1,11 +1,12 @@
 package no.nav.tms.min.side.proxy.health
 
-import io.ktor.application.call
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
-import io.ktor.response.respondText
-import io.ktor.routing.Routing
-import io.ktor.routing.get
+import io.ktor.server.application.call
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
+
 
 fun Routing.healthApi(healthService: HealthService) {
 
@@ -27,9 +28,7 @@ fun Routing.healthApi(healthService: HealthService) {
         }
     }
 
-    get("/internal/selftest") {
-        call.buildSelftestPage(healthService)
-    }
+    //TODO: sjekk at vi ikke bruker selftest lengre
 }
 
 private suspend fun isReady(healthService: HealthService): Boolean {

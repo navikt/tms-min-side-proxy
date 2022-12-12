@@ -1,12 +1,16 @@
 package no.nav.tms.min.side.proxy.dittnav
 
-import io.ktor.application.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.request.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.util.pipeline.*
+
+import io.ktor.client.statement.readBytes
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.call
+import io.ktor.server.request.receiveText
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.util.pipeline.PipelineContext
 import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory

@@ -1,16 +1,14 @@
 package no.nav.tms.min.side.proxy.health
 
-import io.ktor.application.*
-import io.ktor.html.*
-import io.ktor.http.*
+import io.ktor.server.application.ApplicationCall
 import kotlinx.coroutines.coroutineScope
-import kotlinx.html.*
+
 
 suspend fun ApplicationCall.buildSelftestPage(healthService: HealthService) = coroutineScope {
 
     val healthChecks = healthService.getHealthChecks()
     val hasFailedChecks = healthChecks.any { healthStatus -> Status.ERROR == healthStatus.status }
-
+/*
     respondHtml(status =
     if(hasFailedChecks) {
         HttpStatusCode.ServiceUnavailable
@@ -57,5 +55,5 @@ suspend fun ApplicationCall.buildSelftestPage(healthService: HealthService) = co
                 }
             }
         }
-    }
+    }*/
 }
