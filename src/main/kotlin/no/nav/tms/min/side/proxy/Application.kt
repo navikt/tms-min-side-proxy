@@ -37,7 +37,7 @@ fun main() {
             dittnavConsumer = DittnavConsumer(httpClient, tokenFetcher, env.dittnavApiBaseUrl),
             sykefravaerConsumer = SykefravaerConsumer(httpClient, tokenFetcher, env.sykefravaerApiBaseUrl),
             utkastConsumer = UtkastConsumer(httpClient,tokenFetcher, env.utastBaseUrl),
-            httpClient = HttpClientBuilder.build()
+            httpClient = httpClient
         )
     }.start(wait = true)
 }

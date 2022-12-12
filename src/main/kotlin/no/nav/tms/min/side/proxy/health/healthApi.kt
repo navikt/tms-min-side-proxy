@@ -31,7 +31,7 @@ fun Routing.healthApi(healthService: HealthService) {
     //TODO: sjekk at vi ikke bruker selftest lengre
 }
 
-private suspend fun isReady(healthService: HealthService): Boolean {
+private fun isReady(healthService: HealthService): Boolean {
     val healthChecks = healthService.getHealthChecks()
     return healthChecks
             .filter { healthStatus -> healthStatus.includeInReadiness }

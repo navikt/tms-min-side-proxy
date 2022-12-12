@@ -1,5 +1,6 @@
 package no.nav.tms.min.side.proxy.config
 
+import kotlinx.serialization.json.Json
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 
 data class Environment(
@@ -14,3 +15,10 @@ data class Environment(
     val utkastClientId: String = getEnvVar("UTKAST_CLIENT_ID"),
     val utastBaseUrl: String = getEnvVar("UTKAST_BASE_URL"),
 )
+
+fun jsonConfig(ignoreUnknownKeys: Boolean = false): Json {
+    return Json {
+        this.ignoreUnknownKeys = ignoreUnknownKeys
+        this.encodeDefaults = true
+    }
+}
