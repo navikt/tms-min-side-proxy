@@ -32,28 +32,27 @@ dependencies {
     implementation(Ktor2.Server.core)
     implementation(Ktor2.Server.netty)
     implementation(Ktor2.Server.auth)
+    implementation(Ktor2.Server.authJwt)
     implementation(Ktor2.Server.defaultHeaders)
     implementation(Ktor2.Server.cors)
     implementation(Ktor2.Client.core)
     implementation(Ktor2.Client.apache)
     implementation(Ktor2.Client.contentNegotiation)
-    implementation(Ktor2.Client.contentNegotiation)
     implementation(Ktor2.kotlinX)
     implementation(Ktor2.Server.contentNegotiation)
-    implementation(Ktor2.TmsTokenSupport.idportenSidecar)
     implementation(Ktor2.TmsTokenSupport.tokendingsExchange)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
 
     testImplementation(Junit.api)
-    testImplementation(Ktor.clientMock)
-    testImplementation(Ktor.clientMockJvm)
+    testImplementation(Ktor2.Test.clientMock)
     testImplementation(Ktor2.Test.serverTestHost)
+    testImplementation(Kotest.assertionsCore)
+
 
     testRuntimeOnly(Jjwt.impl)
     testRuntimeOnly(Junit.engine)
     testImplementation(Junit.params)
-    testImplementation(Ktor2.Server.authJwt)
     testImplementation(Jjwt.api)
     testImplementation(NAV.tokenValidatorKtor)
     testImplementation(Mockk.mockk)
@@ -63,6 +62,15 @@ dependencies {
 
 application {
     mainClassName = "no.nav.tms.min.side.proxy.ApplicationKt"
+}
+tasks {
+    withType<Test> {
+        useJUnitPlatform()
+        testLogging {
+            exceptionFormat = TestExceptionFormat.FULL
+            events("passed", "skipped", "failed")
+        }
+    }
 }
 
 apply(plugin = Shadow.pluginId)

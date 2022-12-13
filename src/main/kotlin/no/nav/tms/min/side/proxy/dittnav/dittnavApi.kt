@@ -11,9 +11,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
+import no.nav.tms.min.side.proxy.authentication.IdportenUser
+import no.nav.tms.min.side.proxy.authentication.IdportenUserFactory
 import no.nav.tms.min.side.proxy.config.jsonConfig
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import org.slf4j.LoggerFactory
 
 fun Route.dittnavApi(consumer: DittnavConsumer) {

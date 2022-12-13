@@ -17,6 +17,7 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import java.net.URL
 
@@ -32,6 +33,12 @@ object HttpClientBuilder {
 
 }
 
+fun jsonConfig(ignoreUnknownKeys: Boolean = false): Json {
+    return Json {
+        this.ignoreUnknownKeys = ignoreUnknownKeys
+        this.encodeDefaults = true
+    }
+}
 
 suspend inline fun <reified T> HttpClient.get(url: String, accessToken: String): T = withContext(Dispatchers.IO) {
     request {

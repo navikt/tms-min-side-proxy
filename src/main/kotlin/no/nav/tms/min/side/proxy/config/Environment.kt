@@ -1,6 +1,11 @@
 package no.nav.tms.min.side.proxy.config
 
-import kotlinx.serialization.json.Json
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.url
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar.getEnvVar
 
 data class Environment(
@@ -14,11 +19,15 @@ data class Environment(
     val sykefravaerApiBaseUrl: String = getEnvVar("SYKEFRAVAER_API_URL"),
     val utkastClientId: String = getEnvVar("UTKAST_CLIENT_ID"),
     val utastBaseUrl: String = getEnvVar("UTKAST_BASE_URL"),
+    val loginserviceDiscoveryUrl: String = getEnvVar("LOGINSERVICE_DISCOVERY_URL"),
+    val loginserviceIdportenAudience: String = getEnvVar("LOGINSERVICE_IDPORTEN_AUDIENCE")
 )
 
-fun jsonConfig(ignoreUnknownKeys: Boolean = false): Json {
-    return Json {
-        this.ignoreUnknownKeys = ignoreUnknownKeys
-        this.encodeDefaults = true
+@Serializable
+data class LoginserviceMetadata(val jwks_uri: String, val issuer: String) {
+    companion object {
+        fun get(httpClient: HttpClient, discoveryUrl: String): LoginserviceMetadata = runBlocking {
+            httpClient.get { url(discoveryUrl) }.body()
+        }
     }
 }

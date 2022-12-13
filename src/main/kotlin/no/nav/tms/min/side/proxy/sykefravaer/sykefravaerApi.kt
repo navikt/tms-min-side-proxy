@@ -9,8 +9,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.util.pipeline.PipelineContext
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
+import no.nav.tms.min.side.proxy.authentication.IdportenUser
+import no.nav.tms.min.side.proxy.authentication.IdportenUserFactory
 import org.slf4j.LoggerFactory
 
 fun Route.sykefraverApi(consumer: SykefravaerConsumer) {
