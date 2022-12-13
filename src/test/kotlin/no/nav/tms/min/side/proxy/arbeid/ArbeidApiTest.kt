@@ -9,6 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import no.nav.tms.min.side.proxy.assert
+import no.nav.tms.min.side.proxy.authenticatedGet
 import no.nav.tms.min.side.proxy.testApplicationHttpClient
 import no.nav.tms.min.side.proxy.mockApi
 import no.nav.tms.min.side.proxy.respondRawJson
@@ -38,9 +39,8 @@ class ArbeidApiTest {
                 }
             }
         }
-        client.get("/arbeid/veientil").assert {
+        client.authenticatedGet("/arbeid/veientil").assert {
             status shouldBe HttpStatusCode.OK
-            this.headers["contentType"] shouldBe "application/json"
             bodyAsText() shouldBe testContent
         }
     }

@@ -2,7 +2,13 @@ package no.nav.tms.min.side.proxy
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.header
+import io.ktor.client.request.request
+import io.ktor.client.request.url
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondBytes
@@ -63,6 +69,13 @@ internal suspend fun ApplicationCall.respondRawJson(content: String) =
     respondBytes(
         contentType = ContentType.Application.Json,
         provider = { content.toByteArray() })
+
+internal suspend fun HttpClient.authenticatedGet(urlString: String, token: String = stubToken): HttpResponse = request {
+    url(urlString)
+    method = HttpMethod.Get
+    header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+}
+
 
 internal val tokenfetcherMock = mockk<TokenFetcher>().also {
     coEvery { it.getUtkastApiToken(any()) } returns "<dummytoken>"
