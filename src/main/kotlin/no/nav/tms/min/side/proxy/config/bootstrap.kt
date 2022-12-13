@@ -2,24 +2,29 @@ package no.nav.tms.min.side.proxy.config
 
 
 import com.auth0.jwk.JwkProvider
+import com.auth0.jwt.interfaces.Payload
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authenticate
 import io.ktor.server.auth.jwt.jwt
+import io.ktor.server.auth.principal
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.routing.routing
+import io.ktor.util.pipeline.PipelineContext
 import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.arbeid.arbeidApi
-import no.nav.tms.min.side.proxy.authentication.PrincipalWithTokenString
 import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
 import no.nav.tms.min.side.proxy.dittnav.dittnavApi
 import no.nav.tms.min.side.proxy.health.HealthService
@@ -101,3 +106,7 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
 }
 
 class CookieNotSetException : Throwable() {}
+data class PrincipalWithTokenString(val accessToken: String, val payload: Payload) : Principal
+internal val PipelineContext<Unit, ApplicationCall>.accessToken: String
+    get() = call.principal<PrincipalWithTokenString>()?.accessToken
+        ?: throw Exception("Principal har ikke blitt satt for authentication context.")

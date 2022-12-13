@@ -11,8 +11,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
-import no.nav.tms.min.side.proxy.authentication.IdportenUser
-import no.nav.tms.min.side.proxy.authentication.IdportenUserFactory
+import no.nav.tms.min.side.proxy.config.accessToken
 import no.nav.tms.min.side.proxy.config.jsonConfig
 import org.slf4j.LoggerFactory
 
@@ -24,7 +23,7 @@ fun Route.dittnavApi(consumer: DittnavConsumer) {
         val proxyPath = call.parameters["proxyPath"]
 
         try {
-            val response = consumer.getContent(authenticatedUser, proxyPath)
+            val response = consumer.getContent(accessToken, proxyPath)
             call.respond(response.status, response.readBytes())
         } catch (exception: Exception) {
             log.warn("Klarte ikke hente data fra '$proxyPath'. Feilmelding: ${exception.message}", exception)
@@ -37,7 +36,7 @@ fun Route.dittnavApi(consumer: DittnavConsumer) {
 
         try {
             val content = jsonConfig().parseToJsonElement(call.receiveText())
-            val response = consumer.postContent(authenticatedUser, content, proxyPath)
+            val response = consumer.postContent(accessToken, content, proxyPath)
             call.respond(response.status)
         } catch (exception: Exception) {
             log.warn("Klarte ikke poste data. Feilmelding: ${exception.message}", exception)
@@ -46,5 +45,3 @@ fun Route.dittnavApi(consumer: DittnavConsumer) {
     }
 }
 
-private val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
-    get() = IdportenUserFactory.createIdportenUser(call)

@@ -8,8 +8,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.util.pipeline.PipelineContext
-import no.nav.tms.min.side.proxy.authentication.IdportenUser
-import no.nav.tms.min.side.proxy.authentication.IdportenUserFactory
+import no.nav.tms.min.side.proxy.config.accessToken
 import org.slf4j.LoggerFactory
 
 
@@ -19,7 +18,7 @@ fun Route.utkastApi(consumer: UtkastConsumer) {
 
     get("/utkast") {
         try {
-            val response = consumer.getContent(authenticatedUser, "utkast")
+            val response = consumer.getContent(accessToken, "utkast")
             call.respond(response.status, response.readBytes())
         } catch (exception: Exception) {
             log.warn("Klarte ikke hente data fra 'utkast'. Feilmelding: ${exception.message}", exception)
@@ -29,16 +28,14 @@ fun Route.utkastApi(consumer: UtkastConsumer) {
     get("/utkast/{proxyPath}") {
         try {
             val proxyPath = call.parameters["proxyPath"]
-            val response = consumer.getContent(authenticatedUser, "utkast/$proxyPath")
+            val response = consumer.getContent(accessToken, "utkast/$proxyPath")
             call.respond(response.status, response.readBytes())
         } catch (exception: Exception) {
             log.warn("Klarte ikke hente data fra 'utkast'. Feilmelding: ${exception.message}", exception)
             call.respond(HttpStatusCode.ServiceUnavailable)
         }
     }
-
 }
 
-private val PipelineContext<Unit, ApplicationCall>.authenticatedUser: IdportenUser
-    get() = IdportenUserFactory.createIdportenUser(call)
+
 
