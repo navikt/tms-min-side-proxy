@@ -6,6 +6,7 @@ import com.auth0.jwt.interfaces.Payload
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -21,8 +22,12 @@ import io.ktor.server.auth.principal
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
+import mu.KotlinLogging
 import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.arbeid.arbeidApi
 import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
@@ -34,6 +39,7 @@ import no.nav.tms.min.side.proxy.sykefravaer.sykefraverApi
 import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
 import no.nav.tms.min.side.proxy.utkast.utkastApi
 
+private val log = KotlinLogging.logger {}
 fun Application.mainModule(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
@@ -49,6 +55,18 @@ fun Application.mainModule(
 ) {
 
     install(DefaultHeaders)
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            when (cause) {
+                is CookieNotSetException -> call.respond(HttpStatusCode.Unauthorized)
+                else -> {
+                    log.info {
+                        "Ukjent feil i proxy ${cause.message}"
+                    }
+                }
+            }
+        }
+    }
 
     install(CORS) {
         allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
@@ -107,6 +125,7 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
 
 class CookieNotSetException : Throwable() {}
 data class PrincipalWithTokenString(val accessToken: String, val payload: Payload) : Principal
+
 internal val PipelineContext<Unit, ApplicationCall>.accessToken: String
     get() = call.principal<PrincipalWithTokenString>()?.accessToken
         ?: throw Exception("Principal har ikke blitt satt for authentication context.")

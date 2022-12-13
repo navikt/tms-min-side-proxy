@@ -28,6 +28,7 @@ dependencies {
     implementation(DittNAV.Common.utils)
     implementation(Jackson.dataTypeJsr310)
     implementation(Kotlinx.coroutines)
+    implementation(KotlinLogging.logging)
     implementation(Kotlinx.htmlJvm)
     implementation(Ktor2.Server.core)
     implementation(Ktor2.Server.netty)
@@ -35,6 +36,7 @@ dependencies {
     implementation(Ktor2.Server.authJwt)
     implementation(Ktor2.Server.defaultHeaders)
     implementation(Ktor2.Server.cors)
+    implementation(Ktor2.Server.statusPages)
     implementation(Ktor2.Client.core)
     implementation(Ktor2.Client.apache)
     implementation(Ktor2.Client.contentNegotiation)
@@ -48,6 +50,8 @@ dependencies {
     testImplementation(Ktor2.Test.clientMock)
     testImplementation(Ktor2.Test.serverTestHost)
     testImplementation(Kotest.assertionsCore)
+    testImplementation("io.ktor:ktor-server-tests-jvm:2.1.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.7.10")
 
 
     testRuntimeOnly(Jjwt.impl)

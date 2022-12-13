@@ -21,14 +21,8 @@ fun Route.dittnavApi(consumer: DittnavConsumer) {
 
     get("/dittnav/{proxyPath}") {
         val proxyPath = call.parameters["proxyPath"]
-
-        try {
             val response = consumer.getContent(accessToken, proxyPath)
             call.respond(response.status, response.readBytes())
-        } catch (exception: Exception) {
-            log.warn("Klarte ikke hente data fra '$proxyPath'. Feilmelding: ${exception.message}", exception)
-            call.respond(HttpStatusCode.ServiceUnavailable)
-        }
     }
 
     post("/dittnav/{proxyPath}") {
