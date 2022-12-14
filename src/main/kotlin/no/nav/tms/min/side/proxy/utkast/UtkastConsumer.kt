@@ -14,8 +14,7 @@ class UtkastConsumer(
 
     suspend fun getContent(token: String, proxyPath: String?): HttpResponse {
         val accessToken = tokenFetcher.getUtkastApiToken(token)
-        val url = "$baseUrl/$proxyPath"
-
+        val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
         return httpClient.get(url, accessToken)
     }
 

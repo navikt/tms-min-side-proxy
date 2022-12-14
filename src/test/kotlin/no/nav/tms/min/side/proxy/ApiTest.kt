@@ -13,6 +13,7 @@ import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
 import no.nav.tms.min.side.proxy.sykefravaer.SykefravaerConsumer
 import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -24,7 +25,7 @@ class ApiTest {
     *
     * */
     @ParameterizedTest
-    @ValueSource(strings = ["arbeid", "dittnav", "sykefravaer"])
+    @ValueSource(strings = ["arbeid", "dittnav", "sykefravaer", "utkast"])
     fun `arbeidproxy api`(originalUrl: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
@@ -64,14 +65,15 @@ class ApiTest {
         }
 
 
+        client.get("/$originalUrl/something").assert {
+            status shouldBe HttpStatusCode.Unauthorized
+        }
+
         client.authenticatedGet("/$originalUrl/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
 
-        client.get("/$originalUrl/something").assert {
-            status shouldBe HttpStatusCode.Unauthorized
-        }
 
         client.authenticatedGet("/$originalUrl/something").assert {
             status shouldBe HttpStatusCode.NotFound
@@ -80,6 +82,43 @@ class ApiTest {
         client.authenticatedGet("/$originalUrl/servererror").assert {
             status shouldBe HttpStatusCode.InternalServerError
         }
+    }
+
+    @Test
+    fun `proxy til baseurl for destinasjonstjeneste`() = testApplication {
+
+        val applicationhttpClient = testApplicationHttpClient()
+        mockApi(
+            httpClient = applicationhttpClient,
+            arbeidConsumer = ArbeidConsumer(
+                httpClient = applicationhttpClient, tokenFetcher = tokenfetcherMock,
+                baseUrl = "https://arbeid.test"
+            ),
+            utkastConsumer = UtkastConsumer(
+                httpClient = applicationhttpClient,
+                tokenFetcher = tokenfetcherMock,
+                baseUrl = proxyBasePath
+            )
+        )
+
+        externalServices {
+            hosts(proxyBasePath) {
+                routing {
+                    get("") {
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
+            }
+        }
+
+        client.authenticatedGet("/utkast").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+
+        client.authenticatedGet("/arbeid").assert {
+            status shouldBe HttpStatusCode.NotFound
+        }
+
 
     }
 

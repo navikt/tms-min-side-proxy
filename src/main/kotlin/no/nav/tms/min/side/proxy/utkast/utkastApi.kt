@@ -16,24 +16,10 @@ fun Route.utkastApi(consumer: UtkastConsumer) {
 
     val log = LoggerFactory.getLogger(UtkastConsumer::class.java)
 
-    get("/utkast") {
-        try {
-            val response = consumer.getContent(accessToken, "utkast")
+    get("/utkast/{param...}") {
+            val proxyPath = call.parameters.getAll("param")?.joinToString("/")?:""
+            val response = consumer.getContent(accessToken, proxyPath)
             call.respond(response.status, response.readBytes())
-        } catch (exception: Exception) {
-            log.warn("Klarte ikke hente data fra 'utkast'. Feilmelding: ${exception.message}", exception)
-            call.respond(HttpStatusCode.ServiceUnavailable)
-        }
-    }
-    get("/utkast/{proxyPath}") {
-        try {
-            val proxyPath = call.parameters["proxyPath"]
-            val response = consumer.getContent(accessToken, "utkast/$proxyPath")
-            call.respond(response.status, response.readBytes())
-        } catch (exception: Exception) {
-            log.warn("Klarte ikke hente data fra 'utkast'. Feilmelding: ${exception.message}", exception)
-            call.respond(HttpStatusCode.ServiceUnavailable)
-        }
     }
 }
 
