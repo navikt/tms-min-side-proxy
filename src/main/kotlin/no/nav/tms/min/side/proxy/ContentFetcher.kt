@@ -1,9 +1,10 @@
-package no.nav.tms.min.side.proxy.common
+package no.nav.tms.min.side.proxy
 
 import io.ktor.client.HttpClient
 import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.json.JsonElement
 import no.nav.tms.min.side.proxy.config.get
+import no.nav.tms.min.side.proxy.config.post
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
 class ContentFetcher(
@@ -47,8 +48,9 @@ class ContentFetcher(
             proxyPath = proxyPath
         )
 
-    fun postDittNavContent(accessToken: String, content: JsonElement, proxyPath: String?): HttpResponse {
-        TODO("Not yet implemented")
+    suspend fun postDittNavContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
+        val exchangedToken = tokendingsService.exchangeToken(token, targetApp = dittnavClientId)
+        return httpClient.post("$dittnavBaseUrl/$proxyPath", content, exchangedToken)
     }
 
     private suspend fun getContent(
@@ -58,7 +60,7 @@ class ContentFetcher(
         proxyPath: String?
     ): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(userToken, targetAppId)
-        val url = proxyPath?.let { "$baseUrl/$it" } ?: utkastBaseUrl
+        val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
         return httpClient.get(url, exchangedToken)
     }
 

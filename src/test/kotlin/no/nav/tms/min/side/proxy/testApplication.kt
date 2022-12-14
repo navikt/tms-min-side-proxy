@@ -2,8 +2,10 @@ package no.nav.tms.min.side.proxy
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as clientContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.request
+import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -13,12 +15,9 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondBytes
 import io.ktor.server.testing.ApplicationTestBuilder
-import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.tms.min.side.proxy.common.ContentFetcher
 import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.min.side.proxy.config.mainModule
-import no.nav.tms.min.side.proxy.health.HealthService
 import no.nav.tms.min.side.proxy.utkast.JwtStub
 
 private const val testIssuer = "test-issuer"
@@ -33,7 +32,7 @@ internal fun ApplicationTestBuilder.mockApi(
 ) = application {
     mainModule(
         corsAllowedOrigins = corsAllowedOrigins,
-        corsAllowedSchemes = corsAllowedSchemes, healthService = HealthService(),
+        corsAllowedSchemes = corsAllowedSchemes,
         httpClient = httpClient,
         jwkProvider = jwtStub.stubbedJwkProvider(),
         jwtIssuer = testIssuer,
@@ -44,7 +43,7 @@ internal fun ApplicationTestBuilder.mockApi(
 
 fun ApplicationTestBuilder.testApplicationHttpClient() =
     createClient {
-        install(io.ktor.client.plugins.contentnegotiation.ContentNegotiation) {
+        install(clientContentNegotiation) {
             json(jsonConfig())
         }
         install(HttpTimeout)
@@ -64,4 +63,11 @@ internal suspend fun HttpClient.authenticatedGet(urlString: String, token: Strin
     url(urlString)
     method = HttpMethod.Get
     header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+}
+
+internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken): HttpResponse = request {
+    url(urlString)
+    method = HttpMethod.Post
+    header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+    setBody("""{"test":"testcontent"}""")
 }

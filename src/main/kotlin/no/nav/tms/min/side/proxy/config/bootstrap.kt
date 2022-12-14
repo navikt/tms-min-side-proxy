@@ -27,19 +27,13 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
 import mu.KotlinLogging
-import no.nav.tms.min.side.proxy.arbeid.arbeidApi
-import no.nav.tms.min.side.proxy.common.ContentFetcher
-import no.nav.tms.min.side.proxy.dittnav.dittnavApi
-import no.nav.tms.min.side.proxy.health.HealthService
-import no.nav.tms.min.side.proxy.health.healthApi
-import no.nav.tms.min.side.proxy.sykefravaer.sykefraverApi
-import no.nav.tms.min.side.proxy.utkast.utkastApi
+import no.nav.tms.min.side.proxy.proxyApi
+import no.nav.tms.min.side.proxy.ContentFetcher
 
 private val log = KotlinLogging.logger {}
 fun Application.mainModule(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
-    healthService: HealthService,
     httpClient: HttpClient,
     jwkProvider: JwkProvider,
     jwtIssuer: String,
@@ -97,13 +91,9 @@ fun Application.mainModule(
     }
 
     routing {
-        healthApi(healthService)
-
+        healthApi()
         authenticate {
-            arbeidApi(contentFetcher)
-            dittnavApi(contentFetcher)
-            sykefraverApi(contentFetcher)
-            utkastApi(contentFetcher)
+            proxyApi(contentFetcher)
         }
     }
 

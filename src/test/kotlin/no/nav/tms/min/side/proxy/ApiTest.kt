@@ -3,16 +3,20 @@ package no.nav.tms.min.side.proxy
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
+import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.tms.min.side.proxy.common.ContentFetcher
+import kotlinx.serialization.json.JsonElement
+import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -94,6 +98,56 @@ class ApiTest {
             status shouldBe HttpStatusCode.OK
         }
     }
+
+    @Test
+    fun `proxy post`() = testApplication {
+        val tjenestePath = "dittnav"
+        val applicationhttpClient = testApplicationHttpClient()
+        mockApi(
+            httpClient = applicationhttpClient,
+            contentFetcher = contentFecther(applicationhttpClient)
+        )
+
+        externalServices {
+            hosts(baseurl[tjenestePath]!!) {
+                routing {
+                    post("/destination") {
+                        checkJson(call.receiveText())
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    post("/nested/destination") {
+                        checkJson(call.receiveText())
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    post("/servererror") {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    }
+                }
+            }
+        }
+
+        client.authenticatedPost("/$tjenestePath/destination").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+        client.authenticatedPost("/$tjenestePath/nested/destination").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+
+        client.post("/$tjenestePath/something").status shouldBe HttpStatusCode.Unauthorized
+        client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+
+    }
+
+    private fun checkJson(receiveText: String) {
+        if(receiveText=="") throw AssertionError ("Post kall har ikke send med body")
+        try {
+            jsonConfig().parseToJsonElement(receiveText)
+        } catch (_: Exception){
+            throw AssertionError("Post kall har sendt ugyldig json:\n$receiveText ")
+        }
+    }
+
 
     private fun contentFecther(httpClient: HttpClient): ContentFetcher = ContentFetcher(
         tokendingsService = tokendingsMock,
