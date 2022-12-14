@@ -57,6 +57,9 @@ class ApiTest {
                     get("/destination") {
                         call.respondRawJson(testContent)
                     }
+                    get("/nested/destination") {
+                        call.respondRawJson(testContent)
+                    }
                     get("/servererror") {
                         call.respond(HttpStatusCode.InternalServerError)
                     }
@@ -64,24 +67,19 @@ class ApiTest {
             }
         }
 
-
-        client.get("/$originalUrl/something").assert {
-            status shouldBe HttpStatusCode.Unauthorized
-        }
-
         client.authenticatedGet("/$originalUrl/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
-
-
-        client.authenticatedGet("/$originalUrl/something").assert {
-            status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/$originalUrl/nested/destination").assert {
+            status shouldBe HttpStatusCode.OK
+            bodyAsText() shouldBe testContent
         }
 
-        client.authenticatedGet("/$originalUrl/servererror").assert {
-            status shouldBe HttpStatusCode.InternalServerError
-        }
+        client.get("/$originalUrl/something").status shouldBe HttpStatusCode.Unauthorized
+        client.authenticatedGet("/$originalUrl/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/$originalUrl/servererror").status shouldBe HttpStatusCode.InternalServerError
+
     }
 
     @Test

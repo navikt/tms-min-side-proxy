@@ -6,12 +6,12 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import no.nav.tms.min.side.proxy.config.accessToken
+import no.nav.tms.min.side.proxy.config.proxyPath
 
 fun Route.arbeidApi(consumer: ArbeidConsumer) {
 
 
-    get("/arbeid/{proxyPath}") {
-        val proxyPath = call.parameters["proxyPath"]
+    get("/arbeid/{proxyPath...}") {
         val response = consumer.getContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
     }

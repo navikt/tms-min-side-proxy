@@ -129,3 +129,6 @@ data class PrincipalWithTokenString(val accessToken: String, val payload: Payloa
 internal val PipelineContext<Unit, ApplicationCall>.accessToken: String
     get() = call.principal<PrincipalWithTokenString>()?.accessToken
         ?: throw Exception("Principal har ikke blitt satt for authentication context.")
+
+internal val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
+    get() = call.parameters.getAll("proxyPath")?.joinToString("/")

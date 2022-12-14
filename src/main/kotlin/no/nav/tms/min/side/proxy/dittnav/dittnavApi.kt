@@ -13,18 +13,19 @@ import io.ktor.server.routing.post
 import io.ktor.util.pipeline.PipelineContext
 import no.nav.tms.min.side.proxy.config.accessToken
 import no.nav.tms.min.side.proxy.config.jsonConfig
+import no.nav.tms.min.side.proxy.config.proxyPath
 import org.slf4j.LoggerFactory
 
 fun Route.dittnavApi(consumer: DittnavConsumer) {
 
     val log = LoggerFactory.getLogger(DittnavConsumer::class.java)
 
-    get("/dittnav/{proxyPath}") {
-        val proxyPath = call.parameters["proxyPath"]
+    get("/dittnav/{proxyPath...}") {
             val response = consumer.getContent(accessToken, proxyPath)
             call.respond(response.status, response.readBytes())
     }
 
+    //TODO: skriv test
     post("/dittnav/{proxyPath}") {
         val proxyPath = call.parameters["proxyPath"]
 
