@@ -18,7 +18,7 @@ data class Environment(
     val sykefravaerApiClientId: String = getEnvVar("SYKEFRAVAER_API_CLIENT_ID"),
     val sykefravaerApiBaseUrl: String = getEnvVar("SYKEFRAVAER_API_URL"),
     val utkastClientId: String = getEnvVar("UTKAST_CLIENT_ID"),
-    val utastBaseUrl: String = getEnvVar("UTKAST_BASE_URL"),
+    val utkastBaseUrl: String = getEnvVar("UTKAST_BASE_URL"),
     val loginserviceDiscoveryUrl: String = getEnvVar("LOGINSERVICE_DISCOVERY_URL"),
     val loginserviceIdportenAudience: String = getEnvVar("LOGINSERVICE_IDPORTEN_AUDIENCE")
 )

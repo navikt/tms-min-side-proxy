@@ -24,19 +24,15 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
 import mu.KotlinLogging
-import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
 import no.nav.tms.min.side.proxy.arbeid.arbeidApi
-import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
+import no.nav.tms.min.side.proxy.common.ContentFetcher
 import no.nav.tms.min.side.proxy.dittnav.dittnavApi
 import no.nav.tms.min.side.proxy.health.HealthService
 import no.nav.tms.min.side.proxy.health.healthApi
-import no.nav.tms.min.side.proxy.sykefravaer.SykefravaerConsumer
 import no.nav.tms.min.side.proxy.sykefravaer.sykefraverApi
-import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
 import no.nav.tms.min.side.proxy.utkast.utkastApi
 
 private val log = KotlinLogging.logger {}
@@ -44,14 +40,11 @@ fun Application.mainModule(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
     healthService: HealthService,
-    arbeidConsumer: ArbeidConsumer,
-    dittnavConsumer: DittnavConsumer,
-    sykefravaerConsumer: SykefravaerConsumer,
-    utkastConsumer: UtkastConsumer,
     httpClient: HttpClient,
     jwkProvider: JwkProvider,
     jwtIssuer: String,
-    jwtAudience: String
+    jwtAudience: String,
+    contentFetcher: ContentFetcher
 ) {
 
     install(DefaultHeaders)
@@ -107,10 +100,10 @@ fun Application.mainModule(
         healthApi(healthService)
 
         authenticate {
-            arbeidApi(arbeidConsumer)
-            dittnavApi(dittnavConsumer)
-            sykefraverApi(sykefravaerConsumer)
-            utkastApi(utkastConsumer)
+            arbeidApi(contentFetcher)
+            dittnavApi(contentFetcher)
+            sykefraverApi(contentFetcher)
+            utkastApi(contentFetcher)
         }
     }
 

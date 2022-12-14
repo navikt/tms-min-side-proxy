@@ -15,15 +15,11 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
-import no.nav.tms.min.side.proxy.common.TokenFetcher
+import no.nav.tms.min.side.proxy.common.ContentFetcher
 import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.min.side.proxy.config.mainModule
-import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
 import no.nav.tms.min.side.proxy.health.HealthService
-import no.nav.tms.min.side.proxy.sykefravaer.SykefravaerConsumer
 import no.nav.tms.min.side.proxy.utkast.JwtStub
-import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
 
 private const val testIssuer = "test-issuer"
 private val jwtStub = JwtStub(testIssuer)
@@ -32,23 +28,17 @@ private val stubToken = jwtStub.createTokenFor("subject", "audience")
 internal fun ApplicationTestBuilder.mockApi(
     corsAllowedOrigins: String = "*.nav.no",
     corsAllowedSchemes: String = "https",
-    arbeidConsumer: ArbeidConsumer = mockk(),
-    dittnavConsumer: DittnavConsumer = mockk(),
-    sykefraværConsumer: SykefravaerConsumer = mockk(),
-    utkastConsumer: UtkastConsumer = mockk(),
-    httpClient: HttpClient = mockk()
+    httpClient: HttpClient = mockk(),
+    contentFetcher : ContentFetcher
 ) = application {
     mainModule(
         corsAllowedOrigins = corsAllowedOrigins,
         corsAllowedSchemes = corsAllowedSchemes, healthService = HealthService(),
-        arbeidConsumer = arbeidConsumer,
-        dittnavConsumer = dittnavConsumer,
-        sykefravaerConsumer = sykefraværConsumer,
-        utkastConsumer = utkastConsumer,
         httpClient = httpClient,
-        jwtAudience = "audience",
         jwkProvider = jwtStub.stubbedJwkProvider(),
-        jwtIssuer = testIssuer
+        jwtIssuer = testIssuer,
+        jwtAudience = "audience",
+        contentFetcher = contentFetcher
     )
 }
 
@@ -74,12 +64,4 @@ internal suspend fun HttpClient.authenticatedGet(urlString: String, token: Strin
     url(urlString)
     method = HttpMethod.Get
     header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
-}
-
-
-internal val tokenfetcherMock = mockk<TokenFetcher>().also {
-    coEvery { it.getUtkastApiToken(any()) } returns "<dummytoken>"
-    coEvery { it.getArbeidApiToken(any()) } returns "<dummytoken>"
-    coEvery { it.getDittnavApiToken(any()) } returns "<dummytoken>"
-    coEvery { it.getSykefravaerApiToken(any()) } returns "<dummytoken>"
 }

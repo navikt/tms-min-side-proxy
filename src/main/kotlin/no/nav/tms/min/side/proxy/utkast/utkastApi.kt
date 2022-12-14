@@ -8,17 +8,16 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.util.pipeline.PipelineContext
+import no.nav.tms.min.side.proxy.common.ContentFetcher
 import no.nav.tms.min.side.proxy.config.accessToken
 import no.nav.tms.min.side.proxy.config.proxyPath
 import org.slf4j.LoggerFactory
 
 
-fun Route.utkastApi(consumer: UtkastConsumer) {
-
-    val log = LoggerFactory.getLogger(UtkastConsumer::class.java)
+fun Route.utkastApi(contentFetcher: ContentFetcher) {
 
     get("/utkast/{proxyPath...}") {
-            val response = consumer.getContent(accessToken, proxyPath)
+            val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
             call.respond(response.status, response.readBytes())
     }
 }

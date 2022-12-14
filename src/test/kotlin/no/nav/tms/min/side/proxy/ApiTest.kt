@@ -1,6 +1,7 @@
 package no.nav.tms.min.side.proxy
 
 import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -9,50 +10,38 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import no.nav.tms.min.side.proxy.arbeid.ArbeidConsumer
-import no.nav.tms.min.side.proxy.dittnav.DittnavConsumer
-import no.nav.tms.min.side.proxy.sykefravaer.SykefravaerConsumer
-import no.nav.tms.min.side.proxy.utkast.UtkastConsumer
+import io.mockk.coEvery
+import io.mockk.mockk
+import no.nav.tms.min.side.proxy.common.ContentFetcher
+import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class ApiTest {
-    private val proxyBasePath = "http://proxy.test"
+
+    private val baseurl =
+        mapOf(
+            "arbeid" to "http://arbeid.test",
+            "dittnav" to "http://dittnav.test",
+            "sykefravaer" to "http://sykefravaer.test",
+            "utkast" to "http://utkast.test"
+        )
 
     /*
     * Dobbelsjekk av feilhåndtering og autentisering, kan slettes etterhvert
-    *
     * */
     @ParameterizedTest
-    @ValueSource(strings = ["arbeid", "dittnav", "sykefravaer", "utkast"])
-    fun `arbeidproxy api`(originalUrl: String) = testApplication {
+    @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav"])
+    fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
             httpClient = applicationhttpClient,
-            arbeidConsumer = ArbeidConsumer(
-                httpClient = applicationhttpClient, tokenFetcher = tokenfetcherMock,
-                baseUrl = proxyBasePath
-            ),
-            dittnavConsumer = DittnavConsumer(
-                httpClient = applicationhttpClient,
-                tokenFetcher = tokenfetcherMock,
-                baseUrl = proxyBasePath
-            ),
-            utkastConsumer = UtkastConsumer(
-                httpClient = applicationhttpClient,
-                tokenFetcher = tokenfetcherMock,
-                baseUrl = proxyBasePath
-            ),
-            sykefraværConsumer = SykefravaerConsumer(
-                httpClient = applicationhttpClient,
-                tokenFetcher = tokenfetcherMock,
-                baseUrl = proxyBasePath
-            )
+            contentFetcher = contentFecther(applicationhttpClient)
         )
 
         externalServices {
-            hosts(proxyBasePath) {
+            hosts(baseurl[tjenestePath]!!) {
                 routing {
                     get("/destination") {
                         call.respondRawJson(testContent)
@@ -67,18 +56,18 @@ class ApiTest {
             }
         }
 
-        client.authenticatedGet("/$originalUrl/destination").assert {
+        client.authenticatedGet("/$tjenestePath/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
-        client.authenticatedGet("/$originalUrl/nested/destination").assert {
+        client.authenticatedGet("/$tjenestePath/nested/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
 
-        client.get("/$originalUrl/something").status shouldBe HttpStatusCode.Unauthorized
-        client.authenticatedGet("/$originalUrl/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/$originalUrl/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.get("/$tjenestePath/something").status shouldBe HttpStatusCode.Unauthorized
+        client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
 
     }
 
@@ -88,19 +77,11 @@ class ApiTest {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
             httpClient = applicationhttpClient,
-            arbeidConsumer = ArbeidConsumer(
-                httpClient = applicationhttpClient, tokenFetcher = tokenfetcherMock,
-                baseUrl = "https://arbeid.test"
-            ),
-            utkastConsumer = UtkastConsumer(
-                httpClient = applicationhttpClient,
-                tokenFetcher = tokenfetcherMock,
-                baseUrl = proxyBasePath
-            )
+            contentFetcher = contentFecther(applicationhttpClient)
         )
 
         externalServices {
-            hosts(proxyBasePath) {
+            hosts(baseurl["utkast"]!!) {
                 routing {
                     get("") {
                         call.respond(HttpStatusCode.OK)
@@ -112,15 +93,25 @@ class ApiTest {
         client.authenticatedGet("/utkast").assert {
             status shouldBe HttpStatusCode.OK
         }
-
-        client.authenticatedGet("/arbeid").assert {
-            status shouldBe HttpStatusCode.NotFound
-        }
-
-
     }
 
+    private fun contentFecther(httpClient: HttpClient): ContentFetcher = ContentFetcher(
+        tokendingsService = tokendingsMock,
+        arbeidClientId = "arbeidclient",
+        arbeidBaseUrl = baseurl["arbeid"]!!,
+        dittnavClientId = "dittnavclient",
+        dittnavBaseUrl = baseurl["dittnav"]!!,
+        sykefravaerClientId = "sykefraværtclient",
+        sykefravaerBaseUrl = baseurl["sykefravaer"]!!,
+        utkastClientId = "utkastclient",
+        utkastBaseUrl = baseurl["utkast"]!!,
+        httpClient = httpClient,
+    )
 
 }
 
+
 private const val testContent = """{"testinnhold": "her testes det innhold"}"""
+private val tokendingsMock = mockk<TokendingsService>().apply {
+    coEvery { exchangeToken(any(), any()) } returns "<dummytoken>"
+}
