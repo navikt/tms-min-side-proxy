@@ -20,13 +20,13 @@ data class Environment(
     fun contentFecther(httpClient: HttpClient): ContentFetcher = ContentFetcher(
         tokendingsService = TokendingsServiceBuilder.buildTokendingsService(),
         arbeidClientId = arbeidApiClientId,
-        arbeidBaseUrl= arbeidApiBaseUrl,
+        arbeidBaseUrl = arbeidApiBaseUrl,
         dittnavClientId = dittnavApiClientId,
         dittnavBaseUrl = dittnavApiBaseUrl,
         sykefravaerClientId = sykefravaerApiClientId,
         sykefravaerBaseUrl = sykefravaerApiBaseUrl,
         utkastClientId = utkastClientId,
-        utkastBaseUrl = utkastBaseUrl,
+        utkastBaseUrl = "$utkastBaseUrl/utkast",
         httpClient = httpClient
     )
 }
