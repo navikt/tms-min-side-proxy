@@ -18,10 +18,7 @@ fun main() {
     val httpClient = HttpClientBuilder.build()
 
     val envConfig = applicationEngineEnvironment { envConfig(env, httpClient) }
-    embeddedServer(factory = Netty,environment = envConfig).start(wait = true).also {
-        println("starter med portconfig \n ${it.environment.config.port}")
-        println("starter med rootpah \n ${it.environment.rootPath}")
-    }
+    embeddedServer(factory = Netty,environment = envConfig).start(wait = true)
 }
 
 fun ApplicationEngineEnvironmentBuilder.envConfig(env: Environment, httpClient: HttpClient) {
@@ -33,5 +30,8 @@ fun ApplicationEngineEnvironmentBuilder.envConfig(env: Environment, httpClient: 
             httpClient = httpClient,
             contentFetcher = env.contentFecther(httpClient)
         )
+    }
+    connector {
+        port = 8080
     }
 }
