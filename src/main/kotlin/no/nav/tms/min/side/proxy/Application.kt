@@ -16,7 +16,7 @@ fun main() {
 
     embeddedServer(factory = Netty, port =  8080) {
         applicationEngineEnvironment {
-            rootPath = "/tms-min-side-proxy"
+            rootPath = "tms-min-side-proxy"
             module {
                 mainModule(
                     corsAllowedOrigins = env.corsAllowedOrigins,
