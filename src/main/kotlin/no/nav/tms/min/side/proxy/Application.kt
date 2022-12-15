@@ -1,6 +1,7 @@
 package no.nav.tms.min.side.proxy
 
 import io.ktor.client.HttpClient
+import io.ktor.server.application.port
 import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
 import io.ktor.server.engine.applicationEngineEnvironment
 import io.ktor.server.engine.connector
@@ -17,8 +18,9 @@ fun main() {
     val httpClient = HttpClientBuilder.build()
 
     val envConfig = applicationEngineEnvironment { envConfig(env, httpClient) }
-    embeddedServer(factory = Netty, environment = envConfig).start(wait = true).also {
-        println("starter med config \n ${envConfig.config.toMap()}")
+    embeddedServer(factory = Netty,environment = envConfig).start(wait = true).also {
+        println("starter med portconfig \n ${it.environment.config.port}")
+        println("starter med rootpah \n ${it.environment.rootPath}")
     }
 }
 
