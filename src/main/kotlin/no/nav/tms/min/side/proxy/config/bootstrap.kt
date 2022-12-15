@@ -1,28 +1,23 @@
 package no.nav.tms.min.side.proxy.config
 
 
-import com.auth0.jwk.JwkProvider
-import com.auth0.jwt.interfaces.Payload
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.principal
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.util.pipeline.PipelineContext
 import mu.KotlinLogging
@@ -70,9 +65,11 @@ fun Application.mainModule(
     }
 
     routing {
-        healthApi()
-        authenticate {
-            proxyApi(contentFetcher)
+        route("/tms-min-side-proxy") {
+            healthApi()
+            authenticate {
+                proxyApi(contentFetcher)
+            }
         }
     }
 
@@ -84,9 +81,3 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
         httpClient.close()
     }
 }
-
-internal val PipelineContext<Unit, ApplicationCall>.accessToken
-    get() = IdportenUserFactory.createIdportenUser(call).tokenString
-
-internal val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
-    get() = call.parameters.getAll("proxyPath")?.joinToString("/")

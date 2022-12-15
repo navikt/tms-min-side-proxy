@@ -13,7 +13,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.plugin
 import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.HttpMethodRouteSelector
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.Routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.mockk
 import no.nav.tms.min.side.proxy.config.jsonConfig
@@ -30,7 +34,7 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedOrigins: String = "*.nav.no",
     corsAllowedSchemes: String = "https",
     httpClient: HttpClient = mockk(),
-    contentFetcher : ContentFetcher
+    contentFetcher: ContentFetcher
 ) = application {
     mainModule(
         corsAllowedOrigins = corsAllowedOrigins,
@@ -42,11 +46,17 @@ internal fun ApplicationTestBuilder.mockApi(
                 alwaysAuthenticated = true
                 setAsDefault = true
                 staticSecurityLevel = SecurityLevel.LEVEL_3
-                staticUserPid="12345"
+                staticUserPid = "12345"
             }
         }
     )
+    val routes = allRoutes(plugin(Routing)).filter { it.selector is HttpMethodRouteSelector }
+    println(routes)
 }
+
+fun allRoutes(root: Route): List<Route> =
+    listOf(root) + root.children.flatMap { allRoutes(it) }
+
 
 fun ApplicationTestBuilder.testApplicationHttpClient() =
     createClient {
@@ -72,9 +82,10 @@ internal suspend fun HttpClient.authenticatedGet(urlString: String, token: Strin
     header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
 }
 
-internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken): HttpResponse = request {
-    url(urlString)
-    method = HttpMethod.Post
-    header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
-    setBody("""{"test":"testcontent"}""")
-}
+internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken): HttpResponse =
+    request {
+        url(urlString)
+        method = HttpMethod.Post
+        header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+        setBody("""{"test":"testcontent"}""")
+    }

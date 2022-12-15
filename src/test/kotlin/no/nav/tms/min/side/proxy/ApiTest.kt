@@ -13,6 +13,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import io.ktor.server.util.url
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.JsonElement
@@ -31,6 +32,7 @@ class ApiTest {
             "sykefravaer" to "http://sykefravaer.test",
             "utkast" to "http://utkast.test"
         )
+
     @ParameterizedTest
     @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
@@ -56,17 +58,17 @@ class ApiTest {
             }
         }
 
-        client.authenticatedGet("/$tjenestePath/destination").assert {
+        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
-        client.authenticatedGet("/$tjenestePath/nested/destination").assert {
+        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/nested/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
 
-        client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
     }
 
     @Test
@@ -79,7 +81,7 @@ class ApiTest {
         )
 
         externalServices {
-            hosts(baseurl["utkast"]!!) {
+            hosts(baseurl["utkast"]!!,baseurl["arbeid"]!!) {
                 routing {
                     get("") {
                         call.respond(HttpStatusCode.OK)
@@ -88,7 +90,7 @@ class ApiTest {
             }
         }
 
-        client.authenticatedGet("/utkast").assert {
+        client.authenticatedGet("/tms-min-side-proxy/utkast").assert {
             status shouldBe HttpStatusCode.OK
         }
     }
@@ -120,23 +122,34 @@ class ApiTest {
             }
         }
 
-        client.authenticatedPost("/$tjenestePath/destination").assert {
+        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/destination").assert {
             status shouldBe HttpStatusCode.OK
         }
-        client.authenticatedPost("/$tjenestePath/nested/destination").assert {
+        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/nested/destination").assert {
             status shouldBe HttpStatusCode.OK
         }
 
-        client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
 
     }
 
+    @Test
+    fun healtApiTest() = testApplication {
+        val applicationhttpClient = testApplicationHttpClient()
+        mockApi(
+            httpClient = applicationhttpClient,
+            contentFetcher = contentFecther(applicationhttpClient)
+        )
+        client.get("/tms-min-side-proxy/internal/isAlive").status shouldBe HttpStatusCode.OK
+        client.get("/tms-min-side-proxy/internal/isReady").status shouldBe HttpStatusCode.OK
+        client.get("/tms-min-side-proxy/internal/ping").status shouldBe HttpStatusCode.OK
+    }
     private fun checkJson(receiveText: String) {
-        if(receiveText=="") throw AssertionError ("Post kall har ikke sendt med body")
+        if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
         try {
             jsonConfig().parseToJsonElement(receiveText)
-        } catch (_: Exception){
+        } catch (_: Exception) {
             throw AssertionError("Post kall har sendt ugyldig json:\n$receiveText ")
         }
     }
