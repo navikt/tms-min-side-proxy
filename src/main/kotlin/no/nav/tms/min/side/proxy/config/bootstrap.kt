@@ -65,11 +65,9 @@ fun Application.mainModule(
     }
 
     routing {
-        route("/tms-min-side-proxy") {
-            healthApi()
-            authenticate {
-                proxyApi(contentFetcher)
-            }
+        healthApi()
+        authenticate {
+            proxyApi(contentFetcher)
         }
     }
 

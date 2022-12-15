@@ -58,17 +58,17 @@ class ApiTest {
             }
         }
 
-        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/destination").assert {
+        client.authenticatedGet("/$tjenestePath/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
-        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/nested/destination").assert {
+        client.authenticatedGet("/$tjenestePath/nested/destination").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe testContent
         }
 
-        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/tms-min-side-proxy/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
     }
 
     @Test
@@ -90,7 +90,7 @@ class ApiTest {
             }
         }
 
-        client.authenticatedGet("/tms-min-side-proxy/utkast").assert {
+        client.authenticatedGet("/utkast").assert {
             status shouldBe HttpStatusCode.OK
         }
     }
@@ -122,15 +122,15 @@ class ApiTest {
             }
         }
 
-        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/destination").assert {
+        client.authenticatedPost("/$tjenestePath/destination").assert {
             status shouldBe HttpStatusCode.OK
         }
-        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/nested/destination").assert {
+        client.authenticatedPost("/$tjenestePath/nested/destination").assert {
             status shouldBe HttpStatusCode.OK
         }
 
-        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedPost("/tms-min-side-proxy/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
+        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
 
     }
 
@@ -141,9 +141,9 @@ class ApiTest {
             httpClient = applicationhttpClient,
             contentFetcher = contentFecther(applicationhttpClient)
         )
-        client.get("/tms-min-side-proxy/internal/isAlive").status shouldBe HttpStatusCode.OK
-        client.get("/tms-min-side-proxy/internal/isReady").status shouldBe HttpStatusCode.OK
-        client.get("/tms-min-side-proxy/internal/ping").status shouldBe HttpStatusCode.OK
+        client.get("/internal/isAlive").status shouldBe HttpStatusCode.OK
+        client.get("/internal/isReady").status shouldBe HttpStatusCode.OK
+        client.get("/internal/ping").status shouldBe HttpStatusCode.OK
     }
     private fun checkJson(receiveText: String) {
         if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
