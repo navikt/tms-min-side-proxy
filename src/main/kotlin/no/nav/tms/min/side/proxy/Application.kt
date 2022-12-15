@@ -17,7 +17,9 @@ fun main() {
     val httpClient = HttpClientBuilder.build()
 
     val envConfig = applicationEngineEnvironment { envConfig(env, httpClient) }
-    embeddedServer(factory = Netty, environment = envConfig).start(wait = true)
+    embeddedServer(factory = Netty, environment = envConfig).start(wait = true).also {
+        println("starter med config \n ${envConfig.config.toMap()}")
+    }
 }
 
 fun ApplicationEngineEnvironmentBuilder.envConfig(env: Environment, httpClient: HttpClient) {
