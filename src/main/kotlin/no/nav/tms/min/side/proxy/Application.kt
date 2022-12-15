@@ -14,7 +14,7 @@ fun main() {
     val env = Environment()
     val httpClient = HttpClientBuilder.build()
 
-    embeddedServer(factory = Netty, port =  8101) {
+    embeddedServer(factory = Netty, port =  8080) {
         applicationEngineEnvironment {
             rootPath = "/tms-min-side-proxy"
             module {
