@@ -19,6 +19,8 @@ import io.mockk.mockk
 import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.min.side.proxy.config.mainModule
 import no.nav.tms.min.side.proxy.utkast.JwtStub
+import no.nav.tms.token.support.idporten.sidecar.mock.SecurityLevel
+import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 
 private const val testIssuer = "test-issuer"
 private val jwtStub = JwtStub(testIssuer)
@@ -34,10 +36,15 @@ internal fun ApplicationTestBuilder.mockApi(
         corsAllowedOrigins = corsAllowedOrigins,
         corsAllowedSchemes = corsAllowedSchemes,
         httpClient = httpClient,
-        jwkProvider = jwtStub.stubbedJwkProvider(),
-        jwtIssuer = testIssuer,
-        jwtAudience = "audience",
-        contentFetcher = contentFetcher
+        contentFetcher = contentFetcher,
+        idportenAuthInstaller = {
+            installIdPortenAuthMock {
+                alwaysAuthenticated = true
+                setAsDefault = true
+                staticSecurityLevel = SecurityLevel.LEVEL_3
+                staticUserPid="12345"
+            }
+        }
     )
 }
 

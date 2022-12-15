@@ -31,10 +31,6 @@ class ApiTest {
             "sykefravaer" to "http://sykefravaer.test",
             "utkast" to "http://utkast.test"
         )
-
-    /*
-    * Dobbelsjekk av feilhåndtering og autentisering, kan slettes etterhvert
-    * */
     @ParameterizedTest
     @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
@@ -69,10 +65,8 @@ class ApiTest {
             bodyAsText() shouldBe testContent
         }
 
-        client.get("/$tjenestePath/something").status shouldBe HttpStatusCode.Unauthorized
         client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
         client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
-
     }
 
     @Test
@@ -133,14 +127,13 @@ class ApiTest {
             status shouldBe HttpStatusCode.OK
         }
 
-        client.post("/$tjenestePath/something").status shouldBe HttpStatusCode.Unauthorized
         client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
         client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
 
     }
 
     private fun checkJson(receiveText: String) {
-        if(receiveText=="") throw AssertionError ("Post kall har ikke send med body")
+        if(receiveText=="") throw AssertionError ("Post kall har ikke sendt med body")
         try {
             jsonConfig().parseToJsonElement(receiveText)
         } catch (_: Exception){

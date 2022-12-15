@@ -17,7 +17,6 @@ import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.Principal
 import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.auth.principal
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
@@ -29,32 +28,36 @@ import io.ktor.util.pipeline.PipelineContext
 import mu.KotlinLogging
 import no.nav.tms.min.side.proxy.proxyApi
 import no.nav.tms.min.side.proxy.ContentFetcher
+import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
+import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
 private val log = KotlinLogging.logger {}
 fun Application.mainModule(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
     httpClient: HttpClient,
-    jwkProvider: JwkProvider,
-    jwtIssuer: String,
-    jwtAudience: String,
-    contentFetcher: ContentFetcher
+    contentFetcher: ContentFetcher,
+    idportenAuthInstaller: Application.() -> Unit = {
+        installIdPortenAuth {
+            setAsDefault = true
+            loginLevel = LEVEL_3
+        }
+    }
 ) {
 
     install(DefaultHeaders)
+
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            when (cause) {
-                is CookieNotSetException -> call.respond(HttpStatusCode.Unauthorized)
-                else -> {
-                    log.info {
-                        "Ukjent feil i proxy ${cause.message}"
-                    }
-                }
+            log.info {
+                "Ukjent feil i proxy ${cause.message}"
             }
+            call.respond(HttpStatusCode.InternalServerError)
         }
     }
 
+    idportenAuthInstaller()
     install(CORS) {
         allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
         allowCredentials = true
@@ -64,30 +67,6 @@ fun Application.mainModule(
 
     install(ContentNegotiation) {
         json(jsonConfig())
-    }
-
-
-    install(Authentication) {
-        jwt {
-            verifier(jwkProvider, jwtIssuer) {
-                withAudience(jwtAudience)
-            }
-
-            authHeader {
-                val cookie = it.request.cookies["selvbetjening-idtoken"] ?: throw CookieNotSetException()
-                HttpAuthHeader.Single("Bearer", cookie)
-            }
-
-            validate { credentials ->
-                requireNotNull(credentials.payload.claims["pid"]) {
-                    "Token må inneholde fødselsnummer i pid claim"
-                }
-                PrincipalWithTokenString(
-                    accessToken = request.cookies["selvbetjening-idtoken"] ?: throw CookieNotSetException(),
-                    payload = credentials.payload
-                )
-            }
-        }
     }
 
     routing {
@@ -106,12 +85,8 @@ private fun Application.configureShutdownHook(httpClient: HttpClient) {
     }
 }
 
-class CookieNotSetException : Throwable() {}
-data class PrincipalWithTokenString(val accessToken: String, val payload: Payload) : Principal
-
-internal val PipelineContext<Unit, ApplicationCall>.accessToken: String
-    get() = call.principal<PrincipalWithTokenString>()?.accessToken
-        ?: throw Exception("Principal har ikke blitt satt for authentication context.")
+internal val PipelineContext<Unit, ApplicationCall>.accessToken
+    get() = IdportenUserFactory.createIdportenUser(call).tokenString
 
 internal val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
     get() = call.parameters.getAll("proxyPath")?.joinToString("/")

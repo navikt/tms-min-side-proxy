@@ -43,6 +43,7 @@ dependencies {
     implementation(Ktor2.kotlinX)
     implementation(Ktor2.Server.contentNegotiation)
     implementation(Ktor2.TmsTokenSupport.tokendingsExchange)
+    implementation(Ktor2.TmsTokenSupport.idportenSidecar)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
 
@@ -50,7 +51,6 @@ dependencies {
     testImplementation(Ktor2.Test.clientMock)
     testImplementation(Ktor2.Test.serverTestHost)
     testImplementation(Kotest.assertionsCore)
-    testImplementation("io.ktor:ktor-server-tests-jvm:2.1.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.7.10")
 
 
@@ -60,6 +60,7 @@ dependencies {
     testImplementation(Jjwt.api)
     testImplementation(NAV.tokenValidatorKtor)
     testImplementation(Mockk.mockk)
+    testImplementation("com.github.navikt.tms-ktor-token-support:token-support-idporten-sidecar-mock:2.0.0")
 
 
 }
