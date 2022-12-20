@@ -1,4 +1,4 @@
-package no.nav.tms.min.side.proxy.config
+package no.nav.tms.min.side.proxy
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -9,7 +9,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 
 
-fun Route.healthApi() {
+fun Route.healthRoutes() {
 
     val pingJsonResponse = """{"ping": "pong"}"""
 

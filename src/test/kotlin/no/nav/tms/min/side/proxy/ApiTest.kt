@@ -3,7 +3,6 @@ package no.nav.tms.min.side.proxy
 import io.kotest.matchers.shouldBe
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
-import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -13,11 +12,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import io.ktor.server.util.url
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.serialization.json.JsonElement
-import no.nav.tms.min.side.proxy.config.jsonConfig
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -38,7 +34,6 @@ class ApiTest {
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
-            httpClient = applicationhttpClient,
             contentFetcher = contentFecther(applicationhttpClient)
         )
 
@@ -75,13 +70,10 @@ class ApiTest {
     fun `proxy til baseurl for destinasjonstjeneste`() = testApplication {
 
         val applicationhttpClient = testApplicationHttpClient()
-        mockApi(
-            httpClient = applicationhttpClient,
-            contentFetcher = contentFecther(applicationhttpClient)
-        )
+        mockApi(contentFetcher = contentFecther(applicationhttpClient))
 
         externalServices {
-            hosts(baseurl["utkast"]!!,baseurl["arbeid"]!!) {
+            hosts(baseurl["utkast"]!!, baseurl["arbeid"]!!) {
                 routing {
                     get("") {
                         call.respond(HttpStatusCode.OK)
@@ -99,10 +91,7 @@ class ApiTest {
     fun `proxy post`() = testApplication {
         val tjenestePath = "dittnav"
         val applicationhttpClient = testApplicationHttpClient()
-        mockApi(
-            httpClient = applicationhttpClient,
-            contentFetcher = contentFecther(applicationhttpClient)
-        )
+        mockApi(contentFetcher = contentFecther(applicationhttpClient))
 
         externalServices {
             hosts(baseurl[tjenestePath]!!) {
@@ -137,14 +126,13 @@ class ApiTest {
     @Test
     fun healtApiTest() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
-        mockApi(
-            httpClient = applicationhttpClient,
-            contentFetcher = contentFecther(applicationhttpClient)
-        )
+        mockApi(contentFetcher = contentFecther(applicationhttpClient))
+
         client.get("/internal/isAlive").status shouldBe HttpStatusCode.OK
         client.get("/internal/isReady").status shouldBe HttpStatusCode.OK
         client.get("/internal/ping").status shouldBe HttpStatusCode.OK
     }
+
     private fun checkJson(receiveText: String) {
         if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
         try {

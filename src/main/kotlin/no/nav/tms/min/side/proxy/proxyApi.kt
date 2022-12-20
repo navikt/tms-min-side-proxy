@@ -1,49 +1,72 @@
 package no.nav.tms.min.side.proxy
 
-import io.ktor.client.statement.readBytes
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveText
+
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.util.pipeline.PipelineContext
-import no.nav.tms.min.side.proxy.config.jsonConfig
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
+import io.ktor.server.routing.routing
+import mu.KotlinLogging
+import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
+import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 
-fun Route.proxyApi(contentFetcher: ContentFetcher) {
+private val log = KotlinLogging.logger {}
+fun Application.proxyApi(
+    corsAllowedOrigins: String,
+    corsAllowedSchemes: String,
+    contentFetcher: ContentFetcher,
+    idportenAuthInstaller: Application.() -> Unit = {
+        installIdPortenAuth {
+            setAsDefault = true
+            loginLevel = LEVEL_3
+        }
+    }
+) {
 
-    get("/arbeid/{proxyPath...}") {
-        val response = contentFetcher.getArbeidContent(accessToken, proxyPath)
-        call.respond(response.status, response.readBytes())
+    install(DefaultHeaders)
+
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            log.info {
+                "Ukjent feil i proxy ${cause.message}"
+            }
+            call.respond(HttpStatusCode.InternalServerError)
+        }
     }
 
-    get("/dittnav/{proxyPath...}") {
-        val response = contentFetcher.getDittNavContent(accessToken, proxyPath)
-        call.respond(response.status, response.readBytes())
+    idportenAuthInstaller()
+    install(CORS) {
+        allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
+        allowCredentials = true
+        allowHeader(HttpHeaders.ContentType)
+        allowMethod(HttpMethod.Options)
     }
 
-    post("/dittnav/{proxyPath...}") {
-        val content = jsonConfig().parseToJsonElement(call.receiveText())
-        val response = contentFetcher.postDittNavContent(accessToken, content, proxyPath)
-        call.respond(response.status)
-    }
-    get("/sykefravaer/{proxyPath...}") {
-        val response = contentFetcher.getSykefravaerContent(accessToken, proxyPath)
-        call.respond(response.status, response.readBytes())
+    install(ContentNegotiation) {
+        json(jsonConfig())
     }
 
-    get("/utkast/{proxyPath...}") {
-        val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
-        call.respond(response.status, response.readBytes())
+    routing {
+        healthRoutes()
+        authenticate {
+            proxyRoutes(contentFetcher)
+        }
     }
+
+    configureShutdownHook(contentFetcher)
 }
 
-
-
-private val PipelineContext<Unit, ApplicationCall>.accessToken
-    get() = IdportenUserFactory.createIdportenUser(call).tokenString
-
-private val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
-    get() = call.parameters.getAll("proxyPath")?.joinToString("/")
+private fun Application.configureShutdownHook(contentFetcher: ContentFetcher) {
+    environment.monitor.subscribe(ApplicationStopping) {
+        contentFetcher.shutDown()
+    }
+}

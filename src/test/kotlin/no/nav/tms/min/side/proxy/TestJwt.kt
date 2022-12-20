@@ -1,4 +1,4 @@
-package no.nav.tms.min.side.proxy.utkast
+package no.nav.tms.min.side.proxy
 
 import com.auth0.jwk.Jwk
 import com.auth0.jwk.JwkProvider
@@ -97,13 +97,6 @@ object AuthenticatedUserFactory {
         val loginLevel =
             extractLoginLevel(principal.payload)
         return AuthenticatedUser(ident, loginLevel, principal.accessToken)
-    }
-
-    fun createNewAuthenticatedUser(call: ApplicationCall): AuthenticatedUser {
-        val principal = call.principal<PrincipalWithTokenString>()
-            ?: throw Exception("Principal har ikke blitt satt for authentication context.")
-
-        return createNewAuthenticatedUser(principal)
     }
 
     private fun extractLoginLevel(payload: Payload): Int {

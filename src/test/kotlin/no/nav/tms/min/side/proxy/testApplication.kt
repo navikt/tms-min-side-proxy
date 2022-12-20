@@ -13,16 +13,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.plugin
 import io.ktor.server.response.respondBytes
-import io.ktor.server.routing.HttpMethodRouteSelector
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.Routing
 import io.ktor.server.testing.ApplicationTestBuilder
-import io.mockk.mockk
-import no.nav.tms.min.side.proxy.config.jsonConfig
-import no.nav.tms.min.side.proxy.config.mainModule
-import no.nav.tms.min.side.proxy.utkast.JwtStub
 import no.nav.tms.token.support.idporten.sidecar.mock.SecurityLevel
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 
@@ -33,13 +25,11 @@ private val stubToken = jwtStub.createTokenFor("subject", "audience")
 internal fun ApplicationTestBuilder.mockApi(
     corsAllowedOrigins: String = "*.nav.no",
     corsAllowedSchemes: String = "https",
-    httpClient: HttpClient = mockk(),
     contentFetcher: ContentFetcher
 ) = application {
-    mainModule(
+    proxyApi(
         corsAllowedOrigins = corsAllowedOrigins,
         corsAllowedSchemes = corsAllowedSchemes,
-        httpClient = httpClient,
         contentFetcher = contentFetcher,
         idportenAuthInstaller = {
             installIdPortenAuthMock {
@@ -50,12 +40,7 @@ internal fun ApplicationTestBuilder.mockApi(
             }
         }
     )
-    val routes = allRoutes(plugin(Routing)).filter { it.selector is HttpMethodRouteSelector }
-    println(routes)
 }
-
-fun allRoutes(root: Route): List<Route> =
-    listOf(root) + root.children.flatMap { allRoutes(it) }
 
 
 fun ApplicationTestBuilder.testApplicationHttpClient() =
