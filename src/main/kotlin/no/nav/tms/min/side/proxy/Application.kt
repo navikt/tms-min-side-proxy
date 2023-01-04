@@ -50,7 +50,7 @@ data class AppConfiguration(
         sykefravaerClientId = sykefravaerApiClientId,
         sykefravaerBaseUrl = sykefravaerApiBaseUrl,
         utkastClientId = utkastClientId,
-        utkastBaseUrl = "$utkastBaseUrl/utkast",
+        utkastBaseUrl = utkastBaseUrl,
         httpClient = httpClient
     )
 }
