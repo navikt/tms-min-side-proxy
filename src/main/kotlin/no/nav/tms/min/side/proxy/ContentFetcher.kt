@@ -26,6 +26,8 @@ class ContentFetcher(
     private val sykefravaerBaseUrl: String,
     private val utkastClientId: String,
     private val utkastBaseUrl: String,
+    private val personaliaClientId: String,
+    private val personaliaBaseUrl: String,
     private val httpClient: HttpClient
 ) {
 
@@ -61,6 +63,14 @@ class ContentFetcher(
         val exchangedToken = tokendingsService.exchangeToken(token, targetApp = dittnavClientId)
         return httpClient.post("$dittnavBaseUrl/$proxyPath", content, exchangedToken)
     }
+
+    suspend fun getPersonaliaContent(token: String, proxyPath: String?): HttpResponse =
+        getContent(
+            userToken = token,
+            targetAppId = personaliaClientId,
+            baseUrl = personaliaBaseUrl,
+            proxyPath = proxyPath
+        )
 
     private suspend fun getContent(
         userToken: String,

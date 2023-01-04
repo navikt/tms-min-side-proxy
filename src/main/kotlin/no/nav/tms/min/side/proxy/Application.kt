@@ -32,6 +32,8 @@ data class AppConfiguration(
     private val sykefravaerApiBaseUrl: String = StringEnvVar.getEnvVar("SYKEFRAVAER_API_URL"),
     private val utkastClientId: String = StringEnvVar.getEnvVar("UTKAST_CLIENT_ID"),
     private val utkastBaseUrl: String = StringEnvVar.getEnvVar("UTKAST_BASE_URL"),
+    private val personaliaClientId: String = StringEnvVar.getEnvVar("PERSONALIA_CLIENT_ID"),
+    private val personaliaBaseUrl: String = StringEnvVar.getEnvVar("PERSONALIA_BASE_URL"),
 ) {
 
     private val httpClient = HttpClient(Apache.create()) {
@@ -51,6 +53,8 @@ data class AppConfiguration(
         sykefravaerBaseUrl = sykefravaerApiBaseUrl,
         utkastClientId = utkastClientId,
         utkastBaseUrl = utkastBaseUrl,
+        personaliaClientId = personaliaClientId,
+        personaliaBaseUrl = personaliaBaseUrl,
         httpClient = httpClient
     )
 }

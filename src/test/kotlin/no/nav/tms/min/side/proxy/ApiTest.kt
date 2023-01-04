@@ -26,11 +26,12 @@ class ApiTest {
             "arbeid" to "http://arbeid.test",
             "dittnav" to "http://dittnav.test",
             "sykefravaer" to "http://sykefravaer.test",
-            "utkast" to "http://utkast.test"
+            "utkast" to "http://utkast.test",
+            "personalia" to "http://personalia.test"
         )
 
     @ParameterizedTest
-    @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav"])
+    @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav", "personalia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
@@ -132,6 +133,8 @@ class ApiTest {
         sykefravaerBaseUrl = baseurl["sykefravaer"]!!,
         utkastClientId = "utkastclient",
         utkastBaseUrl = baseurl["utkast"]!!,
+        personaliaClientId = "personalia",
+        personaliaBaseUrl = baseurl["personalia"]!!,
         httpClient = httpClient,
     )
 
