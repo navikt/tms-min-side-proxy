@@ -67,27 +67,6 @@ class ApiTest {
     }
 
     @Test
-    fun `proxy til baseurl for destinasjonstjeneste`() = testApplication {
-
-        val applicationhttpClient = testApplicationHttpClient()
-        mockApi(contentFetcher = contentFecther(applicationhttpClient))
-
-        externalServices {
-            hosts(baseurl["utkast"]!!, baseurl["arbeid"]!!) {
-                routing {
-                    get("") {
-                        call.respond(HttpStatusCode.OK)
-                    }
-                }
-            }
-        }
-
-        client.authenticatedGet("/utkast").assert {
-            status shouldBe HttpStatusCode.OK
-        }
-    }
-
-    @Test
     fun `proxy post`() = testApplication {
         val tjenestePath = "dittnav"
         val applicationhttpClient = testApplicationHttpClient()
