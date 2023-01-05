@@ -2,13 +2,10 @@ package no.nav.tms.min.side.proxy
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.request
-import io.ktor.client.request.setBody
-import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.client.request.*
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +19,8 @@ class ContentFetcher(
     private val arbeidBaseUrl: String,
     private val dittnavClientId: String,
     private val dittnavBaseUrl: String,
+    private val meldekortClientId: String,
+    private val meldekortBaseUrl: String,
     private val sykefravaerClientId: String,
     private val sykefravaerBaseUrl: String,
     private val utkastClientId: String,
@@ -69,18 +68,28 @@ class ContentFetcher(
             userToken = token,
             targetAppId = personaliaClientId,
             baseUrl = personaliaBaseUrl,
-            proxyPath = proxyPath
+            proxyPath = proxyPath,
+        )
+
+    suspend fun getMeldekortContent(token: String, proxyPath: String?): HttpResponse =
+        getContent(
+            userToken = token,
+            targetAppId = meldekortClientId,
+            baseUrl = meldekortBaseUrl,
+            proxyPath = proxyPath,
+            header = "TokenXAuthorization",
         )
 
     private suspend fun getContent(
         userToken: String,
         targetAppId: String,
         baseUrl: String,
-        proxyPath: String?
+        proxyPath: String?,
+        header: String = HttpHeaders.Authorization
     ): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return httpClient.get(url, exchangedToken)
+        return httpClient.get(url, header, exchangedToken)
     }
 
     fun shutDown() {
@@ -89,13 +98,14 @@ class ContentFetcher(
 
 }
 
-suspend inline fun <reified T> HttpClient.get(url: String, accessToken: String): T = withContext(Dispatchers.IO) {
-    request {
-        url(url)
-        method = HttpMethod.Get
-        header(HttpHeaders.Authorization, "Bearer $accessToken")
-    }.body()
-}
+suspend inline fun <reified T> HttpClient.get(url: String, authorizationHeader: String, accessToken: String): T =
+    withContext(Dispatchers.IO) {
+        request {
+            url(url)
+            method = HttpMethod.Get
+            header(authorizationHeader, "Bearer $accessToken")
+        }.body()
+    }
 
 suspend inline fun <reified T> HttpClient.post(url: String, content: JsonElement, accessToken: String): T =
     withContext(Dispatchers.IO) {
