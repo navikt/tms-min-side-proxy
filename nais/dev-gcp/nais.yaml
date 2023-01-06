@@ -42,3 +42,4 @@ spec:
     outbound:
       rules:
         - application: tms-utkast
+        - application: tms-personalia-api

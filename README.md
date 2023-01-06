@@ -1,5 +1,7 @@
 # tms-min-side-proxy
 
+min-side-proxy er for min-side og undersider som treffer flere backends
+
 # Kom i gang
 1. Bygg tms-min-side-proxy ved å kjøre `gradle build`
 1. Start appen lokalt ved å kjøre `gradle runServer`
