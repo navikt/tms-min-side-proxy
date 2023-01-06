@@ -43,3 +43,5 @@ spec:
       rules:
         - application: tms-utkast
         - application: tms-personalia-api
+        - application: meldekort-api
+          namespace: meldekort
