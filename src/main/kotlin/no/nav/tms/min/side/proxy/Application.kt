@@ -24,6 +24,8 @@ fun main() {
 data class AppConfiguration(
     val corsAllowedOrigins: String = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
     val corsAllowedSchemes: String = StringEnvVar.getEnvVar("CORS_ALLOWED_SCHEMES"),
+    private val aapBaseUrl: String = StringEnvVar.getEnvVar("AAP_BASE_URL"),
+    private val aapClientId: String = StringEnvVar.getEnvVar("AAP_CLIENT_ID"),
     private val arbeidApiBaseUrl: String = StringEnvVar.getEnvVar("ARBEID_API_URL"),
     private val arbeidApiClientId: String = StringEnvVar.getEnvVar("ARBEID_API_CLIENT_ID"),
     private val dittnavApiClientId: String = StringEnvVar.getEnvVar("DITTNAV_API_CLIENT_ID"),
@@ -47,6 +49,8 @@ data class AppConfiguration(
 
     val contentFecther = ContentFetcher(
         tokendingsService = TokendingsServiceBuilder.buildTokendingsService(),
+        aapClientId = aapClientId,
+        aapBaseUrl = aapBaseUrl,
         arbeidClientId = arbeidApiClientId,
         arbeidBaseUrl = arbeidApiBaseUrl,
         dittnavClientId = dittnavApiClientId,

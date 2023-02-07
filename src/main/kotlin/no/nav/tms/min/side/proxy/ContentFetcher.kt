@@ -15,6 +15,8 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
 class ContentFetcher(
     private val tokendingsService: TokendingsService,
+    private val aapClientId: String,
+    private val aapBaseUrl: String,
     private val arbeidClientId: String,
     private val arbeidBaseUrl: String,
     private val dittnavClientId: String,
@@ -78,6 +80,14 @@ class ContentFetcher(
             baseUrl = meldekortBaseUrl,
             proxyPath = proxyPath,
             header = "TokenXAuthorization",
+        )
+
+    suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
+        getContent(
+            userToken = token,
+            targetAppId = aapClientId,
+            baseUrl = aapBaseUrl,
+            proxyPath = proxyPath,
         )
 
     private suspend fun getContent(

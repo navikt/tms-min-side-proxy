@@ -45,3 +45,5 @@ spec:
         - application: tms-personalia-api
         - application: meldekort-api-q2
           namespace: meldekort
+        - application: soknad-api
+          namespace: aap
