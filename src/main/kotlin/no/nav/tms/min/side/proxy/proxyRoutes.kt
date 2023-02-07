@@ -13,6 +13,11 @@ import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
 fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
 
+    get("/aap/{proxyPath...}") {
+        val response = contentFetcher.getAapContent(accessToken, proxyPath)
+        call.respond(response.status, response.readBytes())
+    }
+
     get("/arbeid/{proxyPath...}") {
         val response = contentFetcher.getArbeidContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
