@@ -23,6 +23,7 @@ class ApiTest {
 
     private val baseurl =
         mapOf(
+            "aap" to "http://aap.test",
             "arbeid" to "http://arbeid.test",
             "dittnav" to "http://dittnav.test",
             "meldekort" to "http://meldekort.test",
@@ -32,7 +33,7 @@ class ApiTest {
         )
 
     @ParameterizedTest
-    @ValueSource(strings = ["arbeid", "utkast", "sykefravaer", "dittnav", "personalia", "meldekort"])
+    @ValueSource(strings = ["aap", "arbeid", "utkast", "sykefravaer", "dittnav", "personalia", "meldekort"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
@@ -126,6 +127,8 @@ class ApiTest {
 
     private fun contentFecther(httpClient: HttpClient): ContentFetcher = ContentFetcher(
         tokendingsService = tokendingsMock,
+        aapBaseUrl = baseurl["aap"]!!,
+        aapClientId = "aapclient",
         arbeidClientId = "arbeidclient",
         arbeidBaseUrl = baseurl["arbeid"]!!,
         dittnavClientId = "dittnavclient",
