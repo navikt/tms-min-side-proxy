@@ -43,6 +43,7 @@ spec:
       rules:
         - application: tms-utkast
         - application: tms-personalia-api
+        - application: tms-mikrofrontend-selector
         - application: meldekort-api-q2
           namespace: meldekort
         - application: soknad-api

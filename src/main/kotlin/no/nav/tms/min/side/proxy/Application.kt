@@ -34,6 +34,8 @@ data class AppConfiguration(
     private val utkastBaseUrl: String = StringEnvVar.getEnvVar("UTKAST_BASE_URL"),
     private val personaliaClientId: String = StringEnvVar.getEnvVar("PERSONALIA_CLIENT_ID"),
     private val personaliaBaseUrl: String = StringEnvVar.getEnvVar("PERSONALIA_BASE_URL"),
+    private val mikrofrontendSelectorClientId: String = StringEnvVar.getEnvVar("MIKROFRONTEND_SELCTOR_CLIENT_ID"),
+    private val mikrofrontendSelectorBaseUrl: String = StringEnvVar.getEnvVar("MIKROFRONTEND_SELCTOR_BASE_URL"),
 ) {
 
     private val httpClient = HttpClient(Apache.create()) {
@@ -55,6 +57,8 @@ data class AppConfiguration(
         utkastBaseUrl = utkastBaseUrl,
         personaliaClientId = personaliaClientId,
         personaliaBaseUrl = personaliaBaseUrl,
+        mikrofrontendSelectorClientId = mikrofrontendSelectorClientId,
+        mikrofrontendSelectorBaseUrl = mikrofrontendSelectorBaseUrl,
         httpClient = httpClient
     )
 }
