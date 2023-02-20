@@ -25,8 +25,8 @@ class ContentFetcher(
     private val utkastBaseUrl: String,
     private val personaliaClientId: String,
     private val personaliaBaseUrl: String,
-    private val mikrofrontendSelectorClientId: String,
-    private val mikrofrontendSelectorBaseUrl: String,
+    private val selectorClientId: String,
+    private val selectorBaseUrl: String,
     private val httpClient: HttpClient
 ) {
 
@@ -74,8 +74,8 @@ class ContentFetcher(
     suspend fun getProfilContent(token: String, proxyPath: String?): HttpResponse =
         getContent(
             userToken = token,
-            targetAppId = mikrofrontendSelectorClientId,
-            baseUrl = mikrofrontendSelectorBaseUrl,
+            targetAppId = selectorClientId,
+            baseUrl = selectorBaseUrl,
             proxyPath = proxyPath,
         )
 
