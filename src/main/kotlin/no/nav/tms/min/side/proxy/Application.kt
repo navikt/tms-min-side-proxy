@@ -36,6 +36,8 @@ data class AppConfiguration(
     private val personaliaBaseUrl: String = StringEnvVar.getEnvVar("PERSONALIA_BASE_URL"),
     private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
+    private val varselClientId: String = StringEnvVar.getEnvVar("VARSEL_CLIENT_ID"),
+    private val varselBaseUrl: String = StringEnvVar.getEnvVar("VARSEL_BASE_URL"),
 ) {
 
     private val httpClient = HttpClient(Apache.create()) {
@@ -59,6 +61,8 @@ data class AppConfiguration(
         personaliaBaseUrl = personaliaBaseUrl,
         selectorClientId = selectorClientId,
         selectorBaseUrl = selectorBaseUrl,
+        varselClientId = varselClientId,
+        varselBaseUrl = varselBaseUrl,
         httpClient = httpClient
     )
 }

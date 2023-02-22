@@ -48,6 +48,11 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
         val response = contentFetcher.getProfilContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
     }
+
+    get("/varsel/{proxyPath...}") {
+        val response = contentFetcher.getVarselContent(accessToken, proxyPath)
+        call.respond(response.status, response.readBytes())
+    }
 }
 
 

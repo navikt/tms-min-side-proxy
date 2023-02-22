@@ -27,6 +27,8 @@ class ContentFetcher(
     private val personaliaBaseUrl: String,
     private val selectorClientId: String,
     private val selectorBaseUrl: String,
+    private val varselClientId: String,
+    private val varselBaseUrl: String,
     private val httpClient: HttpClient
 ) {
 
@@ -76,6 +78,14 @@ class ContentFetcher(
             userToken = token,
             targetAppId = selectorClientId,
             baseUrl = selectorBaseUrl,
+            proxyPath = proxyPath,
+        )
+
+    suspend fun getVarselContent(token: String, proxyPath: String?): HttpResponse =
+        getContent(
+            userToken = token,
+            targetAppId = varselClientId,
+            baseUrl = varselBaseUrl,
             proxyPath = proxyPath,
         )
 
