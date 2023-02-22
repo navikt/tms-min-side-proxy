@@ -6,11 +6,13 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.client.request.*
+import io.ktor.client.statement.request
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
+import mu.KotlinLogging
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
 class ContentFetcher(
@@ -31,6 +33,8 @@ class ContentFetcher(
     private val varselBaseUrl: String,
     private val httpClient: HttpClient
 ) {
+
+    private val log = KotlinLogging.logger {}
 
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         getContent(userToken = token, targetAppId = utkastClientId, baseUrl = utkastBaseUrl, proxyPath = proxyPath)
@@ -98,7 +102,11 @@ class ContentFetcher(
     ): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return httpClient.get(url, header, exchangedToken)
+        return httpClient.get<HttpResponse>(url, header, exchangedToken).also {
+            if(it.status.value != 200) {
+                log.warn { "Request til ${it.request.url} feiler med ${it.status.value}" }
+            }
+        }
     }
 
     fun shutDown() {
