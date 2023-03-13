@@ -12,6 +12,8 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.serialization.json.Json
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
+import no.nav.tms.token.support.azure.exchange.AzureService
+import no.nav.tms.token.support.azure.exchange.AzureServiceBuilder
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 
 fun main() {
@@ -40,6 +42,8 @@ data class AppConfiguration(
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
     private val varselClientId: String = StringEnvVar.getEnvVar("VARSEL_CLIENT_ID"),
     private val varselBaseUrl: String = StringEnvVar.getEnvVar("VARSEL_BASE_URL"),
+    private val statistikkClientId: String = StringEnvVar.getEnvVar("STATISTIKK_CLIENT_ID"),
+    private val statistikkBaseUrl: String = StringEnvVar.getEnvVar("STATISTIKK_BASE_URL"),
 ) {
 
     private val httpClient = HttpClient(Apache.create()) {
@@ -51,6 +55,7 @@ data class AppConfiguration(
 
     val contentFecther = ContentFetcher(
         tokendingsService = TokendingsServiceBuilder.buildTokendingsService(),
+        azureService = AzureServiceBuilder.buildAzureService(),
         aapClientId = aapClientId,
         aapBaseUrl = aapBaseUrl,
         dittnavClientId = dittnavApiClientId,
@@ -67,7 +72,9 @@ data class AppConfiguration(
         selectorBaseUrl = selectorBaseUrl,
         varselClientId = varselClientId,
         varselBaseUrl = varselBaseUrl,
-        httpClient = httpClient
+        httpClient = httpClient,
+        statistikkBaseApiUrl = statistikkBaseUrl,
+        statistikkApiId = statistikkClientId
     )
 }
 

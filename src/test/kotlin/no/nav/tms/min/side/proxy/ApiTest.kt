@@ -1,19 +1,18 @@
 package no.nav.tms.min.side.proxy
 
 import io.kotest.matchers.shouldBe
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveText
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
-import io.ktor.server.testing.testApplication
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.server.testing.*
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -105,6 +104,29 @@ class ApiTest {
         client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
     }
 
+
+    @Test
+    fun `post statistikk`() = testApplication {
+        val applicationhttpClient = testApplicationHttpClient()
+        mockApi(contentFetcher = contentFecther(applicationhttpClient))
+
+        externalServices {
+            hosts("http://statistikk.test") {
+                routing {
+                    post("/innlogging") {
+                        checkJson(call.receiveText())
+                        call.respond(HttpStatusCode.OK)
+                    }
+                }
+            }
+        }
+
+        client.authenticatedPost("/statistikk/innlogging").assert {
+            status shouldBe HttpStatusCode.OK
+        }
+    }
+
+
     @Test
     fun healtApiTest() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
@@ -125,7 +147,8 @@ class ApiTest {
     }
 
     private fun contentFecther(httpClient: HttpClient): ContentFetcher = ContentFetcher(
-        tokendingsService = tokendingsMock,
+        tokendingsService = tokendigsMock,
+        azureService = azureMock,
         aapBaseUrl = baseurl["aap"]!!,
         aapClientId = "aapclient",
         dittnavClientId = "dittnavclient",
@@ -143,10 +166,15 @@ class ApiTest {
         varselClientId = "varsel",
         varselBaseUrl = baseurl["varsel"]!!,
         httpClient = httpClient,
+        statistikkApiId = "statistikk",
+        statistikkBaseApiUrl = "http://statistikk.test"
     )
 }
 
 private const val testContent = """{"testinnhold": "her testes det innhold"}"""
-private val tokendingsMock = mockk<TokendingsService>().apply {
+private val tokendigsMock = mockk<TokendingsService>().apply {
     coEvery { exchangeToken(any(), any()) } returns "<dummytoken>"
+}
+private val azureMock = mockk<AzureService>().apply {
+    coEvery { getAccessToken(any()) } returns "<azuretoken>"
 }

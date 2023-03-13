@@ -46,6 +46,7 @@ spec:
       rules:
         - application: tms-utkast
         - application: dittnav-event-aggregator
+        - application: tms-statistikk
         - application: tms-personalia-api
         - application: tms-mikrofrontend-selector
         - application: tms-varsel-api
@@ -53,3 +54,8 @@ spec:
           namespace: meldekort
         - application: soknad-api
           namespace: aap
+  env:
+    - name: STATISTIKK_BASE_URL
+      value: "http://tms-statistikk"
+
+

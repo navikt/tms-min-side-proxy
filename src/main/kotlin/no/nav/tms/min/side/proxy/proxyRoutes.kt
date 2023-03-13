@@ -1,14 +1,12 @@
 package no.nav.tms.min.side.proxy
 
-import io.ktor.client.statement.readBytes
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.call
-import io.ktor.server.request.receiveText
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.util.pipeline.PipelineContext
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.util.pipeline.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
 fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
@@ -59,11 +57,19 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
         val response = contentFetcher.getVarselContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
     }
+
+    post("/statistikk/innlogging") {
+        contentFetcher.postInnloggingStatistikk(ident)
+        call.respond(HttpStatusCode.OK)
+    }
 }
 
 
 private val PipelineContext<Unit, ApplicationCall>.accessToken
     get() = IdportenUserFactory.createIdportenUser(call).tokenString
+
+private val PipelineContext<Unit, ApplicationCall>.ident
+    get() = IdportenUserFactory.createIdportenUser(call).ident
 
 private val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
     get() = call.parameters.getAll("proxyPath")?.joinToString("/")

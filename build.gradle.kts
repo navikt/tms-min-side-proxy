@@ -42,6 +42,7 @@ dependencies {
     implementation(Ktor2.Server.contentNegotiation)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
+    implementation(TmsKtorTokenSupport.azureExchange)
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
     implementation(Micrometer.registryPrometheus)
