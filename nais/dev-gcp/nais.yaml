@@ -57,5 +57,7 @@ spec:
   env:
     - name: STATISTIKK_BASE_URL
       value: "http://tms-statistikk"
+    - name: STATISTIKK_CLIENT_ID
+      value: "dev-gcp:min-side:tms-statistikk"
 
 
