@@ -17,6 +17,9 @@ spec:
       level: Level3
   tokenx:
     enabled: true
+  azure:
+    application:
+      enabled: true
   image: {{version}}
   port: 8080
   liveness:
