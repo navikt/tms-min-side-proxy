@@ -37,6 +37,7 @@ class ContentFetcher(
     private val httpClient: HttpClient
 ) {
 
+    private val secureLog = KotlinLogging.logger("secureLog")
     private val log = KotlinLogging.logger {}
 
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
@@ -52,12 +53,18 @@ class ContentFetcher(
 
     suspend fun postDittNavContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(token, targetApp = dittnavClientId)
-        return httpClient.post("$dittnavBaseUrl/$proxyPath", content, exchangedToken)
+        return withResponseLogging { httpClient.post("$dittnavBaseUrl/$proxyPath", content, exchangedToken) }
     }
 
     suspend fun postEventAggregatorContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(token, targetApp = eventAggregatorClientId)
-        return httpClient.post("$eventAggregatorBaseUrl/$proxyPath", content, exchangedToken)
+        return withResponseLogging {
+            httpClient.post(
+                "$eventAggregatorBaseUrl/$proxyPath",
+                content,
+                exchangedToken
+            )
+        }
     }
 
     suspend fun getPersonaliaContent(token: String, proxyPath: String?): HttpResponse =
@@ -122,10 +129,8 @@ class ContentFetcher(
     ): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return httpClient.get<HttpResponse>(url, header, exchangedToken).also {
-            if (it.status.value != 200) {
-                log.warn { "Request til ${it.request.url} feiler med ${it.status.value}" }
-            }
+        return withResponseLogging {
+            httpClient.get(url, header, exchangedToken)
         }
     }
 
@@ -133,6 +138,25 @@ class ContentFetcher(
         httpClient.close()
     }
 
+    private suspend fun withResponseLogging(
+        function: suspend () -> HttpResponse
+    ): HttpResponse =
+        function().also { response ->
+            if (!response.status.isSuccess()) {
+                val body = response.body<String>()
+                val url = response.request.url
+                val payload = response.request.content
+                log.warn { "Request til $url feiler med ${response.status}" }
+
+                secureLog.warn {
+                    "proxy kall feilet mot $url.\nFeilkode: ${response.status} \nInnhold: $body"
+                    payload
+                }
+            } else {
+                log.info { "tester log" }
+                secureLog.info { "tester securelog" }
+            }
+        }
 }
 
 suspend inline fun <reified T> HttpClient.get(url: String, authorizationHeader: String, accessToken: String): T =

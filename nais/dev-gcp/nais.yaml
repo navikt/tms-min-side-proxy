@@ -34,6 +34,8 @@ spec:
   replicas:
     min: 2
     max: 4
+  secureLogs:
+    enabled: true
   webproxy: true
   ingresses:
     - "https://www.dev.nav.no/tms-min-side-proxy"
