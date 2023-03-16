@@ -145,16 +145,10 @@ class ContentFetcher(
             if (!response.status.isSuccess()) {
                 val body = response.body<String>()
                 val url = response.request.url
-                val payload = response.request.content
                 log.warn { "Request til $url feiler med ${response.status}" }
-
                 secureLog.warn {
-                    "proxy kall feilet mot $url.\nFeilkode: ${response.status} \nInnhold: $body"
-                    payload
+                    "proxy kall feilet mot $url.\nFeilkode: ${response.status} \nInnhold: $body\npayload fra request: $response.request.content"
                 }
-            } else {
-                log.info { "tester log" }
-                secureLog.info { "tester securelog" }
             }
         }
 }
