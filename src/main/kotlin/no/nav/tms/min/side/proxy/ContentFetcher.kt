@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import mu.KotlinLogging
 import no.nav.tms.token.support.azure.exchange.AzureService
@@ -115,7 +116,7 @@ class ContentFetcher(
                 method = HttpMethod.Post
                 header(HttpHeaders.Authorization, "Bearer $accessToken")
                 contentType(ContentType.Application.Json)
-                setBody("""{"ident":"$ident"}""".trimMargin())
+                setBody(LoginPostBody(ident))
             }
         }
     }
@@ -173,3 +174,6 @@ suspend inline fun <reified T> HttpClient.post(url: String, content: JsonElement
             setBody(content)
         }
     }.body()
+
+@Serializable
+data class LoginPostBody(val ident: String)

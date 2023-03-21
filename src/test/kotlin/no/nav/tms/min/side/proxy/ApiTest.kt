@@ -140,7 +140,7 @@ class ApiTest {
         client.get("/internal/ping").status shouldBe HttpStatusCode.OK
     }
 
-    private fun checkJson(receiveText: String, expectedText: String? = null) {
+    private fun checkJson(receiveText: String) {
         if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
         try {
             jsonConfig().parseToJsonElement(receiveText)
