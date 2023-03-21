@@ -109,11 +109,8 @@ class ContentFetcher(
         )
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = withContext(Dispatchers.IO) {
-        val accessToken = try {
-            azureService.getAccessToken(statistikkApiId)
-        } catch (e: Exception) {
-            secureLog.error { "Henting av ${statistikkApiId}-azuretoken feilet for ident $ident med feilmelding\n $e" }
-        }
+        val accessToken = azureService.getAccessToken(statistikkApiId)
+
         withResponseLogging {
             httpClient.request {
                 url("$statistikkBaseApiUrl/innlogging")
