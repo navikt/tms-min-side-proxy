@@ -108,13 +108,15 @@ class ApiTest {
     @Test
     fun `post statistikk`() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
+        var callCount = 0
         mockApi(contentFetcher = contentFecther(applicationhttpClient))
 
         externalServices {
             hosts("http://statistikk.test") {
                 routing {
                     post("/innlogging") {
-                        checkJson(call.receiveText())
+                        callCount += 1
+                        call.receive<LoginPostRequest>().ident shouldBe 12345
                         call.respond(HttpStatusCode.OK)
                     }
                 }
@@ -124,6 +126,7 @@ class ApiTest {
         client.authenticatedPost("/statistikk/innlogging").assert {
             status shouldBe HttpStatusCode.OK
         }
+        callCount shouldBe 1
     }
 
 
@@ -137,7 +140,7 @@ class ApiTest {
         client.get("/internal/ping").status shouldBe HttpStatusCode.OK
     }
 
-    private fun checkJson(receiveText: String) {
+    private fun checkJson(receiveText: String, expectedText: String? = null) {
         if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
         try {
             jsonConfig().parseToJsonElement(receiveText)
@@ -178,3 +181,5 @@ private val tokendigsMock = mockk<TokendingsService>().apply {
 private val azureMock = mockk<AzureService>().apply {
     coEvery { getAccessToken(any()) } returns "<azuretoken>"
 }
+
+private class LoginPostRequest(val ident: String)

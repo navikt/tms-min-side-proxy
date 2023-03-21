@@ -108,14 +108,16 @@ class ContentFetcher(
             proxyPath = proxyPath,
         )
 
-    suspend fun postInnloggingStatistikk(ident: String) = withContext(Dispatchers.IO) {
+    suspend fun postInnloggingStatistikk(ident: String): HttpResponse = withContext(Dispatchers.IO) {
         val accessToken = azureService.getAccessToken(statistikkApiId)
-        request {
-            url(statistikkBaseApiUrl)
-            method = HttpMethod.Post
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-            contentType(ContentType.Application.Json)
-            setBody(LoginStatistikkRequest(ident))
+        withResponseLogging {
+            httpClient.request {
+                url("$statistikkBaseApiUrl/innlogging")
+                method = HttpMethod.Post
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+                contentType(ContentType.Application.Json)
+                setBody("""{"ident":$ident}""".trimMargin())
+            }
         }
     }
 
@@ -172,6 +174,3 @@ suspend inline fun <reified T> HttpClient.post(url: String, content: JsonElement
             setBody(content)
         }
     }.body()
-
-@Serializable
-private class LoginStatistikkRequest(val ident: String)

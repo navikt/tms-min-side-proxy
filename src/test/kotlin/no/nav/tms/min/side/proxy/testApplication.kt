@@ -67,10 +67,10 @@ internal suspend fun HttpClient.authenticatedGet(urlString: String, token: Strin
     header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
 }
 
-internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken): HttpResponse =
+internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken, content: String="""{"test":"testcontent"}"""): HttpResponse =
     request {
         url(urlString)
         method = HttpMethod.Post
         header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
-        setBody("""{"test":"testcontent"}""")
+        setBody(content)
     }
