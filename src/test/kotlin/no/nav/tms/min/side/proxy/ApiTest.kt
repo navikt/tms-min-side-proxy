@@ -116,7 +116,7 @@ class ApiTest {
                 routing {
                     post("/innlogging") {
                         callCount += 1
-                        call.receive<LoginPostRequest>().ident shouldBe 12345
+                        call.receive<LoginPostRequest>().ident shouldBe "12345"
                         call.respond(HttpStatusCode.OK)
                     }
                 }
