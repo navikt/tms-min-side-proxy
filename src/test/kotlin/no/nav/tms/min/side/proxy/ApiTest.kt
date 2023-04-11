@@ -23,7 +23,6 @@ class ApiTest {
     private val baseurl =
         mapOf(
             "aap" to "http://aap.test",
-            "dittnav" to "http://dittnav.test",
             "meldekort" to "http://meldekort.test",
             "utkast" to "http://utkast.test",
             "personalia" to "http://personalia.test",
@@ -33,7 +32,7 @@ class ApiTest {
         )
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "dittnav", "personalia", "meldekort", "selector", "varsel"])
+    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "varsel"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(
@@ -70,7 +69,7 @@ class ApiTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["dittnav", "eventaggregator"])
+    @ValueSource(strings = ["eventaggregator"])
     fun `proxy post`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         mockApi(contentFetcher = contentFecther(applicationhttpClient))
@@ -154,8 +153,6 @@ class ApiTest {
         azureService = azureMock,
         aapBaseUrl = baseurl["aap"]!!,
         aapClientId = "aapclient",
-        dittnavClientId = "dittnavclient",
-        dittnavBaseUrl = baseurl["dittnav"]!!,
         eventAggregatorClientId = "eventaggregatorclient",
         eventAggregatorBaseUrl = baseurl["eventaggregator"]!!,
         utkastClientId = "utkastclient",

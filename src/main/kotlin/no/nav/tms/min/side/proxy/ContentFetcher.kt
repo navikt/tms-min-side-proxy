@@ -18,8 +18,6 @@ class ContentFetcher(
     private val azureService: AzureService,
     private val aapClientId: String,
     private val aapBaseUrl: String,
-    private val dittnavClientId: String,
-    private val dittnavBaseUrl: String,
     private val eventAggregatorClientId: String,
     private val eventAggregatorBaseUrl: String,
     private val meldekortClientId: String,
@@ -42,19 +40,6 @@ class ContentFetcher(
 
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         getContent(userToken = token, targetAppId = utkastClientId, baseUrl = utkastBaseUrl, proxyPath = proxyPath)
-
-    suspend fun getDittNavContent(token: String, proxyPath: String?): HttpResponse =
-        getContent(
-            userToken = token,
-            targetAppId = dittnavClientId,
-            baseUrl = dittnavBaseUrl,
-            proxyPath = proxyPath
-        )
-
-    suspend fun postDittNavContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
-        val exchangedToken = tokendingsService.exchangeToken(token, targetApp = dittnavClientId)
-        return withResponseLogging { httpClient.post("$dittnavBaseUrl/$proxyPath", content, exchangedToken) }
-    }
 
     suspend fun postEventAggregatorContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
         val exchangedToken = tokendingsService.exchangeToken(token, targetApp = eventAggregatorClientId)

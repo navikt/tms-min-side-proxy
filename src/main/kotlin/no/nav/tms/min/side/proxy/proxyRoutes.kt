@@ -16,17 +16,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
         call.respond(response.status, response.readBytes())
     }
 
-    get("/dittnav/{proxyPath...}") {
-        val response = contentFetcher.getDittNavContent(accessToken, proxyPath)
-        call.respond(response.status, response.readBytes())
-    }
-
-    post("/dittnav/{proxyPath...}") {
-        val content = jsonConfig().parseToJsonElement(call.receiveText())
-        val response = contentFetcher.postDittNavContent(accessToken, content, proxyPath)
-        call.respond(response.status)
-    }
-
     post("/eventaggregator/{proxyPath...}") {
         val content = jsonConfig().parseToJsonElement(call.receiveText())
         val response = contentFetcher.postEventAggregatorContent(accessToken, content, proxyPath)
