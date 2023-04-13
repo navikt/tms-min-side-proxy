@@ -6,8 +6,6 @@ metadata:
   labels:
     team: min-side
 spec:
-  envFrom:
-    - secret: tms-min-side-proxy-secrets
   idporten:
     enabled: true
     postLogoutRedirectURIs:
