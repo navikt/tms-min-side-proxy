@@ -64,3 +64,35 @@ spec:
       value: "http://tms-statistikk"
     - name: STATISTIKK_CLIENT_ID
       value: "prod-gcp.min-side.tms-statistikk"
+    - name: AAP_BASE_URL
+      value: https://aap-soknad-api.intern.nav.no
+    - name: AAP_CLIENT_ID
+      value: prod-gcp:aap:soknad-api
+    - name: CORS_ALLOWED_ORIGINS
+      value: www.intern.nav.no
+    - name: CORS_ALLOWED_SCHEMES
+      value: https
+    - name : EVENT_AGGREGATOR_BASE_URL
+      value: http://dittnav-event-aggregator
+    - name: EVENT_AGGREGATOR_CLIENT_ID
+      value: prod-gcp:min-side:dittnav-event-aggregator
+    - name: MELDEKORT_BASE_URL
+      value: http://meldekort-api.meldekort/meldekort/meldekort-api
+    - name: MELDEKORT_CLIENT_ID
+      value: prod-gcp:meldekort:meldekort-api
+    - name: PERSONALIA_BASE_URL
+      value: http://tms-personalia-api/tms-personalia-api
+    - name: PERSONALIA_CLIENT_ID
+      value: prod-gcp:min-side:tms-personalia-api
+    - name: SELCTOR_BASE_URL
+      value: http://tms-mikrofrontend-selector
+    - name: SELCTOR_CLIENT_ID
+      value: prod-gcp:min-side:tms-mikrofrontend-selector
+    - name: UTKAST_BASE_URL
+      value: http://tms-utkast
+    - name: UTKAST_CLIENT_ID
+      value: prod-gcp:min-side:tms-utkast
+    - name: VARSEL_BASE_URL
+      value: http://tms-varsel-api
+    - name: VARSEL_CLIENT_ID
+      value: prod-gcp:min-side:tms-varsel-api
