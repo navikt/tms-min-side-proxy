@@ -46,6 +46,9 @@ dependencies {
     implementation(Logback.classic)
     implementation(Logstash.logbackEncoder)
     implementation(Micrometer.registryPrometheus)
+    implementation(Prometheus.common)
+    implementation(Prometheus.hotspot)
+    implementation(Prometheus.logback)
 
     testImplementation(Junit.api)
     testImplementation(Ktor2.Test.clientMock)
