@@ -30,8 +30,18 @@ class ContentFetcher(
     private val varselBaseUrl: String,
     private val statistikkApiId: String,
     private val statistikkBaseApiUrl: String,
+    private val sykDialogmoteBaseUrl: String,
+    private val sykDialogmoteClientId: String,
     private val httpClient: HttpClient
 ) {
+
+    suspend fun getSykDialogmoteContent(token: String, proxyPath: String?) =
+        getContent(
+            userToken = token,
+            proxyPath = proxyPath,
+            baseUrl = sykDialogmoteBaseUrl,
+            targetAppId = sykDialogmoteClientId
+        )
 
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         getContent(userToken = token, targetAppId = utkastClientId, baseUrl = utkastBaseUrl, proxyPath = proxyPath)

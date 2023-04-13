@@ -16,6 +16,10 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher) {
         val response = contentFetcher.getAapContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
     }
+    get("syk/dialogmote/{proxyPath...}") {
+        val response = contentFetcher.getSykDialogmoteContent(accessToken, proxyPath)
+        call.respond(response.status, response.readBytes())
+    }
 
     post("/eventaggregator/{proxyPath...}") {
         val content = jsonConfig().parseToJsonElement(call.receiveText())

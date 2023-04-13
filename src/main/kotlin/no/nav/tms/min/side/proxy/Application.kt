@@ -1,18 +1,14 @@
 package no.nav.tms.min.side.proxy
 
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
-import io.ktor.server.engine.applicationEngineEnvironment
-import io.ktor.server.engine.connector
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
+import io.ktor.client.*
+import io.ktor.client.engine.apache.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 import kotlinx.serialization.json.Json
 import no.nav.personbruker.dittnav.common.util.config.StringEnvVar
-import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.azure.exchange.AzureServiceBuilder
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 
@@ -42,6 +38,8 @@ data class AppConfiguration(
     private val varselBaseUrl: String = StringEnvVar.getEnvVar("VARSEL_BASE_URL"),
     private val statistikkClientId: String = StringEnvVar.getEnvVar("STATISTIKK_CLIENT_ID"),
     private val statistikkBaseUrl: String = StringEnvVar.getEnvVar("STATISTIKK_BASE_URL"),
+    private val sykDialogmoteBaseUrl: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_BASE_URL"),
+    private val sykDialogmoteClientId: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_CLIENT_ID"),
 ) {
 
     private val httpClient = HttpClient(Apache.create()) {
@@ -70,7 +68,9 @@ data class AppConfiguration(
         varselBaseUrl = varselBaseUrl,
         httpClient = httpClient,
         statistikkBaseApiUrl = statistikkBaseUrl,
-        statistikkApiId = statistikkClientId
+        statistikkApiId = statistikkClientId,
+        sykDialogmoteBaseUrl = sykDialogmoteBaseUrl,
+        sykDialogmoteClientId = sykDialogmoteBaseUrl,
     )
 }
 

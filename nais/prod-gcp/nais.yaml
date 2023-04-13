@@ -94,3 +94,7 @@ spec:
       value: http://tms-varsel-api
     - name: VARSEL_CLIENT_ID
       value: prod-gcp:min-side:tms-varsel-api
+    - name: SYK_DIALOGMOTE_BASE_URL
+      value: http://isdialogmote.teamsykefravr
+    - name: SYK_DIALOGMOTE_CLIENT_ID
+      value: prod-gcp:teamsykefravr:isdialogmote
