@@ -1,7 +1,6 @@
 package no.nav.tms.min.side.proxy
 
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -9,7 +8,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import mu.KotlinLogging
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
@@ -35,22 +33,16 @@ class ContentFetcher(
     private val httpClient: HttpClient
 ) {
 
-    private val secureLog = KotlinLogging.logger("secureLog")
-    private val log = KotlinLogging.logger {}
-
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         getContent(userToken = token, targetAppId = utkastClientId, baseUrl = utkastBaseUrl, proxyPath = proxyPath)
 
-    suspend fun postEventAggregatorContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse {
-        val exchangedToken = tokendingsService.exchangeToken(token, targetApp = eventAggregatorClientId)
-        return withResponseLogging {
-            httpClient.post(
-                "$eventAggregatorBaseUrl/$proxyPath",
-                content,
-                exchangedToken
-            )
-        }
-    }
+    suspend fun postEventAggregatorContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse =
+        httpClient.post(
+            "$eventAggregatorBaseUrl/$proxyPath",
+            content,
+            exchangeToken(token, eventAggregatorClientId)
+        )
+
 
     suspend fun getPersonaliaContent(token: String, proxyPath: String?): HttpResponse =
         getContent(
@@ -95,15 +87,12 @@ class ContentFetcher(
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = withContext(Dispatchers.IO) {
         val accessToken = azureService.getAccessToken(statistikkApiId)
-
-        withResponseLogging {
-            httpClient.request {
-                url("$statistikkBaseApiUrl/innlogging")
-                method = HttpMethod.Post
-                header(HttpHeaders.Authorization, "Bearer $accessToken")
-                contentType(ContentType.Application.Json)
-                setBody(LoginPostBody(ident))
-            }
+        httpClient.request {
+            url("$statistikkBaseApiUrl/innlogging")
+            method = HttpMethod.Post
+            header(HttpHeaders.Authorization, "Bearer $accessToken")
+            contentType(ContentType.Application.Json)
+            setBody(LoginPostBody(ident))
         }
     }
 
@@ -115,51 +104,66 @@ class ContentFetcher(
         proxyPath: String?,
         header: String = HttpHeaders.Authorization
     ): HttpResponse {
-        val exchangedToken = tokendingsService.exchangeToken(userToken, targetAppId)
+        val exchangedToken = exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return withResponseLogging {
-            httpClient.get(url, header, exchangedToken)
-        }
+        return httpClient.get(url, header, exchangedToken).responseIfOk()
     }
+
+    private suspend fun exchangeToken(
+        userToken: String,
+        targetAppId: String
+    ) = try {
+        tokendingsService.exchangeToken(userToken, targetAppId)
+    } catch (e: Exception) {
+        throw TokendingsException(targetAppId, userToken, e)
+    }
+
+    private suspend inline fun HttpClient.get(
+        url: String,
+        authorizationHeader: String,
+        accessToken: String
+    ): HttpResponse =
+        withContext(Dispatchers.IO) {
+            request {
+                url(url)
+                method = HttpMethod.Get
+                header(authorizationHeader, "Bearer $accessToken")
+            }
+        }.responseIfOk()
+
+    private fun HttpResponse.responseIfOk() =
+        if (!status.isSuccess()) {
+            throw RequestExcpetion(request.url.toString(), status)
+        } else {
+            this
+        }
+
+    private suspend inline fun HttpClient.post(url: String, content: JsonElement, accessToken: String): HttpResponse =
+        withContext(Dispatchers.IO) {
+            request {
+                url(url)
+                method = HttpMethod.Post
+                header(HttpHeaders.Authorization, "Bearer $accessToken")
+                contentType(ContentType.Application.Json)
+                setBody(content)
+            }
+        }.responseIfOk()
 
     fun shutDown() {
         httpClient.close()
     }
-
-    private suspend fun withResponseLogging(
-        function: suspend () -> HttpResponse
-    ): HttpResponse =
-        function().also { response ->
-            if (!response.status.isSuccess()) {
-                val body = response.body<String>()
-                val url = response.request.url
-                log.warn { "Request til $url feiler med ${response.status}" }
-                secureLog.warn {
-                    "proxy kall feilet mot $url.\nFeilkode: ${response.status} \nInnhold: $body\npayload fra request: $response.request.content"
-                }
-            }
-        }
 }
 
-suspend inline fun <reified T> HttpClient.get(url: String, authorizationHeader: String, accessToken: String): T =
-    withContext(Dispatchers.IO) {
-        request {
-            url(url)
-            method = HttpMethod.Get
-            header(authorizationHeader, "Bearer $accessToken")
-        }.body()
-    }
-
-suspend inline fun <reified T> HttpClient.post(url: String, content: JsonElement, accessToken: String): T =
-    withContext(Dispatchers.IO) {
-        request {
-            url(url)
-            method = HttpMethod.Post
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-            contentType(ContentType.Application.Json)
-            setBody(content)
-        }
-    }.body()
 
 @Serializable
 data class LoginPostBody(val ident: String)
+
+class TokendingsException(targetapp: String, val accessToken: String, originalException: Exception) :
+    Exception("Feil i exchange mot tokendings for $targetapp: ${originalException.message}")
+
+class RequestExcpetion(url: String, status: HttpStatusCode) : Exception(
+    "proxy kall feilet mot $url med status $status "
+) {
+    val responseCode =
+        if (status == HttpStatusCode.NotFound) HttpStatusCode.NotFound else HttpStatusCode.ServiceUnavailable
+}

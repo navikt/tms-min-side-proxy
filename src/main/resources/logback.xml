@@ -1,9 +1,14 @@
-<configuration>
+<configuration debug="true">
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
     <property name="loggingPattern"
               value="%d [%-5level] [%thread] %logger{5} %replace(- [%X{consumerId}, %X{callId}, %X{userId}] ){'- \[, , \] ',''}- %m%n"/>
+
     <appender name="stdout_json" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
+
+    <appender name="metrics" class="io.prometheus.client.logback.InstrumentedAppender"/>
     <appender name="secureLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/secure-logs/secure.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -16,8 +21,10 @@
         </triggeringPolicy>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
+
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
+        <appender-ref ref="metrics"/>
     </root>
     <logger name="secureLog" level="INFO" additivity="false">
         <appender-ref ref="secureLog"/>

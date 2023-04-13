@@ -65,7 +65,7 @@ class ApiTest {
         }
 
         client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
     @ParameterizedTest
@@ -100,7 +100,7 @@ class ApiTest {
         }
 
         client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.InternalServerError
+        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
 
