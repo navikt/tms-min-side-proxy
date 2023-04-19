@@ -41,7 +41,6 @@ data class AppConfiguration(
     private val sykDialogmoteBaseUrl: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_BASE_URL"),
     private val sykDialogmoteClientId: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_CLIENT_ID"),
 ) {
-
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
             json(jsonConfig())
@@ -70,7 +69,7 @@ data class AppConfiguration(
         statistikkBaseApiUrl = statistikkBaseUrl,
         statistikkApiId = statistikkClientId,
         sykDialogmoteBaseUrl = sykDialogmoteBaseUrl,
-        sykDialogmoteClientId = sykDialogmoteBaseUrl,
+        sykDialogmoteClientId = sykDialogmoteClientId,
     )
 }
 
