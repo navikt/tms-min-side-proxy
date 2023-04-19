@@ -65,6 +65,7 @@ fun Application.proxyApi(
     }
 
     idportenAuthInstaller()
+
     install(CORS) {
         allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
         allowCredentials = true

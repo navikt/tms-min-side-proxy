@@ -58,9 +58,7 @@ spec:
         - application: soknad-api
           namespace: aap
         - application: isdialogmote
-          namespace: sykefravr
-      external:
-        - host: https://isdialogmote.intern.dev.nav.no
+          namespace: teamsykefravr
   env:
     - name: STATISTIKK_BASE_URL
       value: http://tms-statistikk
@@ -99,7 +97,7 @@ spec:
     - name: VARSEL_CLIENT_ID
       value: dev-gcp:min-side:tms-varsel-api
     - name: SYK_DIALOGMOTE_BASE_URL
-      value: https://isdialogmote.intern.dev.nav.no
+      value: http://isdialogmote.teamsykefravr
     - name: SYK_DIALOGMOTE_CLIENT_ID
       value: dev-gcp:teamsykefravr:isdialogmote
 
