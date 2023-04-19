@@ -34,7 +34,6 @@ spec:
     max: 4
   secureLogs:
     enabled: true
-  webproxy: true
   ingresses:
     - "https://www.nav.no/tms-min-side-proxy"
   resources:
