@@ -17,6 +17,8 @@ class ContentFetcher(
     private val varselBaseUrl: String,
     private val statistikkApiId: String,
     private val statistikkBaseApiUrl: String,
+    private val oppfolgingApiId: String,
+    private val oppfolgingBaseUrl: String
 ) {
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
@@ -70,4 +72,11 @@ class ContentFetcher(
     fun shutDown() {
         proxyHttpClient.shutDown()
     }
+
+    suspend fun getOppfolgingContent(token: String, proxypath: String) = proxyHttpClient.getContent(
+        userToken = token,
+        targetAppId = oppfolgingApiId,
+        baseUrl = oppfolgingBaseUrl,
+        proxyPath = proxypath
+    )
 }

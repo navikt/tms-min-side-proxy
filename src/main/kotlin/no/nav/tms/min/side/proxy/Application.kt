@@ -40,6 +40,8 @@ data class AppConfiguration(
     private val statistikkBaseUrl: String = StringEnvVar.getEnvVar("STATISTIKK_BASE_URL"),
     private val sykDialogmoteBaseUrl: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_BASE_URL"),
     private val sykDialogmoteClientId: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_CLIENT_ID"),
+    private val oppfolgingClientId: String = StringEnvVar.getEnvVar("OPPFOLGING_CLIENT_ID"),
+    private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
 ) {
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
@@ -55,6 +57,7 @@ data class AppConfiguration(
     )
 
     val contentFecther = ContentFetcher(
+        proxyHttpClient = proxyHttpClient,
         eventAggregatorClientId = eventAggregatorClientId,
         eventAggregatorBaseUrl = eventAggregatorBaseUrl,
         utkastClientId = utkastClientId,
@@ -65,9 +68,10 @@ data class AppConfiguration(
         selectorBaseUrl = selectorBaseUrl,
         varselClientId = varselClientId,
         varselBaseUrl = varselBaseUrl,
-        statistikkBaseApiUrl = statistikkBaseUrl,
         statistikkApiId = statistikkClientId,
-        proxyHttpClient = proxyHttpClient,
+        statistikkBaseApiUrl = statistikkBaseUrl,
+        oppfolgingApiId = oppfolgingClientId,
+        oppfolgingBaseUrl = oppfolgingBaseUrl,
     )
 
     val externalContentFetcher = ExternalContentFetcher(

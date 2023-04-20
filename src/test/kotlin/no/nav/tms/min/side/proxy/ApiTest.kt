@@ -29,7 +29,8 @@ class ApiTest {
             "selector" to "http://selector.test",
             "varsel" to "http://varsel.test",
             "eventaggregator" to "http://eventAggregator.test",
-            "syk/dialogmote" to "http://isdialog.test"
+            "syk/dialogmote" to "http://isdialog.test",
+            "oppfolging" to "http://veilarboppfolging.test"
         )
 
     @ParameterizedTest
@@ -72,13 +73,43 @@ class ApiTest {
         client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
+    @Test
+    fun `url to url mapping`() = testApplication {
+        val applicationhttpClient = testApplicationHttpClient()
+        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val url = "oppfolging"
+
+        mockApi(
+            contentFetcher = contentFecther(proxyHttpClient),
+            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+        )
+
+        externalServices {
+            hosts(baseurl["oppfolging"]!!) {
+                routing {
+                    get("/api/niva3/underoppfolging") {
+                        call.respondRawJson(testContent)
+                    }
+                }
+            }
+        }
+
+        client.authenticatedGet("/$url").assert {
+            status shouldBe HttpStatusCode.OK
+            bodyAsText() shouldBe testContent
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(strings = ["eventaggregator"])
     fun `proxy post`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
 
-        mockApi(contentFetcher = contentFecther(proxyHttpClient), externalContentFetcher = externalContentFetcher(proxyHttpClient))
+        mockApi(
+            contentFetcher = contentFecther(proxyHttpClient),
+            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+        )
 
         externalServices {
             hosts(baseurl[tjenestePath]!!) {
@@ -174,6 +205,7 @@ class ApiTest {
     )
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
+        proxyHttpClient = proxyHttpClient,
         eventAggregatorClientId = "eventaggregatorclient",
         eventAggregatorBaseUrl = baseurl["eventaggregator"]!!,
         utkastClientId = "utkastclient",
@@ -186,7 +218,8 @@ class ApiTest {
         varselBaseUrl = baseurl["varsel"]!!,
         statistikkApiId = "statistikk",
         statistikkBaseApiUrl = "http://statistikk.test",
-        proxyHttpClient = proxyHttpClient,
+        oppfolgingBaseUrl = baseurl["oppfolging"]!!,
+        oppfolgingApiId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
