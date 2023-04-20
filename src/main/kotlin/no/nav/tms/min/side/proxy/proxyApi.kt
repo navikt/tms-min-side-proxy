@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
+import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.*
 import io.ktor.server.metrics.micrometer.*
@@ -84,6 +85,9 @@ fun Application.proxyApi(
     routing {
         metaRoutes(collectorRegistry)
         authenticate {
+            get("authPing"){
+                call.respond(HttpStatusCode.OK)
+            }
             proxyRoutes(contentFetcher)
         }
     }
