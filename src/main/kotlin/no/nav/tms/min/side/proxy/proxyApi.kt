@@ -28,6 +28,7 @@ fun Application.proxyApi(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
     contentFetcher: ContentFetcher,
+    externalContentFetcher: ExternalContentFetcher,
     idportenAuthInstaller: Application.() -> Unit = {
         installIdPortenAuth {
             setAsDefault = true
@@ -88,7 +89,7 @@ fun Application.proxyApi(
             get("authPing"){
                 call.respond(HttpStatusCode.OK)
             }
-            proxyRoutes(contentFetcher)
+            proxyRoutes(contentFetcher,externalContentFetcher)
         }
     }
 
