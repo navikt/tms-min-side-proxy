@@ -52,7 +52,7 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
     }
 
     get("/oppfolging") {
-        val response = contentFetcher.getOppfolgingContent(accessToken, "/api/niva3/underoppfolging")
+        val response = contentFetcher.getOppfolgingContent(accessToken, "api/niva3/underoppfolging")
         call.respond(response.status, response.readBytes())
     }
 
