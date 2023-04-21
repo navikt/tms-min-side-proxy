@@ -31,11 +31,12 @@ class ProxyHttpClient(
         targetAppId: String,
         baseUrl: String,
         proxyPath: String?,
-        header: String = HttpHeaders.Authorization
+        header: String = HttpHeaders.Authorization,
+        extraHeaders: Map<String,String>? = null
     ): HttpResponse {
         val exchangedToken = exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return httpClient.get(url, header, exchangedToken).responseIfOk()
+        return httpClient.get(url, header, exchangedToken, extraHeaders).responseIfOk()
     }
 
     suspend fun postWithIdentInBodyWithAzure(
@@ -80,13 +81,17 @@ class ProxyHttpClient(
     private suspend inline fun HttpClient.get(
         url: String,
         authorizationHeader: String,
-        accessToken: String
+        accessToken: String,
+        extraHeaders: Map<String,String>? = null
     ): HttpResponse =
         withContext(Dispatchers.IO) {
             request {
                 url(url)
                 method = HttpMethod.Get
                 header(authorizationHeader, "Bearer $accessToken")
+                extraHeaders?.forEach {
+                    header(it.key,it.value)
+                }
             }
         }.responseIfOk()
 

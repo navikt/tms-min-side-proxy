@@ -77,6 +77,7 @@ class ContentFetcher(
         userToken = token,
         targetAppId = oppfolgingApiId,
         baseUrl = oppfolgingBaseUrl,
-        proxyPath = proxypath
+        proxyPath = proxypath,
+        extraHeaders = mapOf("Nav-Consumer-Id" to "min-side:tms-min-side-proxy")
     )
 }

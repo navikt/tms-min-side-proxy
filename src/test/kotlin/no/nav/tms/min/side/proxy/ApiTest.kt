@@ -74,7 +74,7 @@ class ApiTest {
     }
 
     @Test
-    fun `url to url mapping`() = testApplication {
+    fun `oppfolging`() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val url = "oppfolging"
@@ -88,7 +88,14 @@ class ApiTest {
             hosts(baseurl["oppfolging"]!!) {
                 routing {
                     get("/api/niva3/underoppfolging") {
-                        call.respondRawJson(testContent)
+                        val navconsumerHeader = call.request.header("Nav-Consumer-Id")
+                        if (navconsumerHeader == null) {
+                            call.respond(HttpStatusCode.BadRequest)
+                        } else {
+                            navconsumerHeader shouldBe "min-side:tms-min-side-proxy"
+                            call.respondRawJson(testContent)
+                        }
+
                     }
                 }
             }
