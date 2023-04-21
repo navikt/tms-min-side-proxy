@@ -107,6 +107,6 @@ spec:
     - name: SYK_DIALOGMOTE_CLIENT_ID
       value: dev-gcp:teamsykefravr:isdialogmote
     - name: OPPFOLGING_API_URL
-      value: https://veilarboppfolging.dev-fss-pub.nais.io
+      value: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging
     - name: OPPFOLGING_CLIENT_ID
       value: dev-fss:pto:veilarboppfolging
