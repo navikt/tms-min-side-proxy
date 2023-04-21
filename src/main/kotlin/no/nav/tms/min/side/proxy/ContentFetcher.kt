@@ -15,9 +15,9 @@ class ContentFetcher(
     private val selectorBaseUrl: String,
     private val varselClientId: String,
     private val varselBaseUrl: String,
-    private val statistikkApiId: String,
+    private val statistikkClientId: String,
     private val statistikkBaseApiUrl: String,
-    private val oppfolgingApiId: String,
+    private val oppfolgingClientId: String,
     private val oppfolgingBaseUrl: String
 ) {
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
@@ -66,7 +66,7 @@ class ContentFetcher(
         ident = ident,
         baseApiUrl = statistikkBaseApiUrl,
         proxyPath = "/innlogging",
-        clientId = statistikkApiId,
+        clientId = statistikkClientId,
     )
 
     fun shutDown() {
@@ -75,7 +75,7 @@ class ContentFetcher(
 
     suspend fun getOppfolgingContent(token: String, proxypath: String) = proxyHttpClient.getContent(
         userToken = token,
-        targetAppId = oppfolgingApiId,
+        targetAppId = oppfolgingClientId,
         baseUrl = oppfolgingBaseUrl,
         proxyPath = proxypath,
         extraHeaders = mapOf("Nav-Consumer-Id" to "min-side:tms-min-side-proxy")

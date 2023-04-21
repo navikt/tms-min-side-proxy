@@ -68,9 +68,9 @@ data class AppConfiguration(
         selectorBaseUrl = selectorBaseUrl,
         varselClientId = varselClientId,
         varselBaseUrl = varselBaseUrl,
-        statistikkApiId = statistikkClientId,
+        statistikkClientId = statistikkClientId,
         statistikkBaseApiUrl = statistikkBaseUrl,
-        oppfolgingApiId = oppfolgingClientId,
+        oppfolgingClientId = oppfolgingClientId,
         oppfolgingBaseUrl = oppfolgingBaseUrl,
     )
 

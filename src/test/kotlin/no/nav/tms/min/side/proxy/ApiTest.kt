@@ -223,10 +223,10 @@ class ApiTest {
         selectorBaseUrl = baseurl["selector"]!!,
         varselClientId = "varsel",
         varselBaseUrl = baseurl["varsel"]!!,
-        statistikkApiId = "statistikk",
+        statistikkClientId = "statistikk",
         statistikkBaseApiUrl = "http://statistikk.test",
         oppfolgingBaseUrl = baseurl["oppfolging"]!!,
-        oppfolgingApiId = "veilarboppfolging"
+        oppfolgingClientId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
