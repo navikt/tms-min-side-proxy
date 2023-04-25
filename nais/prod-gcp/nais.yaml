@@ -63,6 +63,9 @@ spec:
         - application: veilarboppfolging
           namespace: pto
           cluster: prod-fss
+        - application: aia-backend
+          namespace: paw
+          cluster: prod-gcp
   env:
     - name: STATISTIKK_BASE_URL
       value: http://tms-statistikk
@@ -108,3 +111,7 @@ spec:
       value: https://veilarboppfolging.prod-fss-pub.nais.io/veilarboppfolging
     - name: OPPFOLGING_CLIENT_ID
       value: prod-fss:pto:veilarboppfolging
+    - name: AIA_API_URL
+      value: http://aia-backend.paw
+    - name: AIA_CLIENT_ID
+      value: prod-gcp:paw:aia-backend
