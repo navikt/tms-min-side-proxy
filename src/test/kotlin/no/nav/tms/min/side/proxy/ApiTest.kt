@@ -30,11 +30,12 @@ class ApiTest {
             "varsel" to "http://varsel.test",
             "eventaggregator" to "http://eventAggregator.test",
             "syk/dialogmote" to "http://isdialog.test",
-            "oppfolging" to "http://veilarboppfolging.test"
+            "oppfolging" to "http://veilarboppfolging.test",
+            "aia" to "http://paw.test"
         )
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "varsel", "syk/dialogmote"])
+    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "varsel", "syk/dialogmote", "aia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
@@ -74,7 +75,7 @@ class ApiTest {
     }
 
     @Test
-    fun `oppfolging`() = testApplication {
+    fun oppfolging() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val url = "oppfolging"
@@ -205,12 +206,6 @@ class ApiTest {
         }
     }
 
-    private fun proxyClient(httpClient: HttpClient) = ProxyHttpClient(
-        httpClient = httpClient,
-        tokendingsService = tokendigsMock,
-        azureService = azureMock
-    )
-
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
         eventAggregatorClientId = "eventaggregatorclient",
@@ -232,11 +227,13 @@ class ApiTest {
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
         aapBaseUrl = baseurl["aap"]!!,
-        aapClientId = "aapclient",
+        aapClientId = "aap",
         meldekortClientId = "meldekort",
         meldekortBaseUrl = baseurl["meldekort"]!!,
         sykDialogmoteBaseUrl = baseurl["syk/dialogmote"]!!,
         sykDialogmoteClientId = "sykdialogmote",
+        aiaBaseUrl = baseurl["aia"]!!,
+        aiaClientId = "aia",
     )
 }
 

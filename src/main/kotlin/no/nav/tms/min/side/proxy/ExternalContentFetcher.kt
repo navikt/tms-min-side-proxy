@@ -10,6 +10,8 @@ class ExternalContentFetcher(
     private val meldekortBaseUrl: String,
     private val sykDialogmoteBaseUrl: String,
     private val sykDialogmoteClientId: String,
+    private val aiaBaseUrl: String,
+    private val aiaClientId:String
 ) {
     suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
@@ -33,5 +35,13 @@ class ExternalContentFetcher(
             baseUrl = meldekortBaseUrl,
             proxyPath = proxyPath,
             header = "TokenXAuthorization",
+        )
+
+    suspend fun getAiaContent(accessToken: String, proxyPath: String?) =
+        proxyHttpClient.getContent(
+            userToken = accessToken,
+            proxyPath = proxyPath,
+            baseUrl = aiaBaseUrl,
+            targetAppId = aiaClientId
         )
 }

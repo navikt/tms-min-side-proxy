@@ -42,6 +42,8 @@ data class AppConfiguration(
     private val sykDialogmoteClientId: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_CLIENT_ID"),
     private val oppfolgingClientId: String = StringEnvVar.getEnvVar("OPPFOLGING_CLIENT_ID"),
     private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
+    private val aiaClientId: String = StringEnvVar.getEnvVar("AIA_CLIENT_ID"),
+    private val aiaBaseUrl: String = StringEnvVar.getEnvVar("AIA_API_URL"),
 ) {
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
@@ -82,6 +84,8 @@ data class AppConfiguration(
         meldekortBaseUrl = meldekortBaseUrl,
         sykDialogmoteBaseUrl = sykDialogmoteBaseUrl,
         sykDialogmoteClientId = sykDialogmoteClientId,
+        aiaBaseUrl = aiaBaseUrl,
+        aiaClientId = aiaClientId,
     )
 }
 

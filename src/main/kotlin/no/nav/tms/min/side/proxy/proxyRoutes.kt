@@ -55,10 +55,16 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
         val response = contentFetcher.getOppfolgingContent(accessToken, "api/niva3/underoppfolging")
         call.respond(response.status, response.readBytes())
     }
-
     post("/statistikk/innlogging") {
         contentFetcher.postInnloggingStatistikk(ident)
         call.respond(HttpStatusCode.OK)
+    }
+}
+
+fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher){
+    get("/aia/{proxyPath...}"){
+        val response = externalContentFetcher.getAiaContent(accessToken, proxyPath)
+        call.respond(response.status, response.readBytes())
     }
 }
 

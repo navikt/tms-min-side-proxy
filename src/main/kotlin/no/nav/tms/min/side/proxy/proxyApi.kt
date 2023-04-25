@@ -90,6 +90,7 @@ fun Application.proxyApi(
                 call.respond(HttpStatusCode.OK)
             }
             proxyRoutes(contentFetcher,externalContentFetcher)
+            aiaRoutes(externalContentFetcher)
         }
     }
 
