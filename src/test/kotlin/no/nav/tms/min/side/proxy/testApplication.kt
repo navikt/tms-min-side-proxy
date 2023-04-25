@@ -15,8 +15,12 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respondBytes
 import io.ktor.server.testing.ApplicationTestBuilder
+import io.mockk.coEvery
+import io.mockk.mockk
+import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.idporten.sidecar.mock.SecurityLevel
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
+import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
 private const val testIssuer = "test-issuer"
 private val jwtStub = JwtStub(testIssuer)
@@ -26,7 +30,7 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedOrigins: String = "*.nav.no",
     corsAllowedSchemes: String = "https",
     contentFetcher: ContentFetcher,
-    externalContentFetcher : ExternalContentFetcher,
+    externalContentFetcher: ExternalContentFetcher,
     securityLevel: SecurityLevel = SecurityLevel.LEVEL_4
 ) = application {
     proxyApi(
@@ -70,10 +74,33 @@ internal suspend fun HttpClient.authenticatedGet(urlString: String, token: Strin
     header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
 }
 
-internal suspend fun HttpClient.authenticatedPost(urlString: String, token: String = stubToken, content: String="""{"test":"testcontent"}"""): HttpResponse =
+internal suspend fun HttpClient.authenticatedPost(
+    urlString: String,
+    token: String = stubToken,
+    content: String = """{"test":"testcontent"}"""
+): HttpResponse =
     request {
         url(urlString)
         method = HttpMethod.Post
         header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
         setBody(content)
     }
+
+const val defaultTestContent = """{"testinnhold": "her testes det innhold"}"""
+
+val tokendigsMock = mockk<TokendingsService>().apply {
+    coEvery { exchangeToken(any(), any()) } returns "<dummytoken>"
+}
+
+val azureMock = mockk<AzureService>().apply {
+    coEvery { getAccessToken(any()) } returns "<azuretoken>"
+}
+
+fun checkJson(receiveText: String) {
+    if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
+    try {
+        jsonConfig().parseToJsonElement(receiveText)
+    } catch (_: Exception) {
+        throw AssertionError("Post kall har sendt ugyldig json:\n$receiveText ")
+    }
+}

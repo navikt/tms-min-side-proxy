@@ -66,6 +66,12 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher){
         val response = externalContentFetcher.getAiaContent(accessToken, proxyPath)
         call.respond(response.status, response.readBytes())
     }
+
+    post("/aia/{proxyPath...}") {
+        val content = jsonConfig().parseToJsonElement(call.receiveText())
+        val response = externalContentFetcher.postAiaContent(accessToken, proxyPath,content)
+        call.respond(response.status)
+    }
 }
 
 
