@@ -9,24 +9,26 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class PostRoutesTest {
 
-    private val baseurl =
+    private val testParametersMap =
         mapOf(
-            "eventaggregator" to "http://eventAggregator.test",
-            "aia" to "http://paw.test"
+            "eventaggregator" to TestParameters("http://eventAggregator.test"),
+            "aia" to TestParameters("http://paw.test", mapOf("Nav-Call-Id" to "dummy-call-id"))
         )
 
 
     @ParameterizedTest
-    @ValueSource(strings = ["eventaggregator","aia"])
+    @ValueSource(strings = ["eventaggregator", "aia"])
     fun `proxy post`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val parameters = testParametersMap.getParameters(tjenestePath)
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
@@ -34,13 +36,19 @@ class PostRoutesTest {
         )
 
         externalServices {
-            hosts(baseurl[tjenestePath]!!) {
+            hosts(parameters.baseUrl) {
                 routing {
                     post("/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+                        }
                         checkJson(call.receiveText())
                         call.respond(HttpStatusCode.OK)
                     }
                     post("/nested/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+                        }
                         checkJson(call.receiveText())
                         call.respond(HttpStatusCode.OK)
                     }
@@ -51,15 +59,21 @@ class PostRoutesTest {
             }
         }
 
-        client.authenticatedPost("/$tjenestePath/destination").assert {
+        client.authenticatedPost(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
         }
-        client.authenticatedPost("/$tjenestePath/nested/destination").assert {
+        client.authenticatedPost("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
         }
 
-        client.authenticatedPost("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedPost("/$tjenestePath/servererror").status shouldBe HttpStatusCode.ServiceUnavailable
+        client.authenticatedPost(
+            "/$tjenestePath/doesnotexist",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.NotFound
+        client.authenticatedPost(
+            "/$tjenestePath/servererror",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
 
@@ -99,14 +113,14 @@ class PostRoutesTest {
         meldekortBaseUrl = "",
         sykDialogmoteBaseUrl = "",
         sykDialogmoteClientId = "",
-        aiaBaseUrl = baseurl["aia"]!!,
+        aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
         aiaClientId = "aia"
     )
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient) = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
         eventAggregatorClientId = "eventaggregator",
-        eventAggregatorBaseUrl = baseurl["eventaggregator"]!!,
+        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
         utkastClientId = "",
         utkastBaseUrl = "",
         personaliaClientId = "",

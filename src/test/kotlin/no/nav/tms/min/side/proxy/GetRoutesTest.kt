@@ -49,16 +49,13 @@ class GetRoutesTest {
                     get("/destination") {
                         parameters.headers?.forEach { requiredHeader ->
                             call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
-
                         }
-
                         call.respondRawJson(defaultTestContent)
                     }
                     get("/nested/destination") {
                         parameters.headers?.forEach { requiredHeader ->
                             call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
                         }
-
                         call.respondRawJson(defaultTestContent)
                     }
                     get("/servererror") {
