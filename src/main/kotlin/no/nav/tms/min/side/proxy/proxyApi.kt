@@ -53,6 +53,9 @@ fun Application.proxyApi(
                     }
                     call.respond(HttpStatusCode.ServiceUnavailable)
                 }
+                is MissingHeaderException -> {
+                   call.respond(HttpStatusCode.BadRequest)
+                }
                 is RequestExcpetion -> {
                     call.respond(cause.responseCode)
 

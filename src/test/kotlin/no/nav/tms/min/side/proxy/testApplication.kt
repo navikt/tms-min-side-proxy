@@ -21,6 +21,7 @@ import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.idporten.sidecar.mock.SecurityLevel
 import no.nav.tms.token.support.idporten.sidecar.mock.installIdPortenAuthMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import java.lang.IllegalArgumentException
 
 private const val testIssuer = "test-issuer"
 private val jwtStub = JwtStub(testIssuer)
@@ -68,11 +69,19 @@ internal suspend fun ApplicationCall.respondRawJson(content: String) =
         contentType = ContentType.Application.Json,
         provider = { content.toByteArray() })
 
-internal suspend fun HttpClient.authenticatedGet(urlString: String, token: String = stubToken): HttpResponse = request {
-    url(urlString)
-    method = HttpMethod.Get
-    header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
-}
+internal suspend fun HttpClient.authenticatedGet(
+    urlString: String,
+    token: String = stubToken,
+    extraheaders: Map<String, String>? = null
+): HttpResponse =
+    request {
+        url(urlString)
+        method = HttpMethod.Get
+        header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+        extraheaders?.forEach {
+            header(it.key, it.value)
+        }
+    }
 
 internal suspend fun HttpClient.authenticatedPost(
     urlString: String,
@@ -102,5 +111,13 @@ fun checkJson(receiveText: String) {
         jsonConfig().parseToJsonElement(receiveText)
     } catch (_: Exception) {
         throw AssertionError("Post kall har sendt ugyldig json:\n$receiveText ")
+    }
+}
+
+data class TestParameters(val baseUrl: String, val headers: Map<String, String>? = null) {
+    companion object {
+        fun Map<String, TestParameters>.getParameters(key: String) = get(key)?.let {
+            it
+        } ?: throw IllegalArgumentException("Finner ingen testparameter for $key")
     }
 }

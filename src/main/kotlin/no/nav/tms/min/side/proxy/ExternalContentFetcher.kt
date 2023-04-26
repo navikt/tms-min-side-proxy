@@ -38,12 +38,13 @@ class ExternalContentFetcher(
             header = "TokenXAuthorization",
         )
 
-    suspend fun getAiaContent(accessToken: String, proxyPath: String?) =
+    suspend fun getAiaContent(accessToken: String, proxyPath: String?, callId: String) =
         proxyHttpClient.getContent(
             userToken = accessToken,
             proxyPath = proxyPath,
             baseUrl = aiaBaseUrl,
-            targetAppId = aiaClientId
+            targetAppId = aiaClientId,
+            extraHeaders = mapOf("Nav-Call-Id" to callId)
         )
 
     suspend fun postAiaContent(accessToken: String, proxyPath: String?, content: JsonElement) =

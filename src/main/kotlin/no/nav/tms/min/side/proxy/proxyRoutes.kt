@@ -61,18 +61,22 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
     }
 }
 
-fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher){
-    get("/aia/{proxyPath...}"){
-        val response = externalContentFetcher.getAiaContent(accessToken, proxyPath)
+fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
+    get("/aia/{proxyPath...}") {
+        val callId = call.navCallId()
+        val response = externalContentFetcher.getAiaContent(accessToken, proxyPath, callId)
         call.respond(response.status, response.readBytes())
     }
 
     post("/aia/{proxyPath...}") {
         val content = jsonConfig().parseToJsonElement(call.receiveText())
-        val response = externalContentFetcher.postAiaContent(accessToken, proxyPath,content)
+        val response = externalContentFetcher.postAiaContent(accessToken, proxyPath, content)
         call.respond(response.status)
     }
 }
+
+private fun ApplicationCall.navCallId() = request.headers["Nav-Call-Id"]
+        ?: throw MissingHeaderException("Request til ${request.uri} mangler Nav-Call-Id header")
 
 
 private val PipelineContext<Unit, ApplicationCall>.accessToken

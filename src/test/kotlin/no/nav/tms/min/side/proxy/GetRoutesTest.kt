@@ -10,24 +10,25 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.mockk.mockk
+import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class GetRoutesTest {
 
-    private val baseurl =
+    private val testParametersMap =
         mapOf(
-            "aap" to "http://aap.test",
-            "meldekort" to "http://meldekort.test",
-            "utkast" to "http://utkast.test",
-            "personalia" to "http://personalia.test",
-            "selector" to "http://selector.test",
-            "varsel" to "http://varsel.test",
-            "eventaggregator" to "http://eventAggregator.test",
-            "syk/dialogmote" to "http://isdialog.test",
-            "oppfolging" to "http://veilarboppfolging.test",
-            "aia" to "http://paw.test"
+            "aap" to TestParameters("http://aap.test"),
+            "meldekort" to TestParameters("http://meldekort.test"),
+            "utkast" to TestParameters("http://utkast.test"),
+            "personalia" to TestParameters("http://personalia.test"),
+            "selector" to TestParameters("http://selector.test"),
+            "varsel" to TestParameters("http://varsel.test"),
+            "eventaggregator" to TestParameters("http://eventAggregator.test"),
+            "syk/dialogmote" to TestParameters("http://isdialog.test"),
+            "oppfolging" to TestParameters("http://veilarboppfolging.test"),
+            "aia" to TestParameters("http://paw.test", mapOf("Nav-Call-Id" to "dummy-call-id"))
         )
 
     @ParameterizedTest
@@ -35,6 +36,7 @@ class GetRoutesTest {
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val parameters = testParametersMap.getParameters(tjenestePath)
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
@@ -42,32 +44,42 @@ class GetRoutesTest {
         )
 
         externalServices {
-            hosts(baseurl[tjenestePath]!!) {
+            hosts(parameters.baseUrl) {
                 routing {
                     get("/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+
+                        }
+
                         call.respondRawJson(defaultTestContent)
                     }
                     get("/nested/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+                        }
+
                         call.respondRawJson(defaultTestContent)
                     }
                     get("/servererror") {
+
                         call.respond(HttpStatusCode.InternalServerError)
                     }
                 }
             }
         }
 
-        client.authenticatedGet("/$tjenestePath/destination").assert {
+        client.authenticatedGet(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe defaultTestContent
         }
-        client.authenticatedGet("/$tjenestePath/nested/destination").assert {
+        client.authenticatedGet("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe defaultTestContent
         }
 
-        client.authenticatedGet("/$tjenestePath/doesnotexist").status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/$tjenestePath/servererror").status shouldBe HttpStatusCode.ServiceUnavailable
+        client.authenticatedGet("/$tjenestePath/doesnotexist",extraheaders = parameters.headers).status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet("/$tjenestePath/servererror",extraheaders = parameters.headers).status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
     @Test
@@ -75,6 +87,7 @@ class GetRoutesTest {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val url = "oppfolging"
+        val testParameters = testParametersMap.getParameters("oppfolging")
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
@@ -82,7 +95,7 @@ class GetRoutesTest {
         )
 
         externalServices {
-            hosts(baseurl["oppfolging"]!!) {
+            hosts(testParameters.baseUrl) {
                 routing {
                     get("/api/niva3/underoppfolging") {
                         val navconsumerHeader = call.request.header("Nav-Consumer-Id")
@@ -123,33 +136,35 @@ class GetRoutesTest {
         mockApi(contentFetcher = mockk(), externalContentFetcher = mockk())
         client.get("/authPing").status shouldBe HttpStatusCode.OK
     }
+
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
         eventAggregatorClientId = "eventaggregatorclient",
-        eventAggregatorBaseUrl = baseurl["eventaggregator"]!!,
+        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
         utkastClientId = "utkastclient",
-        utkastBaseUrl = baseurl["utkast"]!!,
+        utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
         personaliaClientId = "personalia",
-        personaliaBaseUrl = baseurl["personalia"]!!,
+        personaliaBaseUrl = testParametersMap.getParameters("personalia").baseUrl,
         selectorClientId = "selector",
-        selectorBaseUrl = baseurl["selector"]!!,
+        selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
         varselClientId = "varsel",
-        varselBaseUrl = baseurl["varsel"]!!,
+        varselBaseUrl = testParametersMap.getParameters("varsel").baseUrl,
         statistikkClientId = "statistikk",
         statistikkBaseApiUrl = "http://statistikk.test",
-        oppfolgingBaseUrl = baseurl["oppfolging"]!!,
+        oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
         oppfolgingClientId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapBaseUrl = baseurl["aap"]!!,
+        aapBaseUrl = testParametersMap.getParameters("aap").baseUrl,
         aapClientId = "aap",
         meldekortClientId = "meldekort",
-        meldekortBaseUrl = baseurl["meldekort"]!!,
-        sykDialogmoteBaseUrl = baseurl["syk/dialogmote"]!!,
+        meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl,
+        sykDialogmoteBaseUrl = testParametersMap.getParameters("syk/dialogmote").baseUrl,
         sykDialogmoteClientId = "sykdialogmote",
-        aiaBaseUrl = baseurl["aia"]!!,
+        aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
         aiaClientId = "aia",
     )
 }
+

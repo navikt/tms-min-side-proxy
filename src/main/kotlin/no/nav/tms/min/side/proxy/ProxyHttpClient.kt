@@ -32,7 +32,7 @@ class ProxyHttpClient(
         baseUrl: String,
         proxyPath: String?,
         header: String = HttpHeaders.Authorization,
-        extraHeaders: Map<String,String>? = null
+        extraHeaders: Map<String, String>? = null
     ): HttpResponse {
         val exchangedToken = exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
@@ -82,7 +82,7 @@ class ProxyHttpClient(
         url: String,
         authorizationHeader: String,
         accessToken: String,
-        extraHeaders: Map<String,String>? = null
+        extraHeaders: Map<String, String>? = null
     ): HttpResponse =
         withContext(Dispatchers.IO) {
             request {
@@ -90,7 +90,7 @@ class ProxyHttpClient(
                 method = HttpMethod.Get
                 header(authorizationHeader, "Bearer $accessToken")
                 extraHeaders?.forEach {
-                    header(it.key,it.value)
+                    header(it.key, it.value)
                 }
             }
         }.responseIfOk()
@@ -130,3 +130,5 @@ class RequestExcpetion(url: String, status: HttpStatusCode) : Exception(
     val responseCode =
         if (status == HttpStatusCode.NotFound) HttpStatusCode.NotFound else HttpStatusCode.ServiceUnavailable
 }
+
+class MissingHeaderException(message: String):Exception(message)
