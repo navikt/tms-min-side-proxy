@@ -12,7 +12,7 @@ class ExternalContentFetcher(
     private val sykDialogmoteBaseUrl: String,
     private val sykDialogmoteClientId: String,
     private val aiaBaseUrl: String,
-    private val aiaClientId:String
+    private val aiaClientId: String
 ) {
     suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
@@ -21,6 +21,7 @@ class ExternalContentFetcher(
             baseUrl = aapBaseUrl,
             proxyPath = proxyPath,
         )
+
     suspend fun getSykDialogmoteContent(token: String, proxyPath: String?) =
         proxyHttpClient.getContent(
             userToken = token,
@@ -38,22 +39,22 @@ class ExternalContentFetcher(
             header = "TokenXAuthorization",
         )
 
-    suspend fun getAiaContent(accessToken: String, proxyPath: String?, callId: String) =
+    suspend fun getAiaContent(accessToken: String, proxyPath: String?, callId: String?) =
         proxyHttpClient.getContent(
             userToken = accessToken,
             proxyPath = proxyPath,
             baseUrl = aiaBaseUrl,
             targetAppId = aiaClientId,
-            extraHeaders = mapOf("Nav-Call-Id" to callId)
+            extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 
-    suspend fun postAiaContent(accessToken: String, proxyPath: String?, content: JsonElement, callId:String) =
+    suspend fun postAiaContent(accessToken: String, proxyPath: String?, content: JsonElement, callId: String?) =
         proxyHttpClient.postContent(
             content = content,
             proxyPath = proxyPath,
             baseUrl = aiaBaseUrl,
             accessToken = accessToken,
             targetAppId = aiaClientId,
-            extraHeaders = mapOf("Nav-Call-Id" to callId)
+            extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 }

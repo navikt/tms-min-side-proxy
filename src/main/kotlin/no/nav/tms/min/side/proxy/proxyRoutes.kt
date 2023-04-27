@@ -75,7 +75,6 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
 }
 
 private fun ApplicationCall.navCallId() = request.headers["Nav-Call-Id"]
-        ?: throw MissingHeaderException("Request til ${request.uri} mangler Nav-Call-Id header")
 
 
 private val PipelineContext<Unit, ApplicationCall>.accessToken
