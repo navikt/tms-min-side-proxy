@@ -72,10 +72,16 @@ internal suspend fun ApplicationCall.respondRawJson(content: String) =
 internal suspend fun HttpClient.authenticatedGet(
     urlString: String,
     token: String = stubToken,
-    extraheaders: Map<String, String>? = null
+    extraheaders: Map<String, String>? = null,
+    queryParams: Map<String, String>? = null
 ): HttpResponse =
     request {
-        url(urlString)
+        url {
+            url(urlString)
+            queryParams?.forEach { name, value ->
+                parameters.append(name, value)
+            }
+        }
         method = HttpMethod.Get
         header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
         extraheaders?.forEach {
@@ -118,10 +124,13 @@ fun checkJson(receiveText: String) {
     }
 }
 
-data class TestParameters(val baseUrl: String, val headers: Map<String, String>? = null) {
+data class TestParameters(
+    val baseUrl: String,
+    val headers: Map<String, String>? = null,
+    val queryParams: Map<String, String>? = null
+) {
     companion object {
-        fun Map<String, TestParameters>.getParameters(key: String) = get(key)?.let {
-            it
-        } ?: throw IllegalArgumentException("Finner ingen testparameter for $key")
+        fun Map<String, TestParameters>.getParameters(key: String) =
+            get(key) ?: throw IllegalArgumentException("Finner ingen testparameter for $key")
     }
 }

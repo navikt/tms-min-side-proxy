@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.flattenForEach
 import io.ktor.util.pipeline.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
@@ -63,13 +64,18 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
 
 fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
     get("/aia/{proxyPath...}") {
-        val response = externalContentFetcher.getAiaContent(accessToken, proxyPath, call.navCallId())
+        val response = externalContentFetcher.getAiaContent(accessToken, "$proxyPath$queryParameters", call.navCallId())
         call.respond(response.status, response.readBytes())
     }
 
     post("/aia/{proxyPath...}") {
         val content = jsonConfig().parseToJsonElement(call.receiveText())
-        val response = externalContentFetcher.postAiaContent(accessToken, proxyPath, content, call.navCallId())
+        val response = externalContentFetcher.postAiaContent(
+            accessToken,
+            proxyPath,
+            content,
+            call.navCallId(),
+        )
         call.respond(response.status)
     }
 }
@@ -85,3 +91,9 @@ private val PipelineContext<Unit, ApplicationCall>.ident
 
 private val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
     get() = call.parameters.getAll("proxyPath")?.joinToString("/")
+private val PipelineContext<Unit, ApplicationCall>.queryParameters: String
+    get() = call.request.uri.split("?").let { pathsplit ->
+        if (pathsplit.size > 1)
+            "?${pathsplit[1]}"
+        else ""
+    }

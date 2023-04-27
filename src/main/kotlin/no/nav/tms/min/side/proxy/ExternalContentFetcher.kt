@@ -48,7 +48,12 @@ class ExternalContentFetcher(
             extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 
-    suspend fun postAiaContent(accessToken: String, proxyPath: String?, content: JsonElement, callId: String?) =
+    suspend fun postAiaContent(
+        accessToken: String,
+        proxyPath: String?,
+        content: JsonElement,
+        callId: String?,
+    ) =
         proxyHttpClient.postContent(
             content = content,
             proxyPath = proxyPath,

@@ -28,8 +28,17 @@ class GetRoutesTest {
             "eventaggregator" to TestParameters("http://eventAggregator.test"),
             "syk/dialogmote" to TestParameters("http://isdialog.test"),
             "oppfolging" to TestParameters("http://veilarboppfolging.test"),
-            "aia" to TestParameters("http://paw.test", mapOf("Nav-Call-Id" to "dummy-call-id"))
+            "aia" to TestParameters(
+                baseUrl = "http://paw.test",
+                headers = mapOf("Nav-Call-Id" to "dummy-call-id"),
+                queryParams = mapOf(
+                    "feature" to "aia.bruk-bekreft-reaktivering",
+                    "fraOgMed" to "2020-01-01",
+                    "listeparameter" to "[101404,7267261]"
+                )
+            )
         )
+
 
     @ParameterizedTest
     @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "varsel", "syk/dialogmote", "aia"])
@@ -56,6 +65,9 @@ class GetRoutesTest {
                         parameters.headers?.forEach { requiredHeader ->
                             call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
                         }
+                        parameters.queryParams?.forEach { (name, value) ->
+                            call.request.queryParameters[name] shouldBe value
+                        }
                         call.respondRawJson(defaultTestContent)
                     }
                     get("/servererror") {
@@ -70,13 +82,23 @@ class GetRoutesTest {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe defaultTestContent
         }
-        client.authenticatedGet("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
+        client.authenticatedGet(
+            "/$tjenestePath/nested/destination",
+            extraheaders = parameters.headers,
+            queryParams = parameters.queryParams
+        ).assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe defaultTestContent
         }
 
-        client.authenticatedGet("/$tjenestePath/doesnotexist",extraheaders = parameters.headers).status shouldBe HttpStatusCode.NotFound
-        client.authenticatedGet("/$tjenestePath/servererror",extraheaders = parameters.headers).status shouldBe HttpStatusCode.ServiceUnavailable
+        client.authenticatedGet(
+            "/$tjenestePath/doesnotexist",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.NotFound
+        client.authenticatedGet(
+            "/$tjenestePath/servererror",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.ServiceUnavailable
     }
 
     @Test
