@@ -5,20 +5,16 @@ import kotlinx.serialization.json.JsonElement
 
 class ExternalContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val aapClientId: String,
-    private val aapBaseUrl: String,
-    private val meldekortClientId: String,
-    private val meldekortBaseUrl: String,
-    private val sykDialogmoteBaseUrl: String,
-    private val sykDialogmoteClientId: String,
-    private val aiaBaseUrl: String,
-    private val aiaClientId: String
+    private val meldekort: Pair<String, String>,
+    private val aap: Pair<String, String>,
+    private val sykDialogmote: Pair<String, String>,
+    private val aia: Pair<String, String>
 ) {
     suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = aapClientId,
-            baseUrl = aapBaseUrl,
+            targetAppId = aap.clientId,
+            baseUrl = aap.baseUrl,
             proxyPath = proxyPath,
         )
 
@@ -26,15 +22,15 @@ class ExternalContentFetcher(
         proxyHttpClient.getContent(
             userToken = token,
             proxyPath = proxyPath,
-            baseUrl = sykDialogmoteBaseUrl,
-            targetAppId = sykDialogmoteClientId
+            baseUrl = sykDialogmote.baseUrl,
+            targetAppId = sykDialogmote.clientId
         )
 
     suspend fun getMeldekortContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = meldekortClientId,
-            baseUrl = meldekortBaseUrl,
+            targetAppId = meldekort.clientId,
+            baseUrl = meldekort.baseUrl,
             proxyPath = proxyPath,
             header = "TokenXAuthorization",
         )
@@ -43,8 +39,8 @@ class ExternalContentFetcher(
         proxyHttpClient.getContent(
             userToken = accessToken,
             proxyPath = proxyPath,
-            baseUrl = aiaBaseUrl,
-            targetAppId = aiaClientId,
+            baseUrl = aia.baseUrl,
+            targetAppId = aia.clientId,
             extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 
@@ -57,9 +53,9 @@ class ExternalContentFetcher(
         proxyHttpClient.postContent(
             content = content,
             proxyPath = proxyPath,
-            baseUrl = aiaBaseUrl,
+            baseUrl = aia.baseUrl,
             accessToken = accessToken,
-            targetAppId = aiaClientId,
+            targetAppId = aia.clientId,
             extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 }

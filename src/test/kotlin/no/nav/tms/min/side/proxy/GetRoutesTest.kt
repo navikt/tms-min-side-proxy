@@ -158,32 +158,22 @@ class GetRoutesTest {
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregatorClientId = "eventaggregatorclient",
-        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
-        utkastClientId = "utkastclient",
-        utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
-        personaliaClientId = "personalia",
-        personaliaBaseUrl = testParametersMap.getParameters("personalia").baseUrl,
-        selectorClientId = "selector",
-        selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
-        varselClientId = "varsel",
-        varselBaseUrl = testParametersMap.getParameters("varsel").baseUrl,
-        statistikkClientId = "statistikk",
-        statistikkBaseApiUrl = "http://statistikk.test",
+        eventAggregator = Pair("eventaggregatorclient", testParametersMap.getParameters("eventaggregator").baseUrl),
+        utkast = Pair("utkastclient", testParametersMap.getParameters("utkast").baseUrl),
+        personalia = Pair("personalia", testParametersMap.getParameters("personalia").baseUrl),
+        selector = Pair("selector",testParametersMap.getParameters("selector").baseUrl),
+        varsel = Pair("varsel", testParametersMap.getParameters("varsel").baseUrl),
+        statistikk = Pair("statistikk", "http://statistikk.test"),
         oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
         oppfolgingClientId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapBaseUrl = testParametersMap.getParameters("aap").baseUrl,
-        aapClientId = "aap",
-        meldekortClientId = "meldekort",
-        meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl,
-        sykDialogmoteBaseUrl = testParametersMap.getParameters("syk/dialogmote").baseUrl,
-        sykDialogmoteClientId = "sykdialogmote",
-        aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
-        aiaClientId = "aia",
+        aap = Pair("aap", testParametersMap.getParameters("aap").baseUrl),
+        meldekort = Pair("meldekort",testParametersMap.getParameters("meldekort").baseUrl),
+        sykDialogmote = Pair("sykdialogmote", testParametersMap.getParameters("syk/dialogmote").baseUrl),
+        aia = Pair("aia", testParametersMap.getParameters("aia").baseUrl)
     )
 }
 

@@ -5,26 +5,20 @@ import kotlinx.serialization.json.JsonElement
 
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val eventAggregatorClientId: String,
-    private val eventAggregatorBaseUrl: String,
-    private val utkastClientId: String,
-    private val utkastBaseUrl: String,
-    private val personaliaClientId: String,
-    private val personaliaBaseUrl: String,
-    private val selectorClientId: String,
-    private val selectorBaseUrl: String,
-    private val varselClientId: String,
-    private val varselBaseUrl: String,
-    private val statistikkClientId: String,
-    private val statistikkBaseApiUrl: String,
+    private val eventAggregator:Pair<String,String>,
+    private val utkast: Pair<String,String>,
+    private val personalia: Pair<String,String>,
+    private val selector: Pair<String,String>,
+    private val varsel: Pair<String,String>,
+    private val statistikk : Pair<String,String>,
     private val oppfolgingClientId: String,
     private val oppfolgingBaseUrl: String
 ) {
     suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = utkastClientId,
-            baseUrl = utkastBaseUrl,
+            targetAppId = utkast.clientId,
+            baseUrl = utkast.baseUrl,
             proxyPath = proxyPath
         )
 
@@ -32,41 +26,41 @@ class ContentFetcher(
         proxyHttpClient.postContent(
             content = content,
             proxyPath = proxyPath,
-            baseUrl = eventAggregatorBaseUrl,
+            baseUrl = eventAggregator.baseUrl,
             accessToken = token,
-            targetAppId = eventAggregatorClientId,
+            targetAppId = eventAggregator.clientId,
         )
 
 
     suspend fun getPersonaliaContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = personaliaClientId,
-            baseUrl = personaliaBaseUrl,
+            targetAppId = personalia.clientId,
+            baseUrl = personalia.baseUrl,
             proxyPath = proxyPath,
         )
 
     suspend fun getProfilContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = selectorClientId,
-            baseUrl = selectorBaseUrl,
+            targetAppId = selector.clientId,
+            baseUrl = selector.baseUrl,
             proxyPath = proxyPath,
         )
 
     suspend fun getVarselContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
-            targetAppId = varselClientId,
-            baseUrl = varselBaseUrl,
+            targetAppId = varsel.clientId,
+            baseUrl = varsel.baseUrl,
             proxyPath = proxyPath,
         )
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = proxyHttpClient.postWithIdentInBodyWithAzure(
         ident = ident,
-        baseApiUrl = statistikkBaseApiUrl,
+        baseApiUrl = statistikk.baseUrl,
         proxyPath = "/innlogging",
-        clientId = statistikkClientId,
+        clientId = statistikk.clientId,
     )
 
     fun shutDown() {

@@ -21,30 +21,13 @@ fun main() {
 
 data class AppConfiguration(
     val corsAllowedOrigins: String = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
-    val corsAllowedSchemes: String = StringEnvVar.getEnvVar("CORS_ALLOWED_SCHEMES"),
-    private val aapBaseUrl: String = StringEnvVar.getEnvVar("AAP_BASE_URL"),
-    private val aapClientId: String = StringEnvVar.getEnvVar("AAP_CLIENT_ID"),
-    private val eventAggregatorClientId: String = StringEnvVar.getEnvVar("EVENT_AGGREGATOR_CLIENT_ID"),
-    private val eventAggregatorBaseUrl: String = StringEnvVar.getEnvVar("EVENT_AGGREGATOR_BASE_URL"),
-    private val meldekortClientId: String = StringEnvVar.getEnvVar("MELDEKORT_CLIENT_ID"),
-    private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
-    private val utkastClientId: String = StringEnvVar.getEnvVar("UTKAST_CLIENT_ID"),
-    private val utkastBaseUrl: String = StringEnvVar.getEnvVar("UTKAST_BASE_URL"),
-    private val personaliaClientId: String = StringEnvVar.getEnvVar("PERSONALIA_CLIENT_ID"),
-    private val personaliaBaseUrl: String = StringEnvVar.getEnvVar("PERSONALIA_BASE_URL"),
-    private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
-    private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
-    private val varselClientId: String = StringEnvVar.getEnvVar("VARSEL_CLIENT_ID"),
-    private val varselBaseUrl: String = StringEnvVar.getEnvVar("VARSEL_BASE_URL"),
-    private val statistikkClientId: String = StringEnvVar.getEnvVar("STATISTIKK_CLIENT_ID"),
-    private val statistikkBaseUrl: String = StringEnvVar.getEnvVar("STATISTIKK_BASE_URL"),
-    private val sykDialogmoteBaseUrl: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_BASE_URL"),
-    private val sykDialogmoteClientId: String = StringEnvVar.getEnvVar("SYK_DIALOGMOTE_CLIENT_ID"),
+    val meldekortApplication: String = StringEnvVar.getEnvVar("MELDEKORT_APPLICATION"),
     private val oppfolgingClientId: String = StringEnvVar.getEnvVar("OPPFOLGING_CLIENT_ID"),
     private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
-    private val aiaClientId: String = StringEnvVar.getEnvVar("AIA_CLIENT_ID"),
-    private val aiaBaseUrl: String = StringEnvVar.getEnvVar("AIA_API_URL"),
 ) {
+
+    private val appResolver = AppResolver(StringEnvVar.getEnvVar("NAIS_CLUSTER_NAME"))
+
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
             json(jsonConfig())
@@ -60,32 +43,30 @@ data class AppConfiguration(
 
     val contentFecther = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregatorClientId = eventAggregatorClientId,
-        eventAggregatorBaseUrl = eventAggregatorBaseUrl,
-        utkastClientId = utkastClientId,
-        utkastBaseUrl = utkastBaseUrl,
-        personaliaClientId = personaliaClientId,
-        personaliaBaseUrl = personaliaBaseUrl,
-        selectorClientId = selectorClientId,
-        selectorBaseUrl = selectorBaseUrl,
-        varselClientId = varselClientId,
-        varselBaseUrl = varselBaseUrl,
-        statistikkClientId = statistikkClientId,
-        statistikkBaseApiUrl = statistikkBaseUrl,
         oppfolgingClientId = oppfolgingClientId,
         oppfolgingBaseUrl = oppfolgingBaseUrl,
-    )
+        eventAggregator = appResolver.variablesFor("dittnav-event-aggregator"),
+        utkast = appResolver.variablesFor("tms-utkast"),
+        personalia = appResolver.variablesFor(
+            application = "tms-personalia-api",
+            baseUrlPostfix = "/tms-personalia-api"
+        ),
+        selector = appResolver.variablesFor("tms-mikrofrontend-selector"),
+        varsel = appResolver.variablesFor("tms-varsel-api"),
+        statistikk = appResolver.variablesFor("http://tms-statistikk"),
+
+        )
 
     val externalContentFetcher = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapClientId = aapClientId,
-        aapBaseUrl = aapBaseUrl,
-        meldekortClientId = meldekortClientId,
-        meldekortBaseUrl = meldekortBaseUrl,
-        sykDialogmoteBaseUrl = sykDialogmoteBaseUrl,
-        sykDialogmoteClientId = sykDialogmoteClientId,
-        aiaBaseUrl = aiaBaseUrl,
-        aiaClientId = aiaClientId,
+        aap = appResolver.variablesFor(application = "soknad-api", namespace = "aap"),
+        meldekort = appResolver.variablesFor(
+            application = meldekortApplication,
+            namespace = "meldekort",
+            baseUrlPostfix = "/meldekort/meldekort-api"
+        ),
+        sykDialogmote = appResolver.variablesFor(application = "isdialogmote", namespace = "teamsykefravr"),
+        aia = appResolver.variablesFor(application = "aia-backend", namespace = "paw")
     )
 }
 
@@ -101,7 +82,7 @@ fun ApplicationEngineEnvironmentBuilder.envConfig(appConfig: AppConfiguration) {
     module {
         proxyApi(
             corsAllowedOrigins = appConfig.corsAllowedOrigins,
-            corsAllowedSchemes = appConfig.corsAllowedSchemes,
+            corsAllowedSchemes = "https",
             contentFetcher = appConfig.contentFecther,
             externalContentFetcher = appConfig.externalContentFetcher
         )

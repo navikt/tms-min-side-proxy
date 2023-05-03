@@ -50,7 +50,6 @@ internal fun ApplicationTestBuilder.mockApi(
     )
 }
 
-
 fun ApplicationTestBuilder.testApplicationHttpClient() =
     createClient {
         install(clientContentNegotiation) {

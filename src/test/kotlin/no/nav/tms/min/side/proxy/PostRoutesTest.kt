@@ -107,33 +107,25 @@ class PostRoutesTest {
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapClientId = "aap",
-        aapBaseUrl = "",
-        meldekortClientId = "meldekort",
-        meldekortBaseUrl = "",
-        sykDialogmoteBaseUrl = "",
-        sykDialogmoteClientId = "",
-        aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
-        aiaClientId = "aia"
+        aap = defaultPair,
+        meldekort = defaultPair,
+        sykDialogmote= defaultPair,
+        aia = Pair("aia",testParametersMap.getParameters("aia").baseUrl)
     )
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient) = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregatorClientId = "eventaggregator",
-        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
-        utkastClientId = "",
-        utkastBaseUrl = "",
-        personaliaClientId = "",
-        personaliaBaseUrl = "",
-        selectorClientId = "",
-        selectorBaseUrl = "",
-        varselClientId = "",
-        varselBaseUrl = "",
-        statistikkClientId = "statistikk",
-        statistikkBaseApiUrl = "http://statistikk.test",
+        eventAggregator = Pair("eventaggregator", testParametersMap.getParameters("eventaggregator").baseUrl),
+        utkast= defaultPair,
+        personalia= defaultPair,
+        selector = defaultPair,
+        varsel = defaultPair,
+        statistikk = Pair("statistikk","http://statistikk.test"),
         oppfolgingClientId = "",
         oppfolgingBaseUrl = ""
     )
 }
 
 private class StatistikkPostRequest(val ident: String)
+
+private val defaultPair = Pair("","")
