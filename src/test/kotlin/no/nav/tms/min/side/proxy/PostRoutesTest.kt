@@ -1,6 +1,7 @@
 package no.nav.tms.min.side.proxy
 
 import io.kotest.matchers.shouldBe
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
@@ -23,9 +24,9 @@ class PostRoutesTest {
         )
 
 
-    @ParameterizedTest
-    @ValueSource(strings = ["eventaggregator", "aia"])
-    fun `proxy post`(tjenestePath: String) = testApplication {
+    @Test
+    fun `proxy post til aggregator`() = testApplication {
+        val tjenestePath = "eventaggregator"
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val parameters = testParametersMap.getParameters(tjenestePath)
@@ -61,6 +62,61 @@ class PostRoutesTest {
 
         client.authenticatedPost(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
+        }
+        client.authenticatedPost("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
+            status shouldBe HttpStatusCode.OK
+        }
+
+        client.authenticatedPost(
+            "/$tjenestePath/doesnotexist",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.NotFound
+        client.authenticatedPost(
+            "/$tjenestePath/servererror",
+            extraheaders = parameters.headers
+        ).status shouldBe HttpStatusCode.ServiceUnavailable
+    }
+
+    @Test
+    fun `proxy post til aia`() = testApplication {
+        val tjenestePath = "aia"
+        val applicationhttpClient = testApplicationHttpClient()
+        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val parameters = testParametersMap.getParameters(tjenestePath)
+        val expectedBody = """{"hei":"på deg"}"""
+
+        mockApi(
+            contentFetcher = contentFecther(proxyHttpClient),
+            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+        )
+
+        externalServices {
+            hosts(parameters.baseUrl) {
+                routing {
+                    post("/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+                        }
+                        checkJson(call.receiveText())
+                        call.respondRawJson(expectedBody)
+                    }
+                    post("/nested/destination") {
+                        parameters.headers?.forEach { requiredHeader ->
+                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+                        }
+                        checkJson(call.receiveText())
+                        call.respond(HttpStatusCode.OK)
+                    }
+                    post("/servererror") {
+                        call.respond(HttpStatusCode.InternalServerError)
+                    }
+                }
+            }
+        }
+
+        client.authenticatedPost(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
+            status shouldBe HttpStatusCode.OK
+            bodyAsText() shouldBe expectedBody
         }
         client.authenticatedPost("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK

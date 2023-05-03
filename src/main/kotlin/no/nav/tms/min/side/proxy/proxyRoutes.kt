@@ -76,7 +76,7 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
             content,
             call.navCallId(),
         )
-        call.respond(response.status)
+        call.respond(response.status, response.readBytes())
     }
 }
 
