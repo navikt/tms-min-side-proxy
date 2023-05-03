@@ -26,7 +26,7 @@ data class AppConfiguration(
     private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
 ) {
 
-    private val appResolver = AppResolver(StringEnvVar.getEnvVar("NAIS_CLUSTER_NAME"))
+    private val appEnvResolver = AppEnvResolver(StringEnvVar.getEnvVar("NAIS_CLUSTER_NAME"))
 
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
@@ -45,28 +45,28 @@ data class AppConfiguration(
         proxyHttpClient = proxyHttpClient,
         oppfolgingClientId = oppfolgingClientId,
         oppfolgingBaseUrl = oppfolgingBaseUrl,
-        eventAggregator = appResolver.variablesFor("dittnav-event-aggregator"),
-        utkast = appResolver.variablesFor("tms-utkast"),
-        personalia = appResolver.variablesFor(
+        eventAggregator = appEnvResolver.variablesFor("dittnav-event-aggregator"),
+        utkast = appEnvResolver.variablesFor("tms-utkast"),
+        personalia = appEnvResolver.variablesFor(
             application = "tms-personalia-api",
             baseUrlPostfix = "/tms-personalia-api"
         ),
-        selector = appResolver.variablesFor("tms-mikrofrontend-selector"),
-        varsel = appResolver.variablesFor("tms-varsel-api"),
-        statistikk = appResolver.variablesFor("http://tms-statistikk"),
+        selector = appEnvResolver.variablesFor("tms-mikrofrontend-selector"),
+        varsel = appEnvResolver.variablesFor("tms-varsel-api"),
+        statistikk = appEnvResolver.variablesFor("http://tms-statistikk"),
 
         )
 
     val externalContentFetcher = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aap = appResolver.variablesFor(application = "soknad-api", namespace = "aap"),
-        meldekort = appResolver.variablesFor(
+        aap = appEnvResolver.variablesFor(application = "soknad-api", namespace = "aap"),
+        meldekort = appEnvResolver.variablesFor(
             application = meldekortApplication,
             namespace = "meldekort",
             baseUrlPostfix = "/meldekort/meldekort-api"
         ),
-        sykDialogmote = appResolver.variablesFor(application = "isdialogmote", namespace = "teamsykefravr"),
-        aia = appResolver.variablesFor(application = "aia-backend", namespace = "paw")
+        sykDialogmote = appEnvResolver.variablesFor(application = "isdialogmote", namespace = "teamsykefravr"),
+        aia = appEnvResolver.variablesFor(application = "aia-backend", namespace = "paw")
     )
 }
 

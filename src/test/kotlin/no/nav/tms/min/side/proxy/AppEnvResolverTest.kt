@@ -5,11 +5,11 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
 
-internal class AppResolverTest {
+internal class AppEnvResolverTest {
 
     @Test
     fun variablesForTest() {
-        AppResolver("dev-gcp").apply {
+        AppEnvResolver("dev-gcp").apply {
             variablesFor("appnavn").assert {
                 this.clientId shouldBe "dev-gcp:min-side:appnavn"
                 this.baseUrl shouldBe "http://appnavn"
@@ -20,7 +20,7 @@ internal class AppResolverTest {
             }
         }
 
-        AppResolver("prod-gcp")
+        AppEnvResolver("prod-gcp")
             .apply {
                 variablesFor(application = "annet-namespace-app", namespace = "test").assert {
                     this.clientId shouldBe "prod-gcp:test:annet-namespace-app"
@@ -33,11 +33,11 @@ internal class AppResolverTest {
             }
 
         shouldThrow<IllegalArgumentException> {
-            AppResolver("ukjent miljø")
+            AppEnvResolver("ukjent miljø")
         }
 
         shouldThrow<IllegalArgumentException> {
-            AppResolver("prod-fss").variablesFor(application = "app", clusterName = "ikke-kjent")
+            AppEnvResolver("prod-fss").variablesFor(application = "app", clusterName = "ikke-kjent")
         }
 
     }

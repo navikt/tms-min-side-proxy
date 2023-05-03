@@ -1,8 +1,8 @@
 package no.nav.tms.min.side.proxy
 
-import no.nav.tms.min.side.proxy.AppResolver.KnownCluster.Companion.clusterCheck
+import no.nav.tms.min.side.proxy.AppEnvResolver.KnownCluster.Companion.clusterCheck
 
-class AppResolver(private val clustername: String) {
+class AppEnvResolver(private val clustername: String) {
 
     init {
         clustername.clusterCheck()
