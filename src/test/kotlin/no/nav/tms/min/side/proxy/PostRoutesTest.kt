@@ -2,7 +2,9 @@ package no.nav.tms.min.side.proxy
 
 import io.kotest.matchers.shouldBe
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.request.receiveText
@@ -116,6 +118,7 @@ class PostRoutesTest {
 
         client.authenticatedPost(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
+            headers["Content-Type"] shouldBe "application/json"
             bodyAsText() shouldBe expectedBody
         }
         client.authenticatedPost("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {

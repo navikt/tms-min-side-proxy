@@ -78,7 +78,7 @@ internal suspend fun HttpClient.authenticatedGet(
     request {
         url {
             url(urlString)
-            queryParams?.forEach { name, value ->
+            queryParams?.forEach { (name, value) ->
                 parameters.append(name, value)
             }
         }

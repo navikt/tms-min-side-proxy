@@ -69,7 +69,11 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
 fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
     get("/aia/{proxyPath...}") {
         val response = externalContentFetcher.getAiaContent(accessToken, "$proxyPath$queryParameters", call.navCallId())
-        call.respond(response.status, response.readBytes())
+        call.respondBytes(
+            status = response.status,
+            contentType = response.contentType(),
+            provider = { response.readBytes() }
+        )
     }
 
     post("/aia/{proxyPath...}") {
@@ -80,7 +84,11 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
             content,
             call.navCallId(),
         )
-        call.respond(response.status, response.readBytes())
+        call.respondBytes(
+            status = response.status,
+            contentType = response.contentType(),
+            provider = { response.readBytes() }
+        )
     }
 }
 
