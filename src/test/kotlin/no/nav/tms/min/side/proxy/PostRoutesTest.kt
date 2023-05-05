@@ -107,20 +107,20 @@ class PostRoutesTest {
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aap = defaultPair,
-        meldekort = defaultPair,
-        sykDialogmote= defaultPair,
-        aia = Pair("aia",testParametersMap.getParameters("aia").baseUrl)
+        aap = defaultCallable,
+        meldekort = defaultCallable,
+        sykDialogmote= defaultCallable,
+        aia = TestAppVariables("aia",testParametersMap.getParameters("aia").baseUrl)
     )
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient) = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregator = Pair("eventaggregator", testParametersMap.getParameters("eventaggregator").baseUrl),
-        utkast= defaultPair,
-        personalia= defaultPair,
-        selector = defaultPair,
-        varsel = defaultPair,
-        statistikk = Pair("statistikk","http://statistikk.test"),
+        eventAggregator = TestAppVariables("eventaggregator", testParametersMap.getParameters("eventaggregator").baseUrl),
+        utkast= defaultCallable,
+        personalia= defaultCallable,
+        selector = defaultCallable,
+        varsel = defaultCallable,
+        statistikk = TestAppVariables("statistikk","http://statistikk.test"),
         oppfolgingClientId = "",
         oppfolgingBaseUrl = ""
     )
@@ -128,4 +128,4 @@ class PostRoutesTest {
 
 private class StatistikkPostRequest(val ident: String)
 
-private val defaultPair = Pair("","")
+private val defaultCallable = TestAppVariables("","")

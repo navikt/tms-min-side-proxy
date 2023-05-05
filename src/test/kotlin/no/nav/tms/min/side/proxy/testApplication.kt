@@ -133,3 +133,8 @@ data class TestParameters(
             get(key) ?: throw IllegalArgumentException("Finner ingen testparameter for $key")
     }
 }
+
+class TestAppVariables(clientId: String, baseUrl: String) : ApplicationVariables {
+    override val clientId = clientId
+    override val baseUrl = baseUrl
+}

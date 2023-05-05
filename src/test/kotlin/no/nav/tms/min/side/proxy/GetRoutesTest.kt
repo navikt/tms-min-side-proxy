@@ -158,22 +158,21 @@ class GetRoutesTest {
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregator = Pair("eventaggregatorclient", testParametersMap.getParameters("eventaggregator").baseUrl),
-        utkast = Pair("utkastclient", testParametersMap.getParameters("utkast").baseUrl),
-        personalia = Pair("personalia", testParametersMap.getParameters("personalia").baseUrl),
-        selector = Pair("selector",testParametersMap.getParameters("selector").baseUrl),
-        varsel = Pair("varsel", testParametersMap.getParameters("varsel").baseUrl),
-        statistikk = Pair("statistikk", "http://statistikk.test"),
+        eventAggregator = TestAppVariables("eventaggregatorclient", testParametersMap.getParameters("eventaggregator").baseUrl),
+        utkast = TestAppVariables("utkastclient", testParametersMap.getParameters("utkast").baseUrl),
+        personalia = TestAppVariables("personalia", testParametersMap.getParameters("personalia").baseUrl),
+        selector = TestAppVariables("selector", testParametersMap.getParameters("selector").baseUrl),
+        varsel = TestAppVariables("varsel", testParametersMap.getParameters("varsel").baseUrl),
+        statistikk = TestAppVariables("statistikk", "http://statistikk.test"),
         oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
         oppfolgingClientId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aap = Pair("aap", testParametersMap.getParameters("aap").baseUrl),
-        meldekort = Pair("meldekort",testParametersMap.getParameters("meldekort").baseUrl),
-        sykDialogmote = Pair("sykdialogmote", testParametersMap.getParameters("syk/dialogmote").baseUrl),
-        aia = Pair("aia", testParametersMap.getParameters("aia").baseUrl)
+        aap = TestAppVariables("aap", testParametersMap.getParameters("aap").baseUrl),
+        meldekort = TestAppVariables("meldekort", testParametersMap.getParameters("meldekort").baseUrl),
+        sykDialogmote = TestAppVariables("sykdialogmote", testParametersMap.getParameters("syk/dialogmote").baseUrl),
+        aia = TestAppVariables("aia", testParametersMap.getParameters("aia").baseUrl)
     )
 }
-

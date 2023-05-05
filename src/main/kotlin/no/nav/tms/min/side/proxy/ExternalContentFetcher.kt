@@ -5,10 +5,10 @@ import kotlinx.serialization.json.JsonElement
 
 class ExternalContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val meldekort: Pair<String, String>,
-    private val aap: Pair<String, String>,
-    private val sykDialogmote: Pair<String, String>,
-    private val aia: Pair<String, String>
+    private val meldekort: ApplicationVariables,
+    private val aap: ApplicationVariables,
+    private val sykDialogmote: ApplicationVariables,
+    private val aia: ApplicationVariables
 ) {
     suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(

@@ -26,7 +26,7 @@ data class AppConfiguration(
     private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
 ) {
 
-    private val appEnvResolver = AppEnvResolver(StringEnvVar.getEnvVar("NAIS_CLUSTER_NAME"))
+    private val clustername = StringEnvVar.getEnvVar("NAIS_CLUSTER_NAME")
 
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
@@ -45,28 +45,34 @@ data class AppConfiguration(
         proxyHttpClient = proxyHttpClient,
         oppfolgingClientId = oppfolgingClientId,
         oppfolgingBaseUrl = oppfolgingBaseUrl,
-        eventAggregator = appEnvResolver.variablesFor("dittnav-event-aggregator"),
-        utkast = appEnvResolver.variablesFor("tms-utkast"),
-        personalia = appEnvResolver.variablesFor(
+        eventAggregator = EnvAppVariables(clustername, "dittnav-event-aggregator"),
+        utkast = EnvAppVariables(clustername, "tms-utkast"),
+        personalia = EnvAppVariables(
+            clustername = clustername,
             application = "tms-personalia-api",
             baseUrlPostfix = "/tms-personalia-api"
         ),
-        selector = appEnvResolver.variablesFor("tms-mikrofrontend-selector"),
-        varsel = appEnvResolver.variablesFor("tms-varsel-api"),
-        statistikk = appEnvResolver.variablesFor("http://tms-statistikk"),
+        selector = EnvAppVariables(clustername, "tms-mikrofrontend-selector"),
+        varsel = EnvAppVariables(clustername, "tms-varsel-api"),
+        statistikk = EnvAppVariables(clustername, "http://tms-statistikk"),
 
         )
 
     val externalContentFetcher = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aap = appEnvResolver.variablesFor(application = "soknad-api", namespace = "aap"),
-        meldekort = appEnvResolver.variablesFor(
+        aap = EnvAppVariables(clustername = clustername, application = "soknad-api", namespace = "aap"),
+        meldekort = EnvAppVariables(
+            clustername = clustername,
             application = meldekortApplication,
             namespace = "meldekort",
             baseUrlPostfix = "/meldekort/meldekort-api"
         ),
-        sykDialogmote = appEnvResolver.variablesFor(application = "isdialogmote", namespace = "teamsykefravr"),
-        aia = appEnvResolver.variablesFor(application = "aia-backend", namespace = "paw")
+        sykDialogmote = EnvAppVariables(
+            clustername = clustername,
+            application = "isdialogmote",
+            namespace = "teamsykefravr"
+        ),
+        aia = EnvAppVariables(clustername = clustername, application = "aia-backend", namespace = "paw")
     )
 }
 

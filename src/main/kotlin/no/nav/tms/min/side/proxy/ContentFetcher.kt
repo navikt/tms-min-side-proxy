@@ -5,12 +5,12 @@ import kotlinx.serialization.json.JsonElement
 
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val eventAggregator:Pair<String,String>,
-    private val utkast: Pair<String,String>,
-    private val personalia: Pair<String,String>,
-    private val selector: Pair<String,String>,
-    private val varsel: Pair<String,String>,
-    private val statistikk : Pair<String,String>,
+    private val eventAggregator:ApplicationVariables,
+    private val utkast: ApplicationVariables,
+    private val personalia: ApplicationVariables,
+    private val selector: ApplicationVariables,
+    private val varsel: ApplicationVariables,
+    private val statistikk : ApplicationVariables,
     private val oppfolgingClientId: String,
     private val oppfolgingBaseUrl: String
 ) {
