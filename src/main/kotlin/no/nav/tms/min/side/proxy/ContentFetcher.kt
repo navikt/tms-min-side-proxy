@@ -3,6 +3,7 @@ package no.nav.tms.min.side.proxy
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.JsonElement
 
+private const val SIDECAR_WORKAROUND_HEADER = "PROXY_TOKEN"
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
     private val eventAggregatorClientId: String,
@@ -60,6 +61,7 @@ class ContentFetcher(
             targetAppId = varselClientId,
             baseUrl = varselBaseUrl,
             proxyPath = proxyPath,
+            extraHeaders = mapOf(SIDECAR_WORKAROUND_HEADER to token)
         )
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = proxyHttpClient.postWithIdentInBodyWithAzure(

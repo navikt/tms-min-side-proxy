@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
+import mu.KLogger
+import mu.KotlinLogging
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
@@ -25,6 +27,7 @@ class ProxyHttpClient(
     private val tokendingsService: TokendingsService,
     private val azureService: AzureService
 ) {
+    private val log = KotlinLogging.logger {  }
 
     suspend fun getContent(
         userToken: String,
@@ -34,6 +37,9 @@ class ProxyHttpClient(
         header: String = HttpHeaders.Authorization,
         extraHeaders: Map<String, String>? = null
     ): HttpResponse {
+        if(extraHeaders!=null){
+            log.info { "Request med ekstraheadere ${extraHeaders.keys.joinToString(",")} sendt" }
+        }
         val exchangedToken = exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
         return httpClient.get(url, header, exchangedToken, extraHeaders).responseIfOk()
