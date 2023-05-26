@@ -3,7 +3,7 @@ package no.nav.tms.min.side.proxy
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.JsonElement
 
-private const val SIDECAR_WORKAROUND_HEADER = "PROXY_TOKEN"
+private const val SIDECAR_WORKAROUND_HEADER = "token-x-authorization"
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
     private val eventAggregatorClientId: String,
