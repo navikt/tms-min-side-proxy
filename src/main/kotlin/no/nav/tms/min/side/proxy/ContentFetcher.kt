@@ -2,8 +2,8 @@ package no.nav.tms.min.side.proxy
 
 import io.ktor.client.statement.*
 import kotlinx.serialization.json.JsonElement
+import no.nav.tms.token.support.tokendings.exchange.TokenXHeader
 
-private const val SIDECAR_WORKAROUND_HEADER = "token-x-authorization"
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
     private val eventAggregatorClientId: String,
@@ -61,7 +61,7 @@ class ContentFetcher(
             targetAppId = varselClientId,
             baseUrl = varselBaseUrl,
             proxyPath = proxyPath,
-            extraHeaders = mapOf(SIDECAR_WORKAROUND_HEADER to token)
+            extraHeaders = mapOf(TokenXHeader.Authorization to token)
         )
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = proxyHttpClient.postWithIdentInBodyWithAzure(
