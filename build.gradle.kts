@@ -49,6 +49,7 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
+    implementation("com.github.navikt:tms-common-lib:1.5.0")
 
     testImplementation(Junit.api)
     testImplementation(Ktor2.Test.clientMock)

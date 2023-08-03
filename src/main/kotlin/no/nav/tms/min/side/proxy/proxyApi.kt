@@ -19,6 +19,7 @@ import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import mu.KotlinLogging
+import nav.no.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.token.support.idporten.sidecar.LoginLevel.LEVEL_3
 import no.nav.tms.token.support.idporten.sidecar.installIdPortenAuth
 
@@ -39,7 +40,6 @@ fun Application.proxyApi(
     val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     install(DefaultHeaders)
-
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             log.warn { "${call.request.uri}: ${cause.message}" }
@@ -71,6 +71,11 @@ fun Application.proxyApi(
 
     idportenAuthInstaller()
 
+    installTmsMicrometerMetrics {
+        installMicrometerPlugin = true
+        registry = collectorRegistry
+    }
+
     install(CORS) {
         allowHost(host = corsAllowedOrigins, schemes = listOf(corsAllowedSchemes))
         allowCredentials = true
@@ -80,10 +85,6 @@ fun Application.proxyApi(
 
     install(ContentNegotiation) {
         json(jsonConfig())
-    }
-
-    install(MicrometerMetrics) {
-        registry = collectorRegistry
     }
 
     routing {
