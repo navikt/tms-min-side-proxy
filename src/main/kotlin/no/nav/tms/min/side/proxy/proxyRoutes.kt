@@ -25,12 +25,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
         call.respondBytes(response.readBytes(), response.contentType(), response.status)
     }
 
-    post("/eventaggregator/{proxyPath...}") {
-        val content = jsonConfig().parseToJsonElement(call.receiveText())
-        val response = contentFetcher.postEventAggregatorContent(accessToken, content, proxyPath)
-        call.respond(response.status)
-    }
-
     get("/utkast/{proxyPath...}") {
         val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
         call.respondBytes(response.readBytes(), response.contentType(), response.status)
@@ -48,11 +42,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
 
     get("/selector/{proxyPath...}") {
         val response = contentFetcher.getProfilContent(accessToken, proxyPath)
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
-    }
-
-    get("/varsel/{proxyPath...}") {
-        val response = contentFetcher.getVarselContent(accessToken, proxyPath)
         call.respondBytes(response.readBytes(), response.contentType(), response.status)
     }
 

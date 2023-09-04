@@ -81,10 +81,6 @@ spec:
       value: "*.dev.nav.no"
     - name: CORS_ALLOWED_SCHEMES
       value: https
-    - name: EVENT_AGGREGATOR_BASE_URL
-      value: http://dittnav-event-aggregator
-    - name: EVENT_AGGREGATOR_CLIENT_ID
-      value: dev-gcp:min-side:dittnav-event-aggregator
     - name: MELDEKORT_BASE_URL
       value: http://meldekort-api-q2.meldekort/meldekort/meldekort-api
     - name: MELDEKORT_CLIENT_ID
@@ -101,10 +97,6 @@ spec:
       value: http://tms-utkast
     - name: UTKAST_CLIENT_ID
       value: dev-gcp:min-side:tms-utkast
-    - name: VARSEL_BASE_URL
-      value: http://tms-varsel-api
-    - name: VARSEL_CLIENT_ID
-      value: dev-gcp:min-side:tms-varsel-api
     - name: SYK_DIALOGMOTE_BASE_URL
       value: http://isdialogmote.teamsykefravr
     - name: SYK_DIALOGMOTE_CLIENT_ID

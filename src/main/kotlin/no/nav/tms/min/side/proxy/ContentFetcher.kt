@@ -6,16 +6,12 @@ import no.nav.tms.token.support.tokendings.exchange.TokenXHeader
 
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val eventAggregatorClientId: String,
-    private val eventAggregatorBaseUrl: String,
     private val utkastClientId: String,
     private val utkastBaseUrl: String,
     private val personaliaClientId: String,
     private val personaliaBaseUrl: String,
     private val selectorClientId: String,
     private val selectorBaseUrl: String,
-    private val varselClientId: String,
-    private val varselBaseUrl: String,
     private val statistikkClientId: String,
     private val statistikkBaseApiUrl: String,
     private val oppfolgingClientId: String,
@@ -27,15 +23,6 @@ class ContentFetcher(
             targetAppId = utkastClientId,
             baseUrl = utkastBaseUrl,
             proxyPath = proxyPath
-        )
-
-    suspend fun postEventAggregatorContent(token: String, content: JsonElement, proxyPath: String?): HttpResponse =
-        proxyHttpClient.postContent(
-            content = content,
-            proxyPath = proxyPath,
-            baseUrl = eventAggregatorBaseUrl,
-            accessToken = token,
-            targetAppId = eventAggregatorClientId,
         )
 
 
@@ -55,14 +42,6 @@ class ContentFetcher(
             proxyPath = proxyPath,
         )
 
-    suspend fun getVarselContent(token: String, proxyPath: String?): HttpResponse =
-        proxyHttpClient.getContent(
-            userToken = token,
-            targetAppId = varselClientId,
-            baseUrl = varselBaseUrl,
-            proxyPath = proxyPath,
-            extraHeaders = mapOf(TokenXHeader.Authorization to token)
-        )
 
     suspend fun postInnloggingStatistikk(ident: String): HttpResponse = proxyHttpClient.postWithIdentInBodyWithAzure(
         ident = ident,

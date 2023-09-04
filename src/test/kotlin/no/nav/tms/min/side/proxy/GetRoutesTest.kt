@@ -24,8 +24,6 @@ class GetRoutesTest {
             "utkast" to TestParameters("http://utkast.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
-            "varsel" to TestParameters("http://varsel.test"),
-            "eventaggregator" to TestParameters("http://eventAggregator.test"),
             "syk/dialogmote" to TestParameters("http://isdialog.test"),
             "oppfolging" to TestParameters("http://veilarboppfolging.test"),
             "aia" to TestParameters(
@@ -42,7 +40,7 @@ class GetRoutesTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "varsel", "syk/dialogmote", "aia", "motebehov"])
+    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "syk/dialogmote", "aia", "motebehov"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
@@ -159,16 +157,12 @@ class GetRoutesTest {
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregatorClientId = "eventaggregatorclient",
-        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
         utkastClientId = "utkastclient",
         utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
         personaliaClientId = "personalia",
         personaliaBaseUrl = testParametersMap.getParameters("personalia").baseUrl,
         selectorClientId = "selector",
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
-        varselClientId = "varsel",
-        varselBaseUrl = testParametersMap.getParameters("varsel").baseUrl,
         statistikkClientId = "statistikk",
         statistikkBaseApiUrl = "http://statistikk.test",
         oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,

@@ -19,63 +19,8 @@ class PostRoutesTest {
 
     private val testParametersMap =
         mapOf(
-            "eventaggregator" to TestParameters("http://eventAggregator.test"),
             "aia" to TestParameters("http://paw.test", mapOf("Nav-Call-Id" to "dummy-call-id"))
         )
-
-
-    @Test
-    fun `proxy post til aggregator`() = testApplication {
-        val tjenestePath = "eventaggregator"
-        val applicationhttpClient = testApplicationHttpClient()
-        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
-        val parameters = testParametersMap.getParameters(tjenestePath)
-
-        mockApi(
-            contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
-        )
-
-        externalServices {
-            hosts(parameters.baseUrl) {
-                routing {
-                    post("/destination") {
-                        parameters.headers?.forEach { requiredHeader ->
-                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
-                        }
-                        checkJson(call.receiveText())
-                        call.respond(HttpStatusCode.OK)
-                    }
-                    post("/nested/destination") {
-                        parameters.headers?.forEach { requiredHeader ->
-                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
-                        }
-                        checkJson(call.receiveText())
-                        call.respond(HttpStatusCode.OK)
-                    }
-                    post("/servererror") {
-                        call.respond(HttpStatusCode.InternalServerError)
-                    }
-                }
-            }
-        }
-
-        client.authenticatedPost(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
-            status shouldBe HttpStatusCode.OK
-        }
-        client.authenticatedPost("/$tjenestePath/nested/destination", extraheaders = parameters.headers).assert {
-            status shouldBe HttpStatusCode.OK
-        }
-
-        client.authenticatedPost(
-            "/$tjenestePath/doesnotexist",
-            extraheaders = parameters.headers
-        ).status shouldBe HttpStatusCode.NotFound
-        client.authenticatedPost(
-            "/$tjenestePath/servererror",
-            extraheaders = parameters.headers
-        ).status shouldBe HttpStatusCode.ServiceUnavailable
-    }
 
     @Test
     fun `proxy post til aia`() = testApplication {
@@ -178,16 +123,12 @@ class PostRoutesTest {
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient) = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        eventAggregatorClientId = "eventaggregator",
-        eventAggregatorBaseUrl = testParametersMap.getParameters("eventaggregator").baseUrl,
         utkastClientId = "",
         utkastBaseUrl = "",
         personaliaClientId = "",
         personaliaBaseUrl = "",
         selectorClientId = "",
         selectorBaseUrl = "",
-        varselClientId = "",
-        varselBaseUrl = "",
         statistikkClientId = "statistikk",
         statistikkBaseApiUrl = "http://statistikk.test",
         oppfolgingClientId = "",
