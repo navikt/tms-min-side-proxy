@@ -41,7 +41,7 @@ class GetRoutesTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "personalia", "meldekort", "selector", "syk/dialogmote", "aia", "motebehov"])
+    @ValueSource(strings = ["aap", "utkast", "meldekort", "selector", "syk/dialogmote", "aia", "motebehov"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
@@ -49,7 +49,8 @@ class GetRoutesTest {
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+            externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk()
         )
 
         externalServices {
@@ -110,7 +111,8 @@ class GetRoutesTest {
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+            externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk()
         )
 
         externalServices {
@@ -142,7 +144,8 @@ class GetRoutesTest {
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+            externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk()
         )
 
         client.get("/internal/isAlive").status shouldBe HttpStatusCode.OK
@@ -160,7 +163,8 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            unleash = unleash
+            unleash = unleash,
+            navnFetcher = mockk()
         )
 
         client.get("/featuretoggles").assert {
@@ -171,7 +175,7 @@ class GetRoutesTest {
 
     @Test
     fun authPing() = testApplication {
-        mockApi(contentFetcher = mockk(), externalContentFetcher = mockk())
+        mockApi(contentFetcher = mockk(), externalContentFetcher = mockk(), navnFetcher = mockk())
         client.get("/authPing").status shouldBe HttpStatusCode.OK
     }
 
@@ -179,8 +183,6 @@ class GetRoutesTest {
         proxyHttpClient = proxyHttpClient,
         utkastClientId = "utkastclient",
         utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
-        personaliaClientId = "personalia",
-        personaliaBaseUrl = testParametersMap.getParameters("personalia").baseUrl,
         selectorClientId = "selector",
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
         statistikkClientId = "statistikk",

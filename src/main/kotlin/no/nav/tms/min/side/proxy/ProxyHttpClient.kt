@@ -15,8 +15,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
@@ -62,7 +60,7 @@ class ProxyHttpClient(
         }
 
     suspend fun postContent(
-        content: JsonElement,
+        content: ByteArray,
         proxyPath: String?,
         baseUrl: String,
         accessToken: String,
@@ -111,7 +109,7 @@ class ProxyHttpClient(
 
     private suspend inline fun HttpClient.post(
         url: String,
-        content: JsonElement,
+        content: ByteArray,
         accessToken: String,
         extraHeaders: Map<String, String>? = null
     ): HttpResponse =
@@ -133,7 +131,6 @@ class ProxyHttpClient(
     }
 }
 
-@Serializable
 data class LoginPostBody(val ident: String)
 
 class TokendingsException(targetapp: String, val accessToken: String, originalException: Exception) :

@@ -1,15 +1,11 @@
 package no.nav.tms.min.side.proxy
 
 import io.ktor.client.statement.*
-import kotlinx.serialization.json.JsonElement
-import no.nav.tms.token.support.tokendings.exchange.TokenXHeader
 
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
     private val utkastClientId: String,
     private val utkastBaseUrl: String,
-    private val personaliaClientId: String,
-    private val personaliaBaseUrl: String,
     private val selectorClientId: String,
     private val selectorBaseUrl: String,
     private val statistikkClientId: String,
@@ -23,15 +19,6 @@ class ContentFetcher(
             targetAppId = utkastClientId,
             baseUrl = utkastBaseUrl,
             proxyPath = proxyPath
-        )
-
-
-    suspend fun getPersonaliaContent(token: String, proxyPath: String?): HttpResponse =
-        proxyHttpClient.getContent(
-            userToken = token,
-            targetAppId = personaliaClientId,
-            baseUrl = personaliaBaseUrl,
-            proxyPath = proxyPath,
         )
 
     suspend fun getProfilContent(token: String, proxyPath: String?): HttpResponse =

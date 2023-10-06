@@ -2,7 +2,6 @@ package no.nav.tms.min.side.proxy
 
 import io.getunleash.Unleash
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
 import io.ktor.server.application.call
@@ -18,9 +17,11 @@ import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
+import io.ktor.serialization.jackson.*
 import nav.no.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.min.side.proxy.personalia.HentNavnException
+import no.nav.tms.min.side.proxy.personalia.NavnFetcher
+import no.nav.tms.min.side.proxy.personalia.navnRoutes
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
@@ -32,6 +33,7 @@ fun Application.proxyApi(
     corsAllowedSchemes: String,
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
+    navnFetcher: NavnFetcher,
     idportenAuthInstaller: Application.() -> Unit = {
         authentication {
             idPorten {
@@ -69,6 +71,10 @@ fun Application.proxyApi(
 
                 }
 
+                is HentNavnException -> {
+                    call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av navn")
+                }
+
                 else -> {
                     securelog.error { cause.stackTraceToString() }
                     call.respond(HttpStatusCode.InternalServerError)
@@ -93,7 +99,7 @@ fun Application.proxyApi(
     }
 
     install(ContentNegotiation) {
-        json(jsonConfig())
+        jackson { jsonConfig() }
     }
 
     routing {
@@ -104,12 +110,13 @@ fun Application.proxyApi(
             }
             proxyRoutes(contentFetcher, externalContentFetcher)
             aiaRoutes(externalContentFetcher)
+            navnRoutes(navnFetcher)
             get("featuretoggles") {
-                call.respond(JsonObject(
+                call.respond(
                     unleash.more().evaluateAllToggles().associate {
-                        it.name to JsonPrimitive(it.isEnabled)
+                        it.name to it.isEnabled
                     }
-                ))
+                )
             }
         }
     }

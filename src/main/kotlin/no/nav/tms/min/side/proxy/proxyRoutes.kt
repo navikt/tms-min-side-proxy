@@ -1,5 +1,6 @@
 package no.nav.tms.min.side.proxy
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -10,6 +11,7 @@ import io.ktor.util.flattenForEach
 import io.ktor.util.pipeline.*
 import io.ktor.util.toMap
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.utils.io.*
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 
 private val log = KotlinLogging.logger {}
@@ -27,11 +29,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
 
     get("/utkast/{proxyPath...}") {
         val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
-    }
-
-    get("/personalia/{proxyPath...}") {
-        val response = contentFetcher.getPersonaliaContent(accessToken, proxyPath)
         call.respondBytes(response.readBytes(), response.contentType(), response.status)
     }
 
@@ -68,7 +65,7 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
     }
 
     post("/aia/{proxyPath...}") {
-        val content = jsonConfig().parseToJsonElement(call.receiveText())
+        val content = call.receive<ByteArray>()
         val response = externalContentFetcher.postAiaContent(
             accessToken,
             proxyPath,

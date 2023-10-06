@@ -22,8 +22,10 @@ repositories {
 }
 
 dependencies {
+    implementation(Caffeine.caffeine)
     implementation(DittNAVCommonLib.utils)
     implementation(JacksonDatatype.datatypeJsr310)
+    implementation(JacksonDatatype.moduleKotlin)
     implementation(Kotlinx.coroutines)
     implementation(KotlinLogging.logging)
     implementation(Ktor.Server.core)
@@ -37,7 +39,7 @@ dependencies {
     implementation(Ktor.Client.core)
     implementation(Ktor.Client.apache)
     implementation(Ktor.Client.contentNegotiation)
-    implementation(Ktor.Serialization.kotlinX)
+    implementation(Ktor.Serialization.jackson)
     implementation(Ktor.Server.contentNegotiation)
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)

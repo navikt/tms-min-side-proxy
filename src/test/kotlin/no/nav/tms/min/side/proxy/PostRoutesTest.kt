@@ -10,6 +10,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
+import io.mockk.mockk
 import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -32,7 +33,8 @@ class PostRoutesTest {
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+            externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk()
         )
 
         externalServices {
@@ -86,7 +88,8 @@ class PostRoutesTest {
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient)
+            externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk()
         )
 
         externalServices {
@@ -125,8 +128,6 @@ class PostRoutesTest {
         proxyHttpClient = proxyHttpClient,
         utkastClientId = "",
         utkastBaseUrl = "",
-        personaliaClientId = "",
-        personaliaBaseUrl = "",
         selectorClientId = "",
         selectorBaseUrl = "",
         statistikkClientId = "statistikk",

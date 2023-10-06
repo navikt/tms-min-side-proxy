@@ -49,6 +49,7 @@ spec:
         - host: veilarboppfolging.prod-fss-pub.nais.io
         - host: syfomotebehov.prod-fss-pub.nais.io
         - host: min-side-unleash-api.nav.cloud.nais.io
+        - host: pdl-api.prod-fss-pub.nais.io
       rules:
         - application: tms-utkast
         - application: dittnav-event-aggregator
@@ -115,6 +116,10 @@ spec:
       value: prod-fss:team-esyfo:syfomotebehov
     - name: UNLEASH_ENVIRONMENT
       value: production
+    - name: PDL_API_URL
+      value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
+    - name: PDL_API_CLIENT_ID
+      value: "prod-fss:pdl:pdl-api"
   envFrom:
     - secret: tms-min-side-proxy-unleash-api-token
 

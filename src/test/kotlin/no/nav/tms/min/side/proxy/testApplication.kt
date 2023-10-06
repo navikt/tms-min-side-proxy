@@ -1,5 +1,6 @@
 package no.nav.tms.min.side.proxy
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.getunleash.FakeUnleash
 import io.getunleash.Unleash
 import io.ktor.client.HttpClient
@@ -13,13 +14,14 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.jackson.*
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.*
 import io.ktor.server.response.respondBytes
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.tms.min.side.proxy.personalia.NavnFetcher
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
 import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
@@ -35,6 +37,7 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedSchemes: String = "https",
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
+    navnFetcher: NavnFetcher,
     levelOfAssurance: LevelOfAssurance = LevelOfAssurance.LEVEL_4,
     unleash: Unleash = FakeUnleash()
 ) = application {
@@ -53,6 +56,7 @@ internal fun ApplicationTestBuilder.mockApi(
                 }
             }
         },
+        navnFetcher = navnFetcher,
         unleash = unleash
     )
 }
@@ -61,7 +65,7 @@ internal fun ApplicationTestBuilder.mockApi(
 fun ApplicationTestBuilder.testApplicationHttpClient() =
     createClient {
         install(clientContentNegotiation) {
-            json(jsonConfig())
+            jackson { jsonConfig() }
         }
         install(HttpTimeout)
     }
@@ -90,7 +94,7 @@ internal suspend fun HttpClient.authenticatedGet(
             }
         }
         method = HttpMethod.Get
-        header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
+        header(HttpHeaders.Authorization, "Bearer $token")
         extraheaders?.forEach {
             header(it.key, it.value)
         }
@@ -125,7 +129,7 @@ val azureMock = mockk<AzureService>().apply {
 fun checkJson(receiveText: String) {
     if (receiveText == "") throw AssertionError("Post kall har ikke sendt med body")
     try {
-        jsonConfig().parseToJsonElement(receiveText)
+        jacksonObjectMapper().readTree(receiveText)
     } catch (_: Exception) {
         throw AssertionError("Post kall har sendt ugyldig json:\n$receiveText ")
     }

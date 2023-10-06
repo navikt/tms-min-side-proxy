@@ -1,7 +1,6 @@
 package no.nav.tms.min.side.proxy
 
 import io.ktor.client.statement.HttpResponse
-import kotlinx.serialization.json.JsonElement
 
 class ExternalContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
@@ -53,7 +52,7 @@ class ExternalContentFetcher(
     suspend fun postAiaContent(
         accessToken: String,
         proxyPath: String?,
-        content: JsonElement,
+        content: ByteArray,
         callId: String?,
     ) =
         proxyHttpClient.postContent(
