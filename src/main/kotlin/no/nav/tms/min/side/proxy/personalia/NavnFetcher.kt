@@ -20,7 +20,7 @@ class NavnFetcher(
 ) {
 
     private val cache = Caffeine.newBuilder()
-        .maximumSize(1000)
+        .maximumSize(10000)
         .expireAfterWrite(Duration.ofMinutes(5))
         .build<String, String>()
 
