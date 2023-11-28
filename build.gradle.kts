@@ -55,6 +55,7 @@ dependencies {
     implementation(Prometheus.logback)
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.utils)
+    implementation(TmsCommonLib.observability)
     implementation(Unleash.clientJava)
 
     testImplementation(Junit.api)

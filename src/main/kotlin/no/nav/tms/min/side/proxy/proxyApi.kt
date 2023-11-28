@@ -25,6 +25,7 @@ import no.nav.tms.min.side.proxy.personalia.navnRoutes
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
+import observability.ApiMdc
 
 private val log = KotlinLogging.logger {}
 private val securelog = KotlinLogging.logger("secureLog")
@@ -48,12 +49,13 @@ fun Application.proxyApi(
     val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
     install(DefaultHeaders)
+    install(ApiMdc)
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            log.warn { "${call.request.uri}: ${cause.message}" }
+            log.warn { "Api-kall feiler: ${cause.message}" }
             when (cause) {
                 is TokendingsException -> {
-                    securelog.warn {
+                    securelog.warn(cause) {
                         """
                         ${cause.message} for token 
                         ${cause.accessToken}
