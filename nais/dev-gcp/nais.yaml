@@ -56,6 +56,8 @@ spec:
           namespace: meldekort
         - application: soknad-api
           namespace: aap
+        - application: innsending
+          namespace: aap
         - application: veilarboppfolging
           namespace: pto
           cluster: dev-fss
