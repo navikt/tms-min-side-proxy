@@ -11,21 +11,20 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.defaultheaders.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.jackson.*
-import nav.no.tms.common.metrics.installTmsMicrometerMetrics
+import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.min.side.proxy.personalia.HentNavnException
 import no.nav.tms.min.side.proxy.personalia.NavnFetcher
 import no.nav.tms.min.side.proxy.personalia.navnRoutes
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
-import observability.ApiMdc
+import no.nav.tms.common.observability.ApiMdc
 
 private val log = KotlinLogging.logger {}
 private val securelog = KotlinLogging.logger("secureLog")
