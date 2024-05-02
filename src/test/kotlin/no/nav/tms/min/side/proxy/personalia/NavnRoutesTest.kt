@@ -3,8 +3,6 @@ package no.nav.tms.min.side.proxy.personalia
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.ktor.client.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -18,6 +16,8 @@ import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.tms.common.testutils.initExternalServices
+import no.nav.tms.min.side.proxy.HttpRouteProvider
 import no.nav.tms.min.side.proxy.jsonConfig
 import no.nav.tms.min.side.proxy.mockApi
 import no.nav.tms.min.side.proxy.respondRawJson
@@ -47,22 +47,16 @@ class NavnRoutesTest {
         val fornavn = "Navn1"
         val mellomnavn = "Navn2"
         val etternavn = "Navn3"
+        val requestAssertion = PdlRequestAssertion(fornavn, mellomnavn, etternavn)
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(validResponse(fornavn, mellomnavn, etternavn))
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -82,23 +76,17 @@ class NavnRoutesTest {
     fun `Ignorerer manglende mellomnavn`() = testApplication {
         val fornavn = "Navn1"
         val etternavn = "Navn3"
+        val requestAssertion = PdlRequestAssertion(fornavn, null, etternavn)
+
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(validResponse(fornavn, null, etternavn))
-                    }
-                }
-            }
-        }
-
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
@@ -115,21 +103,16 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med feil hvis pdl-response har feil`() = testApplication {
+        val requestAssertion = PdlRequestAssertion(null, null, null)
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(responseWithError())
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -144,21 +127,16 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med feil hvis pdl-response ikke har data`() = testApplication {
+        val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(responseWithoutData())
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -173,21 +151,16 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med brukers ident`() = testApplication {
+        val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(responseWithError())
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -208,22 +181,17 @@ class NavnRoutesTest {
         val fornavn = "Navn1"
         val mellomnavn = "Navn2"
         val etternavn = "Navn3"
+        val requestAssertion = PdlRequestAssertion(fornavn, mellomnavn, etternavn, false)
+
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.request.header(HttpHeaders.Authorization) shouldContain token
-                        call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
-                        call.respondRawJson(validResponse(fornavn, mellomnavn, etternavn))
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -243,19 +211,17 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer kun med ident hvis pdl feiler`() = testApplication {
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        externalServices {
-            hosts("http://pdl") {
-                routing {
-                    post("/graphql") {
-                        call.respond(HttpStatusCode.InternalServerError)
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = {
+                it.respond(HttpStatusCode.InternalServerError)
+            })
+        )
 
         mockApi(
             contentFetcher = mockk(),
@@ -323,8 +289,29 @@ class NavnRoutesTest {
         }
     """.trimIndent()
 
-    private fun String?.jsonNode() = when(this) {
+    private fun String?.jsonNode() = when (this) {
         null -> "null"
         else -> "\"$this\""
+    }
+
+    inner class PdlRequestAssertion(
+        private val fornavn: String?,
+        private val mellomnavn: String?,
+        private val etternavn: String?,
+        private val hasEmptyResponse: Boolean = false
+    ) {
+
+        suspend fun assertion(call: ApplicationCall) {
+            call.request.header(HttpHeaders.Authorization) shouldContain "token"
+            call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
+
+            if (hasEmptyResponse) {
+                call.respondRawJson(responseWithoutData())
+            } else if (fornavn == null || etternavn == null)
+                call.respondRawJson(responseWithError())
+            else
+                call.respondRawJson(validResponse(fornavn, mellomnavn, etternavn))
+
+        }
     }
 }

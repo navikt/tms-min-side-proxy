@@ -67,6 +67,7 @@ dependencies {
     testImplementation(Jjwt.api)
     testImplementation(Mockk.mockk)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
+    testImplementation(TmsCommonLib.testutils)
 }
 
 application {
