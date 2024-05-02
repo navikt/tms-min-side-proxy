@@ -25,9 +25,7 @@ class GetRoutesTest {
             "utkast" to TestParameters("http://utkast.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
-            "oppfolging" to TestParameters(
-                baseUrl = "http://veilarboppfolging.test",
-            ),
+            "oppfolging" to TestParameters("http://veilarboppfolging.test"),
             "aia" to TestParameters(
                 baseUrl = "http://paw.test",
                 headers = mapOf("Nav-Call-Id" to "dummy-call-id"),
@@ -206,7 +204,7 @@ class GetRoutesTest {
         private val parameters: TestParameters, private val isNestedPath: Boolean
     ) {
         fun assertion(it: ApplicationCall) {
-            this.parameters.headers?.forEach { requiredHeader ->
+            parameters.headers?.forEach { requiredHeader ->
                 it.request.headers[requiredHeader.key] shouldBe requiredHeader.value
             }
 

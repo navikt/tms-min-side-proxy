@@ -311,7 +311,6 @@ class NavnRoutesTest {
                 call.respondRawJson(responseWithError())
             else
                 call.respondRawJson(validResponse(fornavn, mellomnavn, etternavn))
-
         }
     }
 }
