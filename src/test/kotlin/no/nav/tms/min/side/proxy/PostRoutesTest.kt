@@ -1,20 +1,14 @@
 package no.nav.tms.min.side.proxy
 
 import io.kotest.matchers.shouldBe
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
-import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
+import io.ktor.server.routing.*
 import io.ktor.server.testing.testApplication
 import io.mockk.mockk
-import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
+import no.nav.tms.common.testutils.initExternalServices
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 
 class PostRoutesTest {
 
@@ -30,17 +24,14 @@ class PostRoutesTest {
             navnFetcher = mockk()
         )
 
-        externalServices {
-            hosts("http://statistikk.test") {
-                routing {
-                    post("/innlogging") {
-                        callCount += 1
-                        call.receive<StatistikkPostRequest>().ident shouldBe "12345"
-                        call.respond(HttpStatusCode.OK)
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            "http://statistikk.test",
+            HttpRouteProvider("innlogging", routeMethodFunction = Routing::post, assert = { call ->
+                callCount += 1
+                call.receive<StatistikkPostRequest>().ident shouldBe "12345"
+                call.respond(HttpStatusCode.OK)
+            })
+        )
 
         client.authenticatedPost("/statistikk/innlogging").assert {
             status shouldBe HttpStatusCode.OK

@@ -8,9 +8,9 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.mockk.mockk
+import no.nav.tms.common.testutils.initExternalServices
 import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
 import org.junit.jupiter.api.Test
@@ -18,7 +18,6 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 class GetRoutesTest {
-
     private val testParametersMap =
         mapOf(
             "aap" to TestParameters("http://aap.test"),
@@ -40,11 +39,13 @@ class GetRoutesTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "meldekort", "selector","aia"])
+    @ValueSource(strings = ["aap", "utkast", "meldekort", "selector", "aia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val parameters = testParametersMap.getParameters(tjenestePath)
+        val proxyRouteAssert = ProxyRouteAssertion(parameters = parameters, isNestedPath = false)
+        val proxyNestedRouteAssert = ProxyRouteAssertion(parameters = parameters, isNestedPath = true)
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
@@ -52,31 +53,16 @@ class GetRoutesTest {
             navnFetcher = mockk()
         )
 
-        externalServices {
-            hosts(parameters.baseUrl) {
-                routing {
-                    get("/destination") {
-                        parameters.headers?.forEach { requiredHeader ->
-                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
-                        }
-                        call.respondRawJson(defaultTestContent)
-                    }
-                    get("/nested/destination") {
-                        parameters.headers?.forEach { requiredHeader ->
-                            call.request.headers[requiredHeader.key] shouldBe requiredHeader.value
-                        }
-                        parameters.queryParams?.forEach { (name, value) ->
-                            call.request.queryParameters[name] shouldBe value
-                        }
-                        call.respondRawJson(defaultTestContent)
-                    }
-                    get("/servererror") {
-
-                        call.respond(HttpStatusCode.InternalServerError)
-                    }
-                }
-            }
-        }
+        initExternalServices(
+            parameters.baseUrl,
+            HttpRouteProvider("/destination", assert = proxyRouteAssert::assertion),
+            HttpRouteProvider("/nested/destination", assert = proxyNestedRouteAssert::assertion),
+            HttpRouteProvider(
+                "/servererror",
+                HttpStatusCode.InternalServerError,
+                requestContent = "Feil med status: 500",
+            )
+        )
 
         client.authenticatedGet(urlString = "/$tjenestePath/destination", extraheaders = parameters.headers).assert {
             status shouldBe HttpStatusCode.OK
@@ -114,28 +100,28 @@ class GetRoutesTest {
             navnFetcher = mockk()
         )
 
-        externalServices {
-            hosts(testParameters.baseUrl) {
-                routing {
-                    get("/api/niva3/underoppfolging") {
-                        val navconsumerHeader = call.request.header("Nav-Consumer-Id")
-                        if (navconsumerHeader == null) {
-                            call.respond(HttpStatusCode.BadRequest)
-                        } else {
-                            navconsumerHeader shouldBe "min-side:tms-min-side-proxy"
-                            call.respondRawJson(defaultTestContent)
-                        }
-
+        initExternalServices(
+            testParameters.baseUrl,
+            HttpRouteProvider(
+                "/api/niva3/underoppfolging",
+                assert = {
+                    val navconsumerHeader = it.request.header("Nav-Consumer-Id")
+                    if (navconsumerHeader == null) {
+                        it.respond(HttpStatusCode.BadRequest)
+                    } else {
+                        navconsumerHeader shouldBe "min-side:tms-min-side-proxy"
+                        it.respondRawJson(defaultTestContent)
                     }
-                }
-            }
-        }
+                },
+            )
+        )
 
         client.authenticatedGet("/$url").assert {
             status shouldBe HttpStatusCode.OK
             bodyAsText() shouldBe defaultTestContent
         }
     }
+
 
     @Test
     fun healtApiTest() = testApplication {
@@ -179,7 +165,7 @@ class GetRoutesTest {
     }
 
     @Test
-    fun `Blokker loa-substantial for aia-kall`(){
+    fun `Blokker loa-substantial for aia-kall`() {
         testApplication {
             mockApi(
                 contentFetcher = mockk(),
@@ -213,5 +199,21 @@ class GetRoutesTest {
         aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
         aiaClientId = "aia"
     )
+
+    private class ProxyRouteAssertion(
+        private val parameters: TestParameters, private val isNestedPath: Boolean
+    ) {
+        fun assertion(it: ApplicationCall) {
+            parameters.headers?.forEach { requiredHeader ->
+                it.request.headers[requiredHeader.key] shouldBe requiredHeader.value
+            }
+
+            if (isNestedPath) {
+                parameters.queryParams?.forEach { (name, value) ->
+                    it.request.queryParameters[name] shouldBe value
+                }
+            }
+        }
+    }
 }
 
