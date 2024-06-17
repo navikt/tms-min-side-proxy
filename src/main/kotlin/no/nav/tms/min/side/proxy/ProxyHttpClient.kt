@@ -16,6 +16,7 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.plugins.*
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 
@@ -32,14 +33,15 @@ class ProxyHttpClient(
         baseUrl: String,
         proxyPath: String?,
         header: String = HttpHeaders.Authorization,
-        extraHeaders: Map<String, String>? = null
+        extraHeaders: Map<String, String>? = null,
+        requestTimeoutAfter: Long = 3000
     ): HttpResponse {
         if(extraHeaders!=null){
             log.info { "Request med ekstraheadere ${extraHeaders.keys.joinToString(",")} sendt" }
         }
         val exchangedToken = exchangeToken(userToken, targetAppId)
         val url = proxyPath?.let { "$baseUrl/$it" } ?: baseUrl
-        return httpClient.get(url, header, exchangedToken, extraHeaders).responseIfOk()
+        return httpClient.get(url, header, exchangedToken, extraHeaders, requestTimeoutAfter).responseIfOk()
     }
 
     suspend fun postWithIdentInBodyWithAzure(
@@ -87,7 +89,8 @@ class ProxyHttpClient(
         url: String,
         authorizationHeader: String,
         accessToken: String,
-        extraHeaders: Map<String, String>? = null
+        extraHeaders: Map<String, String>? = null,
+        requestTimeoutAfter: Long,
     ): HttpResponse =
         withContext(Dispatchers.IO) {
             request {
@@ -96,6 +99,9 @@ class ProxyHttpClient(
                 header(authorizationHeader, "Bearer $accessToken")
                 extraHeaders?.forEach {
                     header(it.key, it.value)
+                }
+                timeout {
+                    requestTimeoutMillis = requestTimeoutAfter
                 }
             }
         }.responseIfOk()

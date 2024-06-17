@@ -27,6 +27,7 @@ class ContentFetcher(
             targetAppId = selectorClientId,
             baseUrl = selectorBaseUrl,
             proxyPath = proxyPath,
+            requestTimeoutAfter = 5250
         )
 
 
