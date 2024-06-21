@@ -18,7 +18,8 @@ class ContentFetcher(
             userToken = token,
             targetAppId = utkastClientId,
             baseUrl = utkastBaseUrl,
-            proxyPath = proxyPath
+            proxyPath = proxyPath,
+            requestTimeoutAfter = 5250
         )
 
     suspend fun getProfilContent(token: String, proxyPath: String?): HttpResponse =
