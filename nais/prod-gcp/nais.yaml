@@ -53,8 +53,6 @@ spec:
         - application: tms-mikrofrontend-selector
         - application: meldekort-api
           namespace: meldekort
-        - application: soknad-api
-          namespace: aap
         - application: veilarboppfolging
           namespace: pto
           cluster: prod-fss
@@ -66,10 +64,6 @@ spec:
       value: http://tms-statistikk
     - name: STATISTIKK_CLIENT_ID
       value: prod-gcp.min-side.tms-statistikk
-    - name: AAP_BASE_URL
-      value: http://soknad-api.aap
-    - name: AAP_CLIENT_ID
-      value: prod-gcp:aap:soknad-api
     - name: CORS_ALLOWED_ORIGINS
       value: www.nav.no
     - name: CORS_ALLOWED_SCHEMES

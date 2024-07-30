@@ -29,8 +29,6 @@ fun main() {
 data class AppConfiguration(
     val corsAllowedOrigins: String = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
     val corsAllowedSchemes: String = StringEnvVar.getEnvVar("CORS_ALLOWED_SCHEMES"),
-    private val aapBaseUrl: String = StringEnvVar.getEnvVar("AAP_BASE_URL"),
-    private val aapClientId: String = StringEnvVar.getEnvVar("AAP_CLIENT_ID"),
      private val meldekortClientId: String = StringEnvVar.getEnvVar("MELDEKORT_CLIENT_ID"),
     private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
     private val utkastClientId: String = StringEnvVar.getEnvVar("UTKAST_CLIENT_ID"),
@@ -82,8 +80,6 @@ data class AppConfiguration(
 
     val externalContentFetcher = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapClientId = aapClientId,
-        aapBaseUrl = aapBaseUrl,
         meldekortClientId = meldekortClientId,
         meldekortBaseUrl = meldekortBaseUrl,
         aiaBaseUrl = aiaBaseUrl,

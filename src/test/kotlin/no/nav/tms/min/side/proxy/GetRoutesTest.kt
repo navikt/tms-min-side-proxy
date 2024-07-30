@@ -20,7 +20,6 @@ import org.junit.jupiter.params.provider.ValueSource
 class GetRoutesTest {
     private val testParametersMap =
         mapOf(
-            "aap" to TestParameters("http://aap.test"),
             "meldekort" to TestParameters("http://meldekort.test"),
             "utkast" to TestParameters("http://utkast.test"),
             "personalia" to TestParameters("http://personalia.test"),
@@ -39,7 +38,7 @@ class GetRoutesTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = ["aap", "utkast", "meldekort", "selector", "aia"])
+    @ValueSource(strings = [ "utkast", "meldekort", "selector", "aia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
@@ -192,8 +191,6 @@ class GetRoutesTest {
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapBaseUrl = testParametersMap.getParameters("aap").baseUrl,
-        aapClientId = "aap",
         meldekortClientId = "meldekort",
         meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl,
         aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,

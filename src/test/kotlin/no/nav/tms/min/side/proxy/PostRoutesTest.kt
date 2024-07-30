@@ -41,8 +41,6 @@ class PostRoutesTest {
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        aapClientId = "aap",
-        aapBaseUrl = "",
         meldekortClientId = "meldekort",
         meldekortBaseUrl = "",
         aiaBaseUrl = "placeholder",

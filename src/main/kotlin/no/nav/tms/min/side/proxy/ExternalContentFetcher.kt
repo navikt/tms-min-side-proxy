@@ -4,21 +4,11 @@ import io.ktor.client.statement.HttpResponse
 
 class ExternalContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val aapClientId: String,
-    private val aapBaseUrl: String,
     private val meldekortClientId: String,
     private val meldekortBaseUrl: String,
     private val aiaBaseUrl: String,
     private val aiaClientId: String,
 ) {
-    suspend fun getAapContent(token: String, proxyPath: String?): HttpResponse =
-        proxyHttpClient.getContent(
-            userToken = token,
-            targetAppId = aapClientId,
-            baseUrl = aapBaseUrl,
-            proxyPath = proxyPath,
-        )
-
     suspend fun getMeldekortContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
             userToken = token,
