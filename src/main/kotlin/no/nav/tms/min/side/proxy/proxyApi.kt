@@ -41,9 +41,6 @@ fun Application.proxyApi(
                 setAsDefault = true
                 levelOfAssurance = SUBSTANTIAL
             }
-            tokenX {
-                setAsDefault = false
-            }
         }
         install(IdPortenLogin)
     },
