@@ -21,7 +21,8 @@ class PostRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            navnFetcher = mockk()
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
         )
 
         initExternalServices(

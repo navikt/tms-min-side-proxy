@@ -45,6 +45,7 @@ dependencies {
     implementation(TmsKtorTokenSupport.tokendingsExchange)
     implementation(TmsKtorTokenSupport.idportenSidecar)
     implementation(TmsKtorTokenSupport.azureExchange)
+    implementation(TmsKtorTokenSupport.tokenXValidation)
     implementation(Logstash.logbackEncoder)
     implementation(Micrometer.registryPrometheus)
     implementation(Prometheus.common)
@@ -67,6 +68,7 @@ dependencies {
     testImplementation(Jjwt.api)
     testImplementation(Mockk.mockk)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
+    testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
     testImplementation(TmsCommonLib.testutils)
 }
 

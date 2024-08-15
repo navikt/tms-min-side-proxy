@@ -41,6 +41,9 @@ spec:
       cpu: "50m"
       memory: 256Mi
   accessPolicy:
+    inbound:
+      rules:
+        - application: tms-min-side-proxy
     outbound:
       external:
         - host: veilarboppfolging.prod-fss-pub.nais.io
