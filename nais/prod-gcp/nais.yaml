@@ -43,7 +43,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tms-min-side-proxy
+        - application: tms-min-side
     outbound:
       external:
         - host: veilarboppfolging.prod-fss-pub.nais.io
