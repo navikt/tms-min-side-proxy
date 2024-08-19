@@ -26,10 +26,10 @@ fun Route.navnRoutes(navnFetcher: NavnFetcher) {
     }
 }
 
-private data class Navn(val navn: String)
-private data class Ident(val ident: String)
+data class Navn(val navn: String)
+data class Ident(val ident: String)
 
-private data class NavnAndIdent(
+data class NavnAndIdent(
     val navn: String?,
     val ident: String
 )

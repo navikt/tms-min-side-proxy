@@ -61,7 +61,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -90,7 +91,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -117,7 +119,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -141,7 +144,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -165,7 +169,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/ident").let {
@@ -196,7 +201,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/navn").let {
@@ -226,7 +232,8 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/navn").let {

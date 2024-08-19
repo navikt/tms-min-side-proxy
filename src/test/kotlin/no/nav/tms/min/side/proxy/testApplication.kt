@@ -22,10 +22,13 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.tms.min.side.proxy.personalia.NavnFetcher
+import no.nav.tms.min.side.proxy.personalia.PersonaliaFetcher
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
 import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
+import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance as LevelOfAssuranceTokenX
 import java.lang.IllegalArgumentException
 
 private const val testIssuer = "test-issuer"
@@ -38,6 +41,7 @@ internal fun ApplicationTestBuilder.mockApi(
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
     navnFetcher: NavnFetcher,
+    personaliaFetcher: PersonaliaFetcher,
     levelOfAssurance: LevelOfAssurance = LevelOfAssurance.LEVEL_4,
     unleash: Unleash = FakeUnleash()
 ) = application {
@@ -56,7 +60,18 @@ internal fun ApplicationTestBuilder.mockApi(
                 }
             }
         },
+        tokenXAuthInstaller = {
+            authentication {
+                tokenXMock {
+                    alwaysAuthenticated = true
+                    setAsDefault = false
+                    staticLevelOfAssurance = LevelOfAssuranceTokenX.LEVEL_4
+                    staticUserPid = "12345"
+                }
+            }
+        },
         navnFetcher = navnFetcher,
+        personaliaFetcher = personaliaFetcher,
         unleash = unleash
     )
 }

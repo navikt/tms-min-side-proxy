@@ -49,7 +49,8 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            navnFetcher = mockk()
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
         )
 
         initExternalServices(
@@ -96,7 +97,8 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            navnFetcher = mockk()
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
         )
 
         initExternalServices(
@@ -129,7 +131,8 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            navnFetcher = mockk()
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/internal/isAlive").status shouldBe HttpStatusCode.OK
@@ -148,7 +151,8 @@ class GetRoutesTest {
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
             unleash = unleash,
-            navnFetcher = mockk()
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
         )
 
         client.get("/featuretoggles").assert {
@@ -159,7 +163,12 @@ class GetRoutesTest {
 
     @Test
     fun authPing() = testApplication {
-        mockApi(contentFetcher = mockk(), externalContentFetcher = mockk(), navnFetcher = mockk())
+        mockApi(
+            contentFetcher = mockk(),
+            externalContentFetcher = mockk(),
+            navnFetcher = mockk(),
+            personaliaFetcher = mockk()
+        )
         client.get("/authPing").status shouldBe HttpStatusCode.OK
     }
 
@@ -170,6 +179,7 @@ class GetRoutesTest {
                 contentFetcher = mockk(),
                 externalContentFetcher = mockk(),
                 navnFetcher = mockk(),
+                personaliaFetcher = mockk(),
                 levelOfAssurance = LevelOfAssurance.SUBSTANTIAL
             )
 

@@ -18,13 +18,13 @@ import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.jackson.*
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
-import no.nav.tms.min.side.proxy.personalia.HentNavnException
-import no.nav.tms.min.side.proxy.personalia.NavnFetcher
-import no.nav.tms.min.side.proxy.personalia.navnRoutes
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
 import no.nav.tms.common.observability.ApiMdc
+import no.nav.tms.min.side.proxy.personalia.*
+import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
+import no.nav.tms.token.support.tokenx.validation.tokenX
 
 private val log = KotlinLogging.logger {}
 private val securelog = KotlinLogging.logger("secureLog")
@@ -34,6 +34,7 @@ fun Application.proxyApi(
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
     navnFetcher: NavnFetcher,
+    personaliaFetcher: PersonaliaFetcher,
     idportenAuthInstaller: Application.() -> Unit = {
         authentication {
             idPorten {
@@ -42,6 +43,13 @@ fun Application.proxyApi(
             }
         }
         install(IdPortenLogin)
+    },
+    tokenXAuthInstaller: Application.() -> Unit = {
+        authentication {
+            tokenX {
+                setAsDefault = false
+            }
+        }
     },
     unleash: Unleash
 ) {
@@ -86,6 +94,7 @@ fun Application.proxyApi(
     }
 
     idportenAuthInstaller()
+    tokenXAuthInstaller()
 
     installTmsMicrometerMetrics {
         installMicrometerPlugin = true
@@ -119,6 +128,9 @@ fun Application.proxyApi(
                     }
                 )
             }
+        }
+        authenticate(TokenXAuthenticator.name) {
+            personaliaRoutes(personaliaFetcher)
         }
     }
 
