@@ -46,13 +46,13 @@ dependencies {
     implementation(TmsKtorTokenSupport.idportenSidecar)
     implementation(TmsKtorTokenSupport.azureExchange)
     implementation(Logstash.logbackEncoder)
-    implementation(Micrometer.registryPrometheus)
+    implementation(Micrometer13.registryPrometheus)
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
-    implementation(TmsCommonLib.metrics)
-    implementation(TmsCommonLib.utils)
-    implementation(TmsCommonLib.observability)
+    implementation(TmsCommonLibBeta.metrics)
+    implementation(TmsCommonLibBeta.utils)
+    implementation(TmsCommonLibBeta.observability)
     implementation(Unleash.clientJava)
 
     testImplementation(Junit.api)
@@ -67,7 +67,7 @@ dependencies {
     testImplementation(Jjwt.api)
     testImplementation(Mockk.mockk)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
-    testImplementation(TmsCommonLib.testutils)
+    testImplementation(TmsCommonLibBeta.testutils)
 }
 
 application {
