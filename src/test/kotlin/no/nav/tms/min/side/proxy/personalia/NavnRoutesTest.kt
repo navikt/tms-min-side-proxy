@@ -61,7 +61,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/personalia/navn").let {
@@ -89,7 +89,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/personalia/navn").let {
@@ -116,7 +116,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/personalia/navn").let {
@@ -140,7 +140,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/personalia/navn").let {
@@ -164,7 +164,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/personalia/ident").let {
@@ -195,7 +195,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/navn").let {
@@ -224,7 +224,7 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
         client.get("/navn").let {
