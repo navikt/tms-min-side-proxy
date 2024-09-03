@@ -61,7 +61,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -79,7 +78,6 @@ class NavnRoutesTest {
         val etternavn = "Navn3"
         val requestAssertion = PdlRequestAssertion(fornavn, null, etternavn)
 
-
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -91,7 +89,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -119,7 +116,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -144,7 +140,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -169,7 +164,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -201,7 +195,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -217,7 +210,6 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer kun med ident hvis pdl feiler`() = testApplication {
-
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -232,7 +224,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
@@ -246,7 +237,7 @@ class NavnRoutesTest {
         }
     }
 
-    private fun ApplicationTestBuilder.navnFetcher() = NavnFetcher(
+    private fun ApplicationTestBuilder.personaliaFetcher() = PersonaliaFetcher(
         client = createClient {
             install(ContentNegotiation) {
                 jackson {
