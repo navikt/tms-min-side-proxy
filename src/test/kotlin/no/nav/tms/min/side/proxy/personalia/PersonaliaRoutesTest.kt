@@ -25,7 +25,7 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class NavnRoutesTest {
+class PersonaliaRoutesTest {
 
     private val pdlClientId = "pdl"
     private val pdlApiUrl = "http://pdl/graphql"
@@ -64,7 +64,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -92,7 +92,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -119,7 +119,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.InternalServerError
         }
     }
@@ -143,7 +143,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.InternalServerError
         }
     }
@@ -198,7 +198,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
@@ -227,7 +227,7 @@ class NavnRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
