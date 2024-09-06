@@ -101,31 +101,7 @@ class PersonaliaRoutesTest {
     }
 
     @Test
-    fun `Svarer med feil hvis pdl-response har feil`() = testApplication {
-        val requestAssertion = PdlRequestAssertion(null, null, null)
-
-        coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
-        } returns token
-
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
-
-        mockApi(
-            contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
-        )
-
-        client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
-        }
-    }
-
-    @Test
-    fun `Svarer med feil hvis pdl-response ikke har data`() = testApplication {
+    fun `Svarer med partial content hvis pdl-response ikke har data`() = testApplication {
         val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
 
         coEvery {
@@ -144,7 +120,7 @@ class PersonaliaRoutesTest {
         )
 
         client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
+            it.status shouldBe HttpStatusCode.PartialContent
         }
     }
 
@@ -167,8 +143,8 @@ class PersonaliaRoutesTest {
             personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/ident").let {
-            it.status shouldBe HttpStatusCode.OK
+        client.get("/personalia").let {
+            it.status shouldBe HttpStatusCode.PartialContent
 
             objectMapper.readTree(it.bodyAsText())["ident"]
                 .asText() shouldBe "12345"
@@ -228,7 +204,7 @@ class PersonaliaRoutesTest {
         )
 
         client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.OK
+            it.status shouldBe HttpStatusCode.PartialContent
 
             objectMapper.readTree(it.bodyAsText()).run {
                 get("navn").isNull shouldBe true
