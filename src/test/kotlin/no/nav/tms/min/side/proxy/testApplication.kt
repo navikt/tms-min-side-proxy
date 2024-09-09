@@ -21,7 +21,6 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.tms.min.side.proxy.personalia.NavnFetcher
 import no.nav.tms.min.side.proxy.personalia.PersonaliaFetcher
 import no.nav.tms.token.support.azure.exchange.AzureService
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
@@ -40,7 +39,6 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedSchemes: String = "https",
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
-    navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
     levelOfAssurance: LevelOfAssurance = LevelOfAssurance.LEVEL_4,
     unleash: Unleash = FakeUnleash()
@@ -70,7 +68,6 @@ internal fun ApplicationTestBuilder.mockApi(
                 }
             }
         },
-        navnFetcher = navnFetcher,
         personaliaFetcher = personaliaFetcher,
         unleash = unleash
     )

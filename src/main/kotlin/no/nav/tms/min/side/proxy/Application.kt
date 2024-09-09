@@ -15,7 +15,6 @@ import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.tms.common.util.config.StringEnvVar
-import no.nav.tms.min.side.proxy.personalia.NavnFetcher
 import no.nav.tms.min.side.proxy.personalia.PersonaliaFetcher
 import no.nav.tms.token.support.azure.exchange.AzureServiceBuilder
 import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
@@ -87,14 +86,6 @@ data class AppConfiguration(
         aiaClientId = aiaClientId
     )
 
-    val navnFetcher = NavnFetcher(
-        httpClient,
-        pdlApiUrl,
-        pdlApiClientId,
-        pdlBehandlingsnummer,
-        tokendingsService
-    )
-
     val personaliaFetcher = PersonaliaFetcher(
         httpClient,
         pdlApiUrl,
@@ -118,7 +109,6 @@ fun ApplicationEngineEnvironmentBuilder.envConfig(appConfig: AppConfiguration) {
             corsAllowedSchemes = appConfig.corsAllowedSchemes,
             contentFetcher = appConfig.contentFecther,
             externalContentFetcher = appConfig.externalContentFetcher,
-            navnFetcher = appConfig.navnFetcher,
             personaliaFetcher = appConfig.personaliaFetcher,
             unleash = setupUnleash(
                 unleashApiUrl = appConfig.unleashServerApiUrl,

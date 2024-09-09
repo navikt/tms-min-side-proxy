@@ -25,7 +25,7 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class NavnRoutesTest {
+class PersonaliaRoutesTest {
 
     private val pdlClientId = "pdl"
     private val pdlApiUrl = "http://pdl/graphql"
@@ -61,11 +61,10 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -79,7 +78,6 @@ class NavnRoutesTest {
         val etternavn = "Navn3"
         val requestAssertion = PdlRequestAssertion(fornavn, null, etternavn)
 
-
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -91,11 +89,10 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -104,32 +101,7 @@ class NavnRoutesTest {
     }
 
     @Test
-    fun `Svarer med feil hvis pdl-response har feil`() = testApplication {
-        val requestAssertion = PdlRequestAssertion(null, null, null)
-
-        coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
-        } returns token
-
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
-
-        mockApi(
-            contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
-        )
-
-        client.get("/personalia/navn").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
-        }
-    }
-
-    @Test
-    fun `Svarer med feil hvis pdl-response ikke har data`() = testApplication {
+    fun `Svarer med partial content hvis pdl-response ikke har data`() = testApplication {
         val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
 
         coEvery {
@@ -144,12 +116,11 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/navn").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
+        client.get("/personalia").let {
+            it.status shouldBe HttpStatusCode.OK
         }
     }
 
@@ -169,11 +140,10 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/personalia/ident").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["ident"]
@@ -201,11 +171,10 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
@@ -217,7 +186,6 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer kun med ident hvis pdl feiler`() = testApplication {
-
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -232,11 +200,10 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
+            personaliaFetcher = personaliaFetcher()
         )
 
-        client.get("/navn").let {
+        client.get("/personalia").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
@@ -246,7 +213,7 @@ class NavnRoutesTest {
         }
     }
 
-    private fun ApplicationTestBuilder.navnFetcher() = NavnFetcher(
+    private fun ApplicationTestBuilder.personaliaFetcher() = PersonaliaFetcher(
         client = createClient {
             install(ContentNegotiation) {
                 jackson {
