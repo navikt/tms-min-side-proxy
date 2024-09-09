@@ -1,6 +1,5 @@
 package no.nav.tms.min.side.proxy.personalia
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,7 +12,6 @@ fun Route.personaliaRoutes(personaliaFetcher: PersonaliaFetcher) {
             personaliaFetcher.getNavn(user)
                 .let { navn -> call.respond(NavnAndIdent(navn, user.ident)) }
         } catch (e: HentNavnException) {
-            call.response.status(HttpStatusCode.PartialContent)
             call.respond(NavnAndIdent(navn = null, ident = user.ident))
         }
     }

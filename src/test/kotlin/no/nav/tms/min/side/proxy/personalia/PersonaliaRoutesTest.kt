@@ -120,7 +120,7 @@ class PersonaliaRoutesTest {
         )
 
         client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.PartialContent
+            it.status shouldBe HttpStatusCode.OK
         }
     }
 
@@ -144,7 +144,7 @@ class PersonaliaRoutesTest {
         )
 
         client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.PartialContent
+            it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["ident"]
                 .asText() shouldBe "12345"
@@ -204,7 +204,7 @@ class PersonaliaRoutesTest {
         )
 
         client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.PartialContent
+            it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
                 get("navn").isNull shouldBe true
