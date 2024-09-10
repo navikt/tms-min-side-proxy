@@ -17,10 +17,5 @@ fun Route.personaliaRoutes(personaliaFetcher: PersonaliaFetcher) {
     }
 }
 
-data class NavnAndIdent(
-    val navn: String?,
-    val ident: String
-)
-
 private val PipelineContext<Unit, ApplicationCall>.user
     get() = TokenXUserFactory.createTokenXUser(call)

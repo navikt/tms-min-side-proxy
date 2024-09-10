@@ -33,6 +33,7 @@ fun Application.proxyApi(
     corsAllowedSchemes: String,
     contentFetcher: ContentFetcher,
     externalContentFetcher: ExternalContentFetcher,
+    navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
     idportenAuthInstaller: Application.() -> Unit = {
         authentication {
@@ -119,6 +120,7 @@ fun Application.proxyApi(
             }
             proxyRoutes(contentFetcher, externalContentFetcher)
             aiaRoutes(externalContentFetcher)
+            navnRoutes(navnFetcher)
             get("featuretoggles") {
                 call.respond(
                     unleash.more().evaluateAllToggles().associate {

@@ -49,6 +49,7 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
 
@@ -96,6 +97,7 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
 
@@ -129,6 +131,7 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
+            navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
 
@@ -148,6 +151,7 @@ class GetRoutesTest {
             contentFetcher = contentFecther(proxyHttpClient),
             externalContentFetcher = externalContentFetcher(proxyHttpClient),
             unleash = unleash,
+            navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
 
@@ -162,6 +166,7 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
+            navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
         client.get("/authPing").status shouldBe HttpStatusCode.OK
@@ -173,6 +178,7 @@ class GetRoutesTest {
             mockApi(
                 contentFetcher = mockk(),
                 externalContentFetcher = mockk(),
+                navnFetcher = mockk(),
                 personaliaFetcher = mockk(),
                 levelOfAssurance = LevelOfAssurance.SUBSTANTIAL
             )

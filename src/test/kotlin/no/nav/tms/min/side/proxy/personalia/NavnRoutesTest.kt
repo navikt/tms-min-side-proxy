@@ -25,7 +25,7 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
-class PersonaliaRoutesTest {
+class NavnRoutesTest {
 
     private val pdlClientId = "pdl"
     private val pdlApiUrl = "http://pdl/graphql"
@@ -61,10 +61,11 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
+        client.get("/personalia/navn").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -78,6 +79,7 @@ class PersonaliaRoutesTest {
         val etternavn = "Navn3"
         val requestAssertion = PdlRequestAssertion(fornavn, null, etternavn)
 
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -89,10 +91,11 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
+        client.get("/personalia/navn").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["navn"]
@@ -101,7 +104,32 @@ class PersonaliaRoutesTest {
     }
 
     @Test
-    fun `Svarer med partial content hvis pdl-response ikke har data`() = testApplication {
+    fun `Svarer med feil hvis pdl-response har feil`() = testApplication {
+        val requestAssertion = PdlRequestAssertion(null, null, null)
+
+        coEvery {
+            tokendingsService.exchangeToken(any(), pdlClientId)
+        } returns token
+
+        initExternalServices(
+            "http://pdl",
+            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
+        )
+
+        mockApi(
+            contentFetcher = mockk(),
+            externalContentFetcher = mockk(),
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
+        )
+
+        client.get("/personalia/navn").let {
+            it.status shouldBe HttpStatusCode.InternalServerError
+        }
+    }
+
+    @Test
+    fun `Svarer med feil hvis pdl-response ikke har data`() = testApplication {
         val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
 
         coEvery {
@@ -116,11 +144,12 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
-            it.status shouldBe HttpStatusCode.OK
+        client.get("/personalia/navn").let {
+            it.status shouldBe HttpStatusCode.InternalServerError
         }
     }
 
@@ -140,10 +169,11 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
+        client.get("/personalia/ident").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["ident"]
@@ -171,10 +201,11 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
+        client.get("/navn").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
@@ -186,6 +217,7 @@ class PersonaliaRoutesTest {
 
     @Test
     fun `Svarer kun med ident hvis pdl feiler`() = testApplication {
+
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
@@ -200,10 +232,11 @@ class PersonaliaRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
-            personaliaFetcher = personaliaFetcher()
+            navnFetcher = navnFetcher(),
+            personaliaFetcher = mockk()
         )
 
-        client.get("/personalia").let {
+        client.get("/navn").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText()).run {
@@ -213,7 +246,7 @@ class PersonaliaRoutesTest {
         }
     }
 
-    private fun ApplicationTestBuilder.personaliaFetcher() = PersonaliaFetcher(
+    private fun ApplicationTestBuilder.navnFetcher() = NavnFetcher(
         client = createClient {
             install(ContentNegotiation) {
                 jackson {
