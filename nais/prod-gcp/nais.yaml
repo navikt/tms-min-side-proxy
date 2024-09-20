@@ -46,7 +46,6 @@ spec:
         - application: tms-min-side
     outbound:
       external:
-        - host: veilarboppfolging.prod-fss-pub.nais.io
         - host: syfomotebehov.prod-fss-pub.nais.io
         - host: min-side-unleash-api.nav.cloud.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
@@ -61,6 +60,9 @@ spec:
           cluster: prod-fss
         - application: aia-backend
           namespace: paw
+          cluster: prod-gcp
+        - application: veilarboppfolging
+          namespace: poao
           cluster: prod-gcp
   env:
     - name: STATISTIKK_BASE_URL
@@ -88,9 +90,9 @@ spec:
     - name: UTKAST_CLIENT_ID
       value: prod-gcp:min-side:tms-utkast
     - name: OPPFOLGING_API_URL
-      value: https://veilarboppfolging.prod-fss-pub.nais.io/veilarboppfolging
+      value: http://veilarboppfolging.poao/veilarboppfolging
     - name: OPPFOLGING_CLIENT_ID
-      value: prod-fss:pto:veilarboppfolging
+      value: dev-gcp:poao:veilarboppfolging
     - name: AIA_API_URL
       value: http://aia-backend.paw
     - name: AIA_CLIENT_ID
