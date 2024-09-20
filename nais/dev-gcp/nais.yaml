@@ -48,7 +48,6 @@ spec:
         - application: tms-min-side
     outbound:
       external:
-        - host: veilarboppfolging.dev-fss-pub.nais.io
         - host: syfomotebehov.dev-fss-pub.nais.io
         - host: min-side-unleash-api.nav.cloud.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
@@ -58,12 +57,11 @@ spec:
         - application: tms-mikrofrontend-selector
         - application: meldekort-api-q2
           namespace: meldekort
-        - application: veilarboppfolging
-          namespace: pto
-          cluster: dev-fss
         - application: aia-backend
           namespace: paw
           cluster: dev-gcp
+        - application: veilarboppfolging
+          namespace: poao
   env:
     - name: STATISTIKK_BASE_URL
       value: http://tms-statistikk
@@ -86,9 +84,9 @@ spec:
     - name: UTKAST_CLIENT_ID
       value: dev-gcp:min-side:tms-utkast
     - name: OPPFOLGING_API_URL
-      value: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging
+      value: http://veilarboppfolging.poao/veilarboppfolging
     - name: OPPFOLGING_CLIENT_ID
-      value: dev-fss:pto:veilarboppfolging
+      value: dev-gcp:poao:veilarboppfolging
     - name: AIA_API_URL
       value: http://aia-backend.paw
     - name: AIA_CLIENT_ID
