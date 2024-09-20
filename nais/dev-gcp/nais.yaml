@@ -57,13 +57,11 @@ spec:
         - application: tms-mikrofrontend-selector
         - application: meldekort-api-q2
           namespace: meldekort
-        - application: veilarboppfolging
-          namespace: pto
-          cluster: dev-fss
         - application: aia-backend
           namespace: paw
           cluster: dev-gcp
         - application: veilarboppfolging
+          namespace: poao
   env:
     - name: STATISTIKK_BASE_URL
       value: http://tms-statistikk
