@@ -64,8 +64,6 @@ spec:
           namespace: paw
           cluster: dev-gcp
         - application: veilarboppfolging
-          namespace: poao
-          cluster: dev-gcp
   env:
     - name: STATISTIKK_BASE_URL
       value: http://tms-statistikk
