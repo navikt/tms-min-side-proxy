@@ -7,10 +7,9 @@ import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 
 
-fun Route.metaRoutes(collectorRegistry: PrometheusMeterRegistry) {
+fun Route.metaRoutes() {
 
     val pingJsonResponse = """{"ping": "pong"}"""
 
@@ -25,9 +24,4 @@ fun Route.metaRoutes(collectorRegistry: PrometheusMeterRegistry) {
     get("/internal/isReady") {
         call.respond(HttpStatusCode.OK)
     }
-
-    get("/metrics") {
-        call.respond(collectorRegistry.scrape())
-    }
-
 }

@@ -15,8 +15,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.serialization.jackson.*
-import io.micrometer.prometheusmetrics.PrometheusConfig
-import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
@@ -53,8 +51,6 @@ fun Application.proxyApi(
     },
     unleash: Unleash
 ) {
-    val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-
     install(DefaultHeaders)
     install(ApiMdc)
     install(StatusPages) {
@@ -98,7 +94,7 @@ fun Application.proxyApi(
 
     installTmsMicrometerMetrics {
         installMicrometerPlugin = true
-        registry = collectorRegistry
+        setupMetricsRoute = true
     }
 
     install(CORS) {
@@ -113,7 +109,7 @@ fun Application.proxyApi(
     }
 
     routing {
-        metaRoutes(collectorRegistry)
+        metaRoutes()
         authenticate {
             get("authPing") {
                 call.respond(HttpStatusCode.OK)
