@@ -9,8 +9,7 @@ import io.ktor.client.engine.apache.Apache
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.*
-import io.ktor.server.engine.ApplicationEngineEnvironmentBuilder
-import io.ktor.server.engine.applicationEngineEnvironment
+import io.ktor.server.application.*
 import io.ktor.server.engine.connector
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
@@ -23,7 +22,8 @@ import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
 fun main() {
     embeddedServer(
         factory = Netty,
-        environment = applicationEngineEnvironment { envConfig(AppConfiguration()) }
+        module =  { envConfig(AppConfiguration()) },
+        configure = { connector { port = 8080 } }
     ).start(wait = true)
 }
 
@@ -110,24 +110,19 @@ fun ObjectMapper.jsonConfig() {
     enable(SerializationFeature.CLOSE_CLOSEABLE)
 }
 
-fun ApplicationEngineEnvironmentBuilder.envConfig(appConfig: AppConfiguration) {
+fun Application.envConfig(appConfig: AppConfiguration) {
     rootPath = "tms-min-side-proxy"
-    module {
-        proxyApi(
-            corsAllowedOrigins = appConfig.corsAllowedOrigins,
-            corsAllowedSchemes = appConfig.corsAllowedSchemes,
-            contentFetcher = appConfig.contentFecther,
-            externalContentFetcher = appConfig.externalContentFetcher,
-            navnFetcher = appConfig.navnFetcher,
-            personaliaFetcher = appConfig.personaliaFetcher,
-            unleash = setupUnleash(
-                unleashApiUrl = appConfig.unleashServerApiUrl,
-                unleashApiKey = appConfig.unleashServerApiToken,
-                unleashEnvironment = appConfig.unleashEnvironment
-            )
+    proxyApi(
+        corsAllowedOrigins = appConfig.corsAllowedOrigins,
+        corsAllowedSchemes = appConfig.corsAllowedSchemes,
+        contentFetcher = appConfig.contentFecther,
+        externalContentFetcher = appConfig.externalContentFetcher,
+        navnFetcher = appConfig.navnFetcher,
+        personaliaFetcher = appConfig.personaliaFetcher,
+        unleash = setupUnleash(
+            unleashApiUrl = appConfig.unleashServerApiUrl,
+            unleashApiKey = appConfig.unleashServerApiToken,
+            unleashEnvironment = appConfig.unleashEnvironment
         )
-    }
-    connector {
-        port = 8080
-    }
+    )
 }

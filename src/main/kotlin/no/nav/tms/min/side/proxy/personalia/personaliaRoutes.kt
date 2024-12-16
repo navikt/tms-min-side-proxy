@@ -17,5 +17,5 @@ fun Route.personaliaRoutes(personaliaFetcher: PersonaliaFetcher) {
     }
 }
 
-private val PipelineContext<Unit, ApplicationCall>.user
+private val RoutingContext.user
     get() = TokenXUserFactory.createTokenXUser(call)

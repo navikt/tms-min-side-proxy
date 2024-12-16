@@ -34,5 +34,5 @@ data class NavnAndIdent(
     val ident: String
 )
 
-private val PipelineContext<Unit, ApplicationCall>.user
+private val RoutingContext.user
     get() = IdportenUserFactory.createIdportenUser(call)

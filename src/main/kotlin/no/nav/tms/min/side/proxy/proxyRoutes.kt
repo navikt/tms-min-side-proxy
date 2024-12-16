@@ -17,22 +17,22 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
 
     get("/utkast/{proxyPath...}") {
         val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
+        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
 
     get("/meldekort/{proxyPath...}") {
         val response = externalContentFetcher.getMeldekortContent(accessToken, proxyPath)
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
+        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
 
     get("/selector/{proxyPath...}") {
         val response = contentFetcher.getProfilContent(accessToken, proxyPath)
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
+        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
 
     get("/oppfolging") {
         val response = contentFetcher.getOppfolgingContent(accessToken, "api/niva3/underoppfolging")
-        call.respondBytes(response.readBytes(), response.contentType(), response.status)
+        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
 
     post("/statistikk/innlogging") {
@@ -48,7 +48,7 @@ fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
         } else {
             val response =
                 externalContentFetcher.getAiaContent(accessToken, "$proxyPath$queryParameters", call.navCallId())
-            call.respondBytes(response.readBytes(), response.contentType(), response.status)
+            call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
         }
 
 
@@ -66,18 +66,18 @@ private fun ApplicationCall.navCallId() = request.headers["Nav-Call-Id"].also {
 }
 
 
-private val PipelineContext<Unit, ApplicationCall>.accessToken
+private val RoutingContext.accessToken
     get() = IdportenUserFactory.createIdportenUser(call).tokenString
 
-private val PipelineContext<Unit, ApplicationCall>.levelOfAssurance
+private val RoutingContext.levelOfAssurance
     get() = IdportenUserFactory.createIdportenUser(call).levelOfAssurance
 
-private val PipelineContext<Unit, ApplicationCall>.ident
+private val RoutingContext.ident
     get() = IdportenUserFactory.createIdportenUser(call).ident
 
-private val PipelineContext<Unit, ApplicationCall>.proxyPath: String?
+private val RoutingContext.proxyPath: String?
     get() = call.parameters.getAll("proxyPath")?.joinToString("/")
-private val PipelineContext<Unit, ApplicationCall>.queryParameters: String
+private val RoutingContext.queryParameters: String
     get() = call.request.uri.split("?").let { pathsplit ->
         if (pathsplit.size > 1)
             "?${pathsplit[1]}"

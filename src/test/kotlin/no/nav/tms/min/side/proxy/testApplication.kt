@@ -42,7 +42,7 @@ internal fun ApplicationTestBuilder.mockApi(
     externalContentFetcher: ExternalContentFetcher,
     navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
-    levelOfAssurance: LevelOfAssurance = LevelOfAssurance.LEVEL_4,
+    levelOfAssurance: LevelOfAssurance = LevelOfAssurance.HIGH,
     unleash: Unleash = FakeUnleash()
 ) = application {
     proxyApi(
