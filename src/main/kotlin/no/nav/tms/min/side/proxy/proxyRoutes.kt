@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
@@ -36,7 +35,12 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
     }
 
     post("/statistikk/innlogging") {
-        contentFetcher.postInnloggingStatistikk(ident)
+        val response = contentFetcher.postInnloggingStatistikk(ident)
+
+        if (!response.status.isSuccess()) {
+            log.info { "Feilkode [${response.status.value}] fra tms-statistikk" }
+        }
+
         call.respond(HttpStatusCode.OK)
     }
 }
