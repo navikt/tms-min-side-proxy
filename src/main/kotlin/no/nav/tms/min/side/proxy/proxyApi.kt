@@ -138,7 +138,7 @@ fun Application.proxyApi(
 }
 
 private fun Application.configureShutdownHook(contentFetcher: ContentFetcher) {
-    environment.monitor.subscribe(ApplicationStopping) {
+    monitor.subscribe(ApplicationStopping) {
         contentFetcher.shutDown()
     }
 }
