@@ -54,20 +54,20 @@ dependencies {
     implementation(TmsCommonLib.observability)
     implementation(Unleash.clientJava)
 
-    testImplementation(Junit.api)
+    testImplementation(JunitPlatform.launcher)
+    testImplementation(JunitJupiter.api)
+    testImplementation(JunitJupiter.params)
     testImplementation(Ktor.Test.clientMock)
     testImplementation(Ktor.Test.serverTestHost)
     testImplementation(Kotest.assertionsCore)
     testImplementation(KotlinTest.junit)
-
-    testRuntimeOnly(Jjwt.impl)
-    testRuntimeOnly(Junit.engine)
-    testImplementation(Junit.params)
     testImplementation(Jjwt.api)
     testImplementation(Mockk.mockk)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
     testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
     testImplementation(TmsCommonLib.testutils)
+
+    testRuntimeOnly(Jjwt.impl)
 }
 
 application {
