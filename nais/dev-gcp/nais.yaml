@@ -6,6 +6,10 @@ metadata:
   labels:
     team: min-side
 spec:
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   idporten:
     enabled: true
     sidecar:
@@ -109,10 +113,6 @@ metadata:
   name: tms-min-side-proxy
   namespace: min-side
 spec:
-  observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: java
   unleashInstance:
     apiVersion: unleash.nais.io/v1
     kind: RemoteUnleash
