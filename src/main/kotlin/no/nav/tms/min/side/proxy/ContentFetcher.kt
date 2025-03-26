@@ -8,8 +8,6 @@ class ContentFetcher(
     private val utkastBaseUrl: String,
     private val selectorClientId: String,
     private val selectorBaseUrl: String,
-    private val statistikkClientId: String,
-    private val statistikkBaseApiUrl: String,
     private val oppfolgingClientId: String,
     private val oppfolgingBaseUrl: String
 ) {
@@ -30,14 +28,6 @@ class ContentFetcher(
             proxyPath = proxyPath,
             requestTimeoutAfter = 5250
         )
-
-
-    suspend fun postInnloggingStatistikk(ident: String): HttpResponse = proxyHttpClient.postWithIdentInBodyWithAzure(
-        ident = ident,
-        baseApiUrl = statistikkBaseApiUrl,
-        proxyPath = "/innlogging",
-        clientId = statistikkClientId,
-    )
 
     fun shutDown() {
         proxyHttpClient.shutDown()
