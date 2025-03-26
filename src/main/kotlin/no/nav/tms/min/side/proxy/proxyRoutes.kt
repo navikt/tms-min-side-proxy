@@ -34,15 +34,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
         call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
 
-    post("/statistikk/innlogging") {
-        val response = contentFetcher.postInnloggingStatistikk(ident)
-
-        if (!response.status.isSuccess()) {
-            log.info { "Feilkode [${response.status.value}] fra tms-statistikk" }
-        }
-
-        call.respond(HttpStatusCode.OK)
-    }
 }
 
 fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {
