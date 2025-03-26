@@ -57,7 +57,6 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
       rules:
         - application: tms-utkast
-        - application: tms-statistikk
         - application: tms-mikrofrontend-selector
         - application: meldekort-api-q2
           namespace: meldekort
@@ -67,10 +66,6 @@ spec:
         - application: veilarboppfolging
           namespace: poao
   env:
-    - name: STATISTIKK_BASE_URL
-      value: http://tms-statistikk
-    - name: STATISTIKK_CLIENT_ID
-      value: dev-gcp.min-side.tms-statistikk
     - name: CORS_ALLOWED_ORIGINS
       value: "*.dev.nav.no"
     - name: CORS_ALLOWED_SCHEMES
