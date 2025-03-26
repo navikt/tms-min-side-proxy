@@ -71,8 +71,6 @@ data class AppConfiguration(
         utkastBaseUrl = utkastBaseUrl,
         selectorClientId = selectorClientId,
         selectorBaseUrl = selectorBaseUrl,
-        statistikkClientId = statistikkClientId,
-        statistikkBaseApiUrl = statistikkBaseUrl,
         oppfolgingClientId = oppfolgingClientId,
         oppfolgingBaseUrl = oppfolgingBaseUrl,
     )
