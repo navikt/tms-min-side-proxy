@@ -193,8 +193,6 @@ class GetRoutesTest {
         utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
         selectorClientId = "selector",
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
-        statistikkClientId = "statistikk",
-        statistikkBaseApiUrl = "http://statistikk.test",
         oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
         oppfolgingClientId = "veilarboppfolging"
     )
