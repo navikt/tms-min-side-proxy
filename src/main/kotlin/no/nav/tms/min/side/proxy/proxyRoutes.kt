@@ -14,11 +14,6 @@ private val log = KotlinLogging.logger {}
 private val securelog = KotlinLogging.logger("secureLog")
 fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: ExternalContentFetcher) {
 
-    get("/utkast/{proxyPath...}") {
-        val response = contentFetcher.getUtkastContent(accessToken, proxyPath)
-        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
-    }
-
     get("/meldekort/{proxyPath...}") {
         val response = externalContentFetcher.getMeldekortContent(accessToken, proxyPath)
         call.respondBytes(response.readRawBytes(), response.contentType(), response.status)

@@ -21,7 +21,6 @@ class GetRoutesTest {
     private val testParametersMap =
         mapOf(
             "meldekort" to TestParameters("http://meldekort.test"),
-            "utkast" to TestParameters("http://utkast.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
             "oppfolging" to TestParameters("http://veilarboppfolging.test"),
@@ -38,7 +37,7 @@ class GetRoutesTest {
 
 
     @ParameterizedTest
-    @ValueSource(strings = [ "utkast", "meldekort", "selector", "aia"])
+    @ValueSource(strings = ["meldekort", "selector", "aia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
@@ -189,8 +188,6 @@ class GetRoutesTest {
 
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        utkastClientId = "utkastclient",
-        utkastBaseUrl = testParametersMap.getParameters("utkast").baseUrl,
         selectorClientId = "selector",
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
         oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
