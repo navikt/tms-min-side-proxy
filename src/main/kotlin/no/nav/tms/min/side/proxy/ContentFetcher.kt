@@ -4,21 +4,11 @@ import io.ktor.client.statement.*
 
 class ContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
-    private val utkastClientId: String,
-    private val utkastBaseUrl: String,
     private val selectorClientId: String,
     private val selectorBaseUrl: String,
     private val oppfolgingClientId: String,
     private val oppfolgingBaseUrl: String
 ) {
-    suspend fun getUtkastContent(token: String, proxyPath: String?): HttpResponse =
-        proxyHttpClient.getContent(
-            userToken = token,
-            targetAppId = utkastClientId,
-            baseUrl = utkastBaseUrl,
-            proxyPath = proxyPath,
-            requestTimeoutAfter = 8250
-        )
 
     suspend fun getProfilContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(

@@ -32,8 +32,6 @@ data class AppConfiguration(
     val corsAllowedSchemes: String = StringEnvVar.getEnvVar("CORS_ALLOWED_SCHEMES"),
      private val meldekortClientId: String = StringEnvVar.getEnvVar("MELDEKORT_CLIENT_ID"),
     private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
-    private val utkastClientId: String = StringEnvVar.getEnvVar("UTKAST_CLIENT_ID"),
-    private val utkastBaseUrl: String = StringEnvVar.getEnvVar("UTKAST_BASE_URL"),
     private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
     private val oppfolgingClientId: String = StringEnvVar.getEnvVar("OPPFOLGING_CLIENT_ID"),
@@ -67,8 +65,6 @@ data class AppConfiguration(
 
     val contentFecther = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
-        utkastClientId = utkastClientId,
-        utkastBaseUrl = utkastBaseUrl,
         selectorClientId = selectorClientId,
         selectorBaseUrl = selectorBaseUrl,
         oppfolgingClientId = oppfolgingClientId,

@@ -54,7 +54,6 @@ spec:
         - host: min-side-unleash-api.nav.cloud.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
       rules:
-        - application: tms-utkast
         - application: tms-mikrofrontend-selector
         - application: meldekort-api
           namespace: meldekort
@@ -80,10 +79,6 @@ spec:
       value: http://tms-mikrofrontend-selector
     - name: SELCTOR_CLIENT_ID
       value: prod-gcp:min-side:tms-mikrofrontend-selector
-    - name: UTKAST_BASE_URL
-      value: http://tms-utkast
-    - name: UTKAST_CLIENT_ID
-      value: prod-gcp:min-side:tms-utkast
     - name: OPPFOLGING_API_URL
       value: http://veilarboppfolging.poao/veilarboppfolging
     - name: OPPFOLGING_CLIENT_ID
