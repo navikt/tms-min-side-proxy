@@ -8,7 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,8 +15,6 @@ import io.ktor.server.testing.*
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.tms.common.testutils.initExternalServices
-import no.nav.tms.min.side.proxy.HttpRouteProvider
 import no.nav.tms.min.side.proxy.jsonConfig
 import no.nav.tms.min.side.proxy.mockApi
 import no.nav.tms.min.side.proxy.respondRawJson
@@ -47,16 +44,13 @@ class NavnRoutesTest {
         val fornavn = "Navn1"
         val mellomnavn = "Navn2"
         val etternavn = "Navn3"
-        val requestAssertion = PdlRequestAssertion(fornavn, mellomnavn, etternavn)
+        val pdlResponse = PdlResponseConfig(fornavn, mellomnavn, etternavn)
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        setupPdlAsExternal(pdlResponse)
 
         mockApi(
             contentFetcher = mockk(),
@@ -77,17 +71,15 @@ class NavnRoutesTest {
     fun `Ignorerer manglende mellomnavn`() = testApplication {
         val fornavn = "Navn1"
         val etternavn = "Navn3"
-        val requestAssertion = PdlRequestAssertion(fornavn, null, etternavn)
+        val pdlResponse = PdlResponseConfig(fornavn, null, etternavn)
 
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        setupPdlAsExternal(pdlResponse)
+
         mockApi(
             contentFetcher = mockk(),
             externalContentFetcher = mockk(),
@@ -105,16 +97,13 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med feil hvis pdl-response har feil`() = testApplication {
-        val requestAssertion = PdlRequestAssertion(null, null, null)
+        val pdlResponse = PdlResponseConfig(null, null, null)
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        setupPdlAsExternal(pdlResponse)
 
         mockApi(
             contentFetcher = mockk(),
@@ -130,16 +119,13 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med feil hvis pdl-response ikke har data`() = testApplication {
-        val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
+        val pdlResponse = PdlResponseConfig(null, null, null, hasEmptyResponse = true)
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        setupPdlAsExternal(pdlResponse)
 
         mockApi(
             contentFetcher = mockk(),
@@ -155,16 +141,13 @@ class NavnRoutesTest {
 
     @Test
     fun `Svarer med brukers ident`() = testApplication {
-        val requestAssertion = PdlRequestAssertion(null, null, null, hasEmptyResponse = true)
+        val pdlResponse = PdlResponseConfig(null, null, null, hasEmptyResponse = true)
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        setupPdlAsExternal(pdlResponse)
 
         mockApi(
             contentFetcher = mockk(),
@@ -186,17 +169,22 @@ class NavnRoutesTest {
         val fornavn = "Navn1"
         val mellomnavn = "Navn2"
         val etternavn = "Navn3"
-        val requestAssertion = PdlRequestAssertion(fornavn, mellomnavn, etternavn, false)
+        val pdlResponse = PdlResponseConfig(fornavn, mellomnavn, etternavn, false)
 
 
         coEvery {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = requestAssertion::assertion)
-        )
+        externalServices {
+            hosts("http://pdl") {
+                routing {
+
+                }
+            }
+        }
+
+        setupPdlAsExternal(pdlResponse)
 
         mockApi(
             contentFetcher = mockk(),
@@ -222,12 +210,14 @@ class NavnRoutesTest {
             tokendingsService.exchangeToken(any(), pdlClientId)
         } returns token
 
-        initExternalServices(
-            "http://pdl",
-            HttpRouteProvider("/graphql", routeMethodFunction = Routing::post, assert = {
-                it.respond(HttpStatusCode.InternalServerError)
-            })
+
+        setupPdlAsExternal(
+            responseConfig = null,
+            handlerOverride = {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
         )
+
 
         mockApi(
             contentFetcher = mockk(),
@@ -301,23 +291,45 @@ class NavnRoutesTest {
         else -> "\"$this\""
     }
 
-    inner class PdlRequestAssertion(
-        private val fornavn: String?,
-        private val mellomnavn: String?,
-        private val etternavn: String?,
-        private val hasEmptyResponse: Boolean = false
-    ) {
+    inner class PdlResponseConfig(
+        val fornavn: String?,
+        val mellomnavn: String?,
+        val etternavn: String?,
+        val hasEmptyResponse: Boolean = false
+    )
 
-        suspend fun assertion(call: ApplicationCall) {
+    private fun TestApplicationBuilder.setupPdlAsExternal(
+        responseConfig: PdlResponseConfig?,
+        handlerOverride: (suspend RoutingContext.() -> Unit)? = null
+    ) {
+        val defaultHandler: suspend RoutingContext.(PdlResponseConfig) -> Unit = { config ->
             call.request.header(HttpHeaders.Authorization) shouldContain "token"
             call.request.header("Behandlingsnummer") shouldBe pdlBehandlingsnummer
 
-            if (hasEmptyResponse) {
+            if (config.hasEmptyResponse) {
                 call.respondRawJson(responseWithoutData())
-            } else if (fornavn == null || etternavn == null)
+            } else if (config.fornavn == null || config.etternavn == null) {
                 call.respondRawJson(responseWithError())
-            else
-                call.respondRawJson(validResponse(fornavn, mellomnavn, etternavn))
+            } else {
+                call.respondRawJson(validResponse(config.fornavn, config.mellomnavn, config.etternavn))
+            }
+        }
+
+        externalServices {
+            hosts("http://pdl") {
+                routing {
+                    post("/graphql") {
+                        if (handlerOverride != null) {
+                            handlerOverride()
+                        } else if (responseConfig != null) {
+                            defaultHandler(responseConfig)
+                        } else {
+                            throw IllegalArgumentException("Må definere responseconfig eller alternativ handler")
+                        }
+                    }
+                }
+
+            }
         }
     }
 }
