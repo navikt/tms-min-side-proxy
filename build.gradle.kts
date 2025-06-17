@@ -65,7 +65,6 @@ dependencies {
     testImplementation(Mockk.mockk)
     testImplementation(TmsKtorTokenSupport.idportenSidecarMock)
     testImplementation(TmsKtorTokenSupport.tokenXValidationMock)
-    testImplementation(TmsCommonLib.testutils)
 
     testRuntimeOnly(Jjwt.impl)
 }

@@ -8,9 +8,9 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.mockk.mockk
-import no.nav.tms.common.testutils.initExternalServices
 import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
 import org.junit.jupiter.api.Test
@@ -39,6 +39,7 @@ class GetRoutesTest {
     @ParameterizedTest
     @ValueSource(strings = ["meldekort", "selector", "aia"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
+
         val applicationhttpClient = testApplicationHttpClient()
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         val parameters = testParametersMap.getParameters(tjenestePath)
@@ -54,12 +55,12 @@ class GetRoutesTest {
 
         initExternalServices(
             parameters.baseUrl,
-            HttpRouteProvider("/destination", assert = proxyRouteAssert::assertion),
-            HttpRouteProvider("/nested/destination", assert = proxyNestedRouteAssert::assertion),
-            HttpRouteProvider(
+            HttpRouteConfig("/destination", assertionsBlock = proxyRouteAssert::assertion),
+            HttpRouteConfig("/nested/destination", assertionsBlock = proxyNestedRouteAssert::assertion),
+            HttpRouteConfig(
                 "/servererror",
                 HttpStatusCode.InternalServerError,
-                requestContent = "Feil med status: 500",
+                responseContent = "Feil med status: 500",
             )
         )
 
@@ -102,9 +103,9 @@ class GetRoutesTest {
 
         initExternalServices(
             testParameters.baseUrl,
-            HttpRouteProvider(
+            HttpRouteConfig(
                 "/api/niva3/underoppfolging",
-                assert = {
+                assertionsBlock = {
                     val navconsumerHeader = it.request.header("Nav-Consumer-Id")
                     if (navconsumerHeader == null) {
                         it.respond(HttpStatusCode.BadRequest)
@@ -219,3 +220,35 @@ class GetRoutesTest {
     }
 }
 
+private fun ApplicationTestBuilder.initExternalServices(
+    host: String,
+    vararg handlers: HttpRouteConfig
+) {
+    externalServices {
+        hosts(host) {
+            routing {
+                handlers.forEach(::initService)
+            }
+        }
+    }
+}
+
+private fun Routing.initService(routeConfig: HttpRouteConfig) {
+    route(routeConfig.path) {
+        method(routeConfig.method) {
+            handle {
+                routeConfig.assertionsBlock.invoke(call)
+                call.respondText(routeConfig.responseContent, status = routeConfig.requestStatusCode, contentType = routeConfig.contentType)
+            }
+        }
+    }
+}
+
+private class HttpRouteConfig(
+    val path: String,
+    val requestStatusCode: HttpStatusCode = HttpStatusCode.OK,
+    val method: HttpMethod = HttpMethod.Get,
+    val responseContent: String = defaultTestContent,
+    val contentType: ContentType = ContentType.Application.Json,
+    val assertionsBlock: suspend (ApplicationCall) -> Unit = {},
+)
