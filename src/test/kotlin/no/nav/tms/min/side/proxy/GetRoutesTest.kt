@@ -23,7 +23,6 @@ class GetRoutesTest {
             "meldekort" to TestParameters("http://meldekort.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
-            "oppfolging" to TestParameters("http://veilarboppfolging.test"),
             "aia" to TestParameters(
                 baseUrl = "http://paw.test",
                 headers = mapOf("Nav-Call-Id" to "dummy-call-id"),
@@ -85,42 +84,6 @@ class GetRoutesTest {
             "/$tjenestePath/servererror",
             extraheaders = parameters.headers
         ).status shouldBe HttpStatusCode.ServiceUnavailable
-    }
-
-    @Test
-    fun oppfolging() = testApplication {
-        val applicationhttpClient = testApplicationHttpClient()
-        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
-        val url = "oppfolging"
-        val testParameters = testParametersMap.getParameters("oppfolging")
-
-        mockApi(
-            contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient),
-            navnFetcher = mockk(),
-            personaliaFetcher = mockk()
-        )
-
-        initExternalServices(
-            testParameters.baseUrl,
-            HttpRouteConfig(
-                "/api/niva3/underoppfolging",
-                assertionsBlock = {
-                    val navconsumerHeader = it.request.header("Nav-Consumer-Id")
-                    if (navconsumerHeader == null) {
-                        it.respond(HttpStatusCode.BadRequest)
-                    } else {
-                        navconsumerHeader shouldBe "min-side:tms-min-side-proxy"
-                        it.respondRawJson(defaultTestContent)
-                    }
-                },
-            )
-        )
-
-        client.authenticatedGet("/$url").assert {
-            status shouldBe HttpStatusCode.OK
-            bodyAsText() shouldBe defaultTestContent
-        }
     }
 
 
@@ -191,8 +154,6 @@ class GetRoutesTest {
         proxyHttpClient = proxyHttpClient,
         selectorClientId = "selector",
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
-        oppfolgingBaseUrl = testParametersMap.getParameters("oppfolging").baseUrl,
-        oppfolgingClientId = "veilarboppfolging"
     )
 
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(

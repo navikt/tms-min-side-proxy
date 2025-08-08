@@ -62,8 +62,6 @@ spec:
         - application: aia-backend
           namespace: paw
           cluster: dev-gcp
-        - application: veilarboppfolging
-          namespace: poao
   env:
     - name: CORS_ALLOWED_ORIGINS
       value: "*.dev.nav.no"
@@ -77,10 +75,6 @@ spec:
       value: http://tms-mikrofrontend-selector
     - name: SELCTOR_CLIENT_ID
       value: dev-gcp:min-side:tms-mikrofrontend-selector
-    - name: OPPFOLGING_API_URL
-      value: http://veilarboppfolging.poao/veilarboppfolging
-    - name: OPPFOLGING_CLIENT_ID
-      value: dev-gcp:poao:veilarboppfolging
     - name: AIA_API_URL
       value: http://aia-backend.paw
     - name: AIA_CLIENT_ID
