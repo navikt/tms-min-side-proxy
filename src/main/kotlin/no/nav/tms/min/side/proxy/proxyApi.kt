@@ -4,7 +4,6 @@ import io.getunleash.Unleash
 import io.ktor.http.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
-import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -119,7 +118,6 @@ fun Application.proxyApi(
                 call.respond(HttpStatusCode.OK)
             }
             proxyRoutes(contentFetcher, externalContentFetcher)
-            aiaRoutes(externalContentFetcher)
             navnRoutes(navnFetcher)
             get("featuretoggles") {
                 call.respond(

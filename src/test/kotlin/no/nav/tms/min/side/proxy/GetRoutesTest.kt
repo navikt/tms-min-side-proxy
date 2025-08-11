@@ -23,20 +23,10 @@ class GetRoutesTest {
             "meldekort" to TestParameters("http://meldekort.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
-            "aia" to TestParameters(
-                baseUrl = "http://paw.test",
-                headers = mapOf("Nav-Call-Id" to "dummy-call-id"),
-                queryParams = mapOf(
-                    "feature" to "aia.bruk-bekreft-reaktivering",
-                    "fraOgMed" to "2020-01-01",
-                    "listeparameter" to "[101404,7267261]"
-                )
-            )
         )
 
-
     @ParameterizedTest
-    @ValueSource(strings = ["meldekort", "selector", "aia"])
+    @ValueSource(strings = ["meldekort", "selector"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
 
         val applicationhttpClient = testApplicationHttpClient()
@@ -135,21 +125,6 @@ class GetRoutesTest {
         client.get("/authPing").status shouldBe HttpStatusCode.OK
     }
 
-    @Test
-    fun `Blokker loa-substantial for aia-kall`() {
-        testApplication {
-            mockApi(
-                contentFetcher = mockk(),
-                externalContentFetcher = mockk(),
-                navnFetcher = mockk(),
-                personaliaFetcher = mockk(),
-                levelOfAssurance = LevelOfAssurance.SUBSTANTIAL
-            )
-
-            client.get("aia/er-arbeidsoker").status shouldBe HttpStatusCode.Unauthorized
-        }
-    }
-
     private fun contentFecther(proxyHttpClient: ProxyHttpClient): ContentFetcher = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
         selectorClientId = "selector",
@@ -159,9 +134,7 @@ class GetRoutesTest {
     private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
         proxyHttpClient = proxyHttpClient,
         meldekortClientId = "meldekort",
-        meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl,
-        aiaBaseUrl = testParametersMap.getParameters("aia").baseUrl,
-        aiaClientId = "aia"
+        meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl
     )
 
     private class ProxyRouteAssertion(

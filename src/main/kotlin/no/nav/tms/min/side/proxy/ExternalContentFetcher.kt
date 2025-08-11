@@ -6,8 +6,6 @@ class ExternalContentFetcher(
     private val proxyHttpClient: ProxyHttpClient,
     private val meldekortClientId: String,
     private val meldekortBaseUrl: String,
-    private val aiaBaseUrl: String,
-    private val aiaClientId: String,
 ) {
     suspend fun getMeldekortContent(token: String, proxyPath: String?): HttpResponse =
         proxyHttpClient.getContent(
@@ -16,14 +14,5 @@ class ExternalContentFetcher(
             baseUrl = meldekortBaseUrl,
             proxyPath = proxyPath,
             header = "TokenXAuthorization",
-        )
-
-    suspend fun getAiaContent(accessToken: String, proxyPath: String?, callId: String?) =
-        proxyHttpClient.getContent(
-            userToken = accessToken,
-            proxyPath = proxyPath,
-            baseUrl = aiaBaseUrl,
-            targetAppId = aiaClientId,
-            extraHeaders = callId?.let { mapOf("Nav-Call-Id" to callId) }
         )
 }

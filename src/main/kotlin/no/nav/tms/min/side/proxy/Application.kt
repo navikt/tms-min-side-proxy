@@ -34,8 +34,6 @@ data class AppConfiguration(
     private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
     private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
-    private val aiaClientId: String = StringEnvVar.getEnvVar("AIA_CLIENT_ID"),
-    private val aiaBaseUrl: String = StringEnvVar.getEnvVar("AIA_API_URL"),
     private val pdlApiClientId: String = StringEnvVar.getEnvVar("PDL_API_CLIENT_ID"),
     private val pdlApiUrl: String = StringEnvVar.getEnvVar("PDL_API_URL"),
     private val pdlBehandlingsnummer: String = StringEnvVar.getEnvVar("PDL_BEHANDLINGSNUMMER"),
@@ -71,8 +69,6 @@ data class AppConfiguration(
         proxyHttpClient = proxyHttpClient,
         meldekortClientId = meldekortClientId,
         meldekortBaseUrl = meldekortBaseUrl,
-        aiaBaseUrl = aiaBaseUrl,
-        aiaClientId = aiaClientId
     )
 
     val navnFetcher = NavnFetcher(
