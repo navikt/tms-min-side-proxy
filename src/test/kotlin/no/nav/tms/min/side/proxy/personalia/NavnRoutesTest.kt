@@ -54,7 +54,6 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
@@ -82,7 +81,6 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
@@ -107,14 +105,11 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
-        client.get("/personalia/navn").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
-        }
+        client.get("/personalia/navn").status shouldBe HttpStatusCode.InternalServerError
     }
 
     @Test
@@ -129,14 +124,11 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
 
-        client.get("/personalia/navn").let {
-            it.status shouldBe HttpStatusCode.InternalServerError
-        }
+        client.get("/personalia/navn").status shouldBe HttpStatusCode.InternalServerError
     }
 
     @Test
@@ -151,7 +143,6 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
@@ -188,7 +179,6 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )
@@ -221,7 +211,6 @@ class NavnRoutesTest {
 
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = navnFetcher(),
             personaliaFetcher = mockk()
         )

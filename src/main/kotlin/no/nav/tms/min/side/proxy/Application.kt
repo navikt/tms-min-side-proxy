@@ -30,8 +30,6 @@ fun main() {
 data class AppConfiguration(
     val corsAllowedOrigins: String = StringEnvVar.getEnvVar("CORS_ALLOWED_ORIGINS"),
     val corsAllowedSchemes: String = StringEnvVar.getEnvVar("CORS_ALLOWED_SCHEMES"),
-     private val meldekortClientId: String = StringEnvVar.getEnvVar("MELDEKORT_CLIENT_ID"),
-    private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
     private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
     private val pdlApiClientId: String = StringEnvVar.getEnvVar("PDL_API_CLIENT_ID"),
@@ -65,12 +63,6 @@ data class AppConfiguration(
         selectorBaseUrl = selectorBaseUrl
     )
 
-    val externalContentFetcher = ExternalContentFetcher(
-        proxyHttpClient = proxyHttpClient,
-        meldekortClientId = meldekortClientId,
-        meldekortBaseUrl = meldekortBaseUrl,
-    )
-
     val navnFetcher = NavnFetcher(
         httpClient,
         pdlApiUrl,
@@ -100,7 +92,6 @@ fun Application.envConfig(appConfig: AppConfiguration) {
         corsAllowedOrigins = appConfig.corsAllowedOrigins,
         corsAllowedSchemes = appConfig.corsAllowedSchemes,
         contentFetcher = appConfig.contentFecther,
-        externalContentFetcher = appConfig.externalContentFetcher,
         navnFetcher = appConfig.navnFetcher,
         personaliaFetcher = appConfig.personaliaFetcher,
         unleash = setupUnleash(

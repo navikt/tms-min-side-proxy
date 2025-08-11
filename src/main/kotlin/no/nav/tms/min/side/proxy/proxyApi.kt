@@ -13,6 +13,7 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.statement.readRawBytes
 import io.ktor.serialization.jackson.*
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
@@ -22,6 +23,7 @@ import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
 import no.nav.tms.token.support.idporten.sidecar.idPorten
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.min.side.proxy.personalia.*
+import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
 import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
 import no.nav.tms.token.support.tokenx.validation.tokenX
 
@@ -31,7 +33,6 @@ fun Application.proxyApi(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
     contentFetcher: ContentFetcher,
-    externalContentFetcher: ExternalContentFetcher,
     navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
     idportenAuthInstaller: Application.() -> Unit = {
@@ -117,7 +118,10 @@ fun Application.proxyApi(
             get("authPing") {
                 call.respond(HttpStatusCode.OK)
             }
-            proxyRoutes(contentFetcher, externalContentFetcher)
+            get("/selector/{proxyPath...}") {
+                val response = contentFetcher.getProfilContent(accessToken, proxyPath)
+                call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
+            }
             navnRoutes(navnFetcher)
             get("featuretoggles") {
                 call.respond(
@@ -140,3 +144,9 @@ private fun Application.configureShutdownHook(contentFetcher: ContentFetcher) {
         contentFetcher.shutDown()
     }
 }
+
+private val RoutingContext.accessToken
+    get() = IdportenUserFactory.createIdportenUser(call).tokenString
+
+private val RoutingContext.proxyPath: String?
+    get() = call.parameters.getAll("proxyPath")?.joinToString("/")

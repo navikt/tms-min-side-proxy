@@ -6,13 +6,11 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import io.mockk.mockk
 import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
-import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -20,13 +18,12 @@ import org.junit.jupiter.params.provider.ValueSource
 class GetRoutesTest {
     private val testParametersMap =
         mapOf(
-            "meldekort" to TestParameters("http://meldekort.test"),
             "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
         )
 
     @ParameterizedTest
-    @ValueSource(strings = ["meldekort", "selector"])
+    @ValueSource(strings = ["selector"])
     fun `proxy get api`(tjenestePath: String) = testApplication {
 
         val applicationhttpClient = testApplicationHttpClient()
@@ -37,7 +34,6 @@ class GetRoutesTest {
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient),
             navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
@@ -83,7 +79,6 @@ class GetRoutesTest {
         val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient),
             navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
@@ -102,7 +97,6 @@ class GetRoutesTest {
 
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
-            externalContentFetcher = externalContentFetcher(proxyHttpClient),
             unleash = unleash,
             navnFetcher = mockk(),
             personaliaFetcher = mockk()
@@ -118,7 +112,6 @@ class GetRoutesTest {
     fun authPing() = testApplication {
         mockApi(
             contentFetcher = mockk(),
-            externalContentFetcher = mockk(),
             navnFetcher = mockk(),
             personaliaFetcher = mockk()
         )
@@ -131,11 +124,6 @@ class GetRoutesTest {
         selectorBaseUrl = testParametersMap.getParameters("selector").baseUrl,
     )
 
-    private fun externalContentFetcher(proxyHttpClient: ProxyHttpClient) = ExternalContentFetcher(
-        proxyHttpClient = proxyHttpClient,
-        meldekortClientId = "meldekort",
-        meldekortBaseUrl = testParametersMap.getParameters("meldekort").baseUrl
-    )
 
     private class ProxyRouteAssertion(
         private val parameters: TestParameters, private val isNestedPath: Boolean
