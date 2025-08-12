@@ -1,6 +1,5 @@
 package no.nav.tms.min.side.proxy
 
-import io.getunleash.Unleash
 import io.ktor.http.*
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopping
@@ -51,7 +50,6 @@ fun Application.proxyApi(
             }
         }
     },
-    unleash: Unleash
 ) {
     val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
@@ -70,7 +68,6 @@ fun Application.proxyApi(
                     }
                     call.respond(HttpStatusCode.ServiceUnavailable)
                 }
-
                 is MissingHeaderException -> {
                     call.respond(HttpStatusCode.BadRequest)
                 }
@@ -123,13 +120,6 @@ fun Application.proxyApi(
                 call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
             }
             navnRoutes(navnFetcher)
-            get("featuretoggles") {
-                call.respond(
-                    unleash.more().evaluateAllToggles().associate {
-                        it.name to it.isEnabled
-                    }
-                )
-            }
         }
         authenticate(TokenXAuthenticator.name) {
             personaliaRoutes(personaliaFetcher)

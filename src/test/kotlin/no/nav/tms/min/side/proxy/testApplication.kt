@@ -1,14 +1,10 @@
 package no.nav.tms.min.side.proxy
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.getunleash.FakeUnleash
-import io.getunleash.Unleash
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation as clientContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.request
-import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
@@ -42,7 +38,6 @@ internal fun ApplicationTestBuilder.mockApi(
     navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
     levelOfAssurance: LevelOfAssurance = LevelOfAssurance.HIGH,
-    unleash: Unleash = FakeUnleash()
 ) = application {
     proxyApi(
         corsAllowedOrigins = corsAllowedOrigins,
@@ -70,7 +65,6 @@ internal fun ApplicationTestBuilder.mockApi(
         },
         navnFetcher = navnFetcher,
         personaliaFetcher = personaliaFetcher,
-        unleash = unleash
     )
 }
 
@@ -111,22 +105,6 @@ internal suspend fun HttpClient.authenticatedGet(
         extraheaders?.forEach {
             header(it.key, it.value)
         }
-    }
-
-internal suspend fun HttpClient.authenticatedPost(
-    urlString: String,
-    token: String = stubToken,
-    content: String = """{"test":"testcontent"}""",
-    extraheaders: Map<String, String>? = null
-): HttpResponse =
-    request {
-        url(urlString)
-        method = HttpMethod.Post
-        header(HttpHeaders.Cookie, "selvbetjening-idtoken=$token")
-        extraheaders?.forEach {
-            header(it.key, it.value)
-        }
-        setBody(content)
     }
 
 const val defaultTestContent = """{"testinnhold": "her testes det innhold"}"""
