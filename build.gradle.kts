@@ -52,7 +52,6 @@ dependencies {
     implementation(TmsCommonLib.metrics)
     implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.observability)
-    implementation(Unleash.clientJava)
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)

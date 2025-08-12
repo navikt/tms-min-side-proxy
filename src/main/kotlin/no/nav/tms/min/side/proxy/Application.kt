@@ -35,10 +35,6 @@ data class AppConfiguration(
     private val pdlApiClientId: String = StringEnvVar.getEnvVar("PDL_API_CLIENT_ID"),
     private val pdlApiUrl: String = StringEnvVar.getEnvVar("PDL_API_URL"),
     private val pdlBehandlingsnummer: String = StringEnvVar.getEnvVar("PDL_BEHANDLINGSNUMMER"),
-
-    val unleashEnvironment: String = StringEnvVar.getEnvVar("UNLEASH_ENVIRONMENT"),
-    val unleashServerApiUrl: String = StringEnvVar.getEnvVar("UNLEASH_SERVER_API_URL"),
-    val unleashServerApiToken: String = StringEnvVar.getEnvVar("UNLEASH_SERVER_API_TOKEN"),
 ) {
     private val httpClient = HttpClient(Apache.create()) {
         install(ContentNegotiation) {
@@ -94,10 +90,5 @@ fun Application.envConfig(appConfig: AppConfiguration) {
         contentFetcher = appConfig.contentFecther,
         navnFetcher = appConfig.navnFetcher,
         personaliaFetcher = appConfig.personaliaFetcher,
-        unleash = setupUnleash(
-            unleashApiUrl = appConfig.unleashServerApiUrl,
-            unleashApiKey = appConfig.unleashServerApiToken,
-            unleashEnvironment = appConfig.unleashEnvironment
-        )
     )
 }

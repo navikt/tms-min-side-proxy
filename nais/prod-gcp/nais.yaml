@@ -51,7 +51,6 @@ spec:
     outbound:
       external:
         - host: syfomotebehov.prod-fss-pub.nais.io
-        - host: min-side-unleash-api.nav.cloud.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
       rules:
         - application: tms-mikrofrontend-selector
@@ -68,27 +67,9 @@ spec:
       value: http://tms-mikrofrontend-selector
     - name: SELCTOR_CLIENT_ID
       value: prod-gcp:min-side:tms-mikrofrontend-selector
-    - name: UNLEASH_ENVIRONMENT
-      value: production
     - name: PDL_API_URL
       value: "https://pdl-api.prod-fss-pub.nais.io/graphql"
     - name: PDL_API_CLIENT_ID
       value: "prod-fss:pdl:pdl-api"
     - name: PDL_BEHANDLINGSNUMMER
       value: "B328"
-  envFrom:
-    - secret: tms-min-side-proxy-unleash-api-token
-
----
-apiVersion: unleash.nais.io/v1
-kind: ApiToken
-metadata:
-  name: tms-min-side-proxy
-  namespace: min-side
-spec:
-  unleashInstance:
-    apiVersion: unleash.nais.io/v1
-    kind: RemoteUnleash
-    name: min-side
-  secretName: tms-min-side-proxy-unleash-api-token
-  environment: production
