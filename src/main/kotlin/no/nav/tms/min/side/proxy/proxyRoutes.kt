@@ -23,12 +23,6 @@ fun Route.proxyRoutes(contentFetcher: ContentFetcher, externalContentFetcher: Ex
         val response = contentFetcher.getProfilContent(accessToken, proxyPath)
         call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
     }
-
-    get("/oppfolging") {
-        val response = contentFetcher.getOppfolgingContent(accessToken, "api/niva3/underoppfolging")
-        call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
-    }
-
 }
 
 fun Route.aiaRoutes(externalContentFetcher: ExternalContentFetcher) {

@@ -44,38 +44,6 @@ class ProxyHttpClient(
         return httpClient.get(url, header, exchangedToken, extraHeaders, requestTimeoutAfter).responseIfOk()
     }
 
-    suspend fun postWithIdentInBodyWithAzure(
-        ident: String,
-        clientId: String,
-        baseApiUrl: String,
-        proxyPath: String?
-    ): HttpResponse =
-        withContext(Dispatchers.IO) {
-            val accessToken = azureService.getAccessToken(clientId)
-            httpClient.request {
-                url("$baseApiUrl/$proxyPath")
-                method = HttpMethod.Post
-                header(HttpHeaders.Authorization, "Bearer $accessToken")
-                contentType(ContentType.Application.Json)
-                setBody(LoginPostBody(ident))
-            }
-        }
-
-    suspend fun postContent(
-        content: ByteArray,
-        proxyPath: String?,
-        baseUrl: String,
-        accessToken: String,
-        targetAppId: String,
-        extraHeaders: Map<String, String>? = null
-    ): HttpResponse =
-        httpClient.post(
-            url = "$baseUrl/$proxyPath",
-            content = content,
-            accessToken = exchangeToken(accessToken, targetAppId),
-            extraHeaders = extraHeaders
-        ).responseIfOk()
-
     private suspend fun exchangeToken(
         userToken: String,
         targetAppId: String

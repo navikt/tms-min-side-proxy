@@ -34,8 +34,6 @@ data class AppConfiguration(
     private val meldekortBaseUrl: String = StringEnvVar.getEnvVar("MELDEKORT_BASE_URL"),
     private val selectorClientId: String = StringEnvVar.getEnvVar("SELCTOR_CLIENT_ID"),
     private val selectorBaseUrl: String = StringEnvVar.getEnvVar("SELCTOR_BASE_URL"),
-    private val oppfolgingClientId: String = StringEnvVar.getEnvVar("OPPFOLGING_CLIENT_ID"),
-    private val oppfolgingBaseUrl: String = StringEnvVar.getEnvVar("OPPFOLGING_API_URL"),
     private val aiaClientId: String = StringEnvVar.getEnvVar("AIA_CLIENT_ID"),
     private val aiaBaseUrl: String = StringEnvVar.getEnvVar("AIA_API_URL"),
     private val pdlApiClientId: String = StringEnvVar.getEnvVar("PDL_API_CLIENT_ID"),
@@ -66,9 +64,7 @@ data class AppConfiguration(
     val contentFecther = ContentFetcher(
         proxyHttpClient = proxyHttpClient,
         selectorClientId = selectorClientId,
-        selectorBaseUrl = selectorBaseUrl,
-        oppfolgingClientId = oppfolgingClientId,
-        oppfolgingBaseUrl = oppfolgingBaseUrl,
+        selectorBaseUrl = selectorBaseUrl
     )
 
     val externalContentFetcher = ExternalContentFetcher(
