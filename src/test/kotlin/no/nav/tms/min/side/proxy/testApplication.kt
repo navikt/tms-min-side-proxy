@@ -39,7 +39,6 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedOrigins: String = "*.nav.no",
     corsAllowedSchemes: String = "https",
     contentFetcher: ContentFetcher,
-    externalContentFetcher: ExternalContentFetcher,
     navnFetcher: NavnFetcher,
     personaliaFetcher: PersonaliaFetcher,
     levelOfAssurance: LevelOfAssurance = LevelOfAssurance.HIGH,
@@ -49,7 +48,6 @@ internal fun ApplicationTestBuilder.mockApi(
         corsAllowedOrigins = corsAllowedOrigins,
         corsAllowedSchemes = corsAllowedSchemes,
         contentFetcher = contentFetcher,
-        externalContentFetcher = externalContentFetcher,
         idportenAuthInstaller = {
             authentication {
                 idPortenMock {
