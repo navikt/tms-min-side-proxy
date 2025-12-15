@@ -16,6 +16,7 @@ import io.ktor.client.statement.readRawBytes
 import io.ktor.serialization.jackson.*
 import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
+import no.nav.tms.common.logging.TeamLogs
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
 import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
@@ -27,7 +28,8 @@ import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
 import no.nav.tms.token.support.tokenx.validation.tokenX
 
 private val log = KotlinLogging.logger {}
-private val securelog = KotlinLogging.logger("secureLog")
+private val teamLog = TeamLogs.logger { }
+
 fun Application.proxyApi(
     corsAllowedOrigins: String,
     corsAllowedSchemes: String,
@@ -60,7 +62,7 @@ fun Application.proxyApi(
             log.warn { "Api-kall feiler: ${cause.message}" }
             when (cause) {
                 is TokendingsException -> {
-                    securelog.warn(cause) {
+                    teamLog.warn(cause) {
                         """
                         ${cause.message} for token 
                         ${cause.accessToken}
@@ -74,15 +76,15 @@ fun Application.proxyApi(
 
                 is RequestExcpetion -> {
                     call.respond(cause.responseCode)
-
                 }
 
                 is HentNavnException -> {
+                    teamLog.warn(cause) { "Feil ved henting av navn" }
                     call.respond(HttpStatusCode.InternalServerError, "Feil ved henting av navn")
                 }
 
                 else -> {
-                    securelog.error { cause.stackTraceToString() }
+                    teamLog.error(cause) { "Uventet feil" }
                     call.respond(HttpStatusCode.InternalServerError)
                 }
             }

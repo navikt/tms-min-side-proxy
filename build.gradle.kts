@@ -50,8 +50,9 @@ dependencies {
     implementation(Micrometer.registryPrometheus)
     implementation(Prometheus.metricsCore)
     implementation(TmsCommonLib.metrics)
-    implementation(TmsCommonLib.utils)
     implementation(TmsCommonLib.observability)
+    implementation(TmsCommonLib.teamLogger)
+    implementation(TmsCommonLib.utils)
 
     testImplementation(JunitPlatform.launcher)
     testImplementation(JunitJupiter.api)
