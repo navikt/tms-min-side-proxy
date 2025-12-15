@@ -34,8 +34,6 @@ spec:
   replicas:
     min: 2
     max: 4
-  secureLogs:
-    enabled: true
   ingresses:
     - "https://www.intern.dev.nav.no/tms-min-side-proxy"
     - "https://www.ansatt.dev.nav.no/tms-min-side-proxy"
@@ -56,6 +54,8 @@ spec:
         - host: pdl-api.dev-fss-pub.nais.io
       rules:
         - application: tms-mikrofrontend-selector
+        - application: logging
+          namespace: nais-system
   env:
     - name: CORS_ALLOWED_ORIGINS
       value: "*.dev.nav.no"

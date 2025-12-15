@@ -8,6 +8,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import no.nav.tms.common.logging.TeamLogs
 import no.nav.tms.token.support.idporten.sidecar.user.IdportenUser
 import no.nav.tms.token.support.tokendings.exchange.TokendingsService
 import java.time.Duration
@@ -26,7 +27,7 @@ class NavnFetcher(
         .build<String, String>()
 
     private val log = KotlinLogging.logger {}
-    private val securelog = KotlinLogging.logger("secureLog")
+    private val teamLog = TeamLogs.logger { }
 
     fun getNavn(user: IdportenUser): String {
         return cache.get(user.ident) {
@@ -58,7 +59,7 @@ class NavnFetcher(
         return try {
             response.body()
         } catch (e: Exception) {
-            securelog.error(e) { "Klarer ikke tolke svar fra PDL." }
+            teamLog.error(e) { "Klarer ikke tolke svar fra PDL." }
             throw HentNavnException("Klarte ikke tolke svar fra PDL", e)
         }
     }
