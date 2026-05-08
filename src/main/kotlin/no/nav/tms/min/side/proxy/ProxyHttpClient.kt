@@ -46,11 +46,11 @@ class ProxyHttpClient(
 
     private suspend fun exchangeToken(
         userToken: String,
-        targetAppId: String
+        targetApp: String
     ) = try {
-        tokendingsService.exchangeToken(userToken, targetAppId)
+        tokendingsService.exchangeToken(userToken, targetApp)
     } catch (e: Exception) {
-        throw TokendingsException(targetAppId, userToken, e)
+        throw TokendingsException(targetApp, e)
     }
 
     private suspend inline fun HttpClient.get(
@@ -105,10 +105,8 @@ class ProxyHttpClient(
     }
 }
 
-data class LoginPostBody(val ident: String)
-
-class TokendingsException(targetapp: String, val accessToken: String, originalException: Exception) :
-    Exception("Feil i exchange mot tokendings for $targetapp: ${originalException.message}")
+class TokendingsException(targetapp: String, originalException: Exception) :
+    RuntimeException("Feil i exchange mot tokendings for $targetapp", originalException)
 
 class RequestExcpetion(url: String, status: HttpStatusCode, navCallId: String? = null) : Exception(
     "proxy kall feilet mot $url med status $status ${navCallId?.let { "og callid: $it" }}"

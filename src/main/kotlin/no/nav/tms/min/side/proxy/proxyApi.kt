@@ -62,12 +62,7 @@ fun Application.proxyApi(
             log.warn { "Api-kall feiler: ${cause.message}" }
             when (cause) {
                 is TokendingsException -> {
-                    teamLog.warn(cause) {
-                        """
-                        ${cause.message} for token 
-                        ${cause.accessToken}
-                        """.trimIndent()
-                    }
+                    teamLog.warn(cause) { "Feil ved veksling av token for baktjeneste" }
                     call.respond(HttpStatusCode.ServiceUnavailable)
                 }
                 is MissingHeaderException -> {
