@@ -18,7 +18,7 @@ import io.mockk.mockk
 import no.nav.tms.min.side.proxy.jsonConfig
 import no.nav.tms.min.side.proxy.mockApi
 import no.nav.tms.min.side.proxy.respondRawJson
-import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchanger
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 
@@ -30,11 +30,11 @@ class NavnRoutesTest {
 
     private val token = "<token>"
 
-    private val tokendingsService: TokendingsService = mockk()
+    private val userTokenExchanger: UserTokenExchanger = mockk()
 
     @AfterEach
     fun cleanup() {
-        clearMocks(tokendingsService)
+        clearMocks(userTokenExchanger)
     }
 
     private val objectMapper = jacksonObjectMapper()
@@ -47,7 +47,7 @@ class NavnRoutesTest {
         val pdlResponse = PdlResponseConfig(fornavn, mellomnavn, etternavn)
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         setupPdlAsExternal(pdlResponse)
@@ -55,7 +55,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -74,7 +73,7 @@ class NavnRoutesTest {
 
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         setupPdlAsExternal(pdlResponse)
@@ -82,7 +81,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").let {
@@ -98,7 +96,7 @@ class NavnRoutesTest {
         val pdlResponse = PdlResponseConfig(null, null, null)
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         setupPdlAsExternal(pdlResponse)
@@ -106,7 +104,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").status shouldBe HttpStatusCode.InternalServerError
@@ -117,7 +114,7 @@ class NavnRoutesTest {
         val pdlResponse = PdlResponseConfig(null, null, null, hasEmptyResponse = true)
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         setupPdlAsExternal(pdlResponse)
@@ -125,7 +122,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/navn").status shouldBe HttpStatusCode.InternalServerError
@@ -136,7 +132,7 @@ class NavnRoutesTest {
         val pdlResponse = PdlResponseConfig(null, null, null, hasEmptyResponse = true)
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         setupPdlAsExternal(pdlResponse)
@@ -144,14 +140,13 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/personalia/ident").let {
             it.status shouldBe HttpStatusCode.OK
 
             objectMapper.readTree(it.bodyAsText())["ident"]
-                .asText() shouldBe "12345"
+                .asText() shouldBe "01234567890"
         }
     }
 
@@ -164,7 +159,7 @@ class NavnRoutesTest {
 
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
         externalServices {
@@ -180,7 +175,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/navn").let {
@@ -188,7 +182,7 @@ class NavnRoutesTest {
 
             objectMapper.readTree(it.bodyAsText()).run {
                 get("navn").asText() shouldBe "$fornavn $mellomnavn $etternavn"
-                get("ident").asText() shouldBe "12345"
+                get("ident").asText() shouldBe "01234567890"
             }
         }
     }
@@ -197,7 +191,7 @@ class NavnRoutesTest {
     fun `Svarer kun med ident hvis pdl feiler`() = testApplication {
 
         coEvery {
-            tokendingsService.exchangeToken(any(), pdlClientId)
+            userTokenExchanger.exchangeToken(any(), pdlClientId)
         } returns token
 
 
@@ -212,7 +206,6 @@ class NavnRoutesTest {
         mockApi(
             contentFetcher = mockk(),
             navnFetcher = navnFetcher(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/navn").let {
@@ -220,7 +213,7 @@ class NavnRoutesTest {
 
             objectMapper.readTree(it.bodyAsText()).run {
                 get("navn").isNull shouldBe true
-                get("ident").asText() shouldBe "12345"
+                get("ident").asText() shouldBe "01234567890"
             }
         }
     }
@@ -236,7 +229,7 @@ class NavnRoutesTest {
         pdlUrl = pdlApiUrl,
         pdlClientId = pdlClientId,
         pdlBehandlingsnummer = pdlBehandlingsnummer,
-        tokendingsService = tokendingsService
+        tokendingsService = userTokenExchanger
     )
 
     private fun validResponse(fornavn: String, mellomnavn: String?, etternavn: String) = """

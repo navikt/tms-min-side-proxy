@@ -18,13 +18,11 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.tms.min.side.proxy.personalia.NavnFetcher
-import no.nav.tms.min.side.proxy.personalia.PersonaliaFetcher
-import no.nav.tms.token.support.azure.exchange.AzureService
-import no.nav.tms.token.support.idporten.sidecar.mock.LevelOfAssurance
-import no.nav.tms.token.support.idporten.sidecar.mock.idPortenMock
-import no.nav.tms.token.support.tokendings.exchange.TokendingsService
-import no.nav.tms.token.support.tokenx.validation.mock.tokenXMock
-import no.nav.tms.token.support.tokenx.validation.mock.LevelOfAssurance as LevelOfAssuranceTokenX
+import no.nav.tms.token.support.entraid.token.fetcher.EntraIdTokenFetcher
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchanger
+import no.nav.tms.token.support.user.token.verification.Issuer
+import no.nav.tms.token.support.user.token.verification.LevelOfAssurance
+import no.nav.tms.token.support.user.token.verificaton.mock.userTokenMock
 import java.lang.IllegalArgumentException
 
 private const val testIssuer = "test-issuer"
@@ -36,35 +34,26 @@ internal fun ApplicationTestBuilder.mockApi(
     corsAllowedSchemes: String = "https",
     contentFetcher: ContentFetcher,
     navnFetcher: NavnFetcher,
-    personaliaFetcher: PersonaliaFetcher,
-    levelOfAssurance: LevelOfAssurance = LevelOfAssurance.HIGH,
+    userLoa: LevelOfAssurance = LevelOfAssurance.High,
+    userIssuer: Issuer = Issuer.IdPorten
 ) = application {
     proxyApi(
         corsAllowedOrigins = corsAllowedOrigins,
         corsAllowedSchemes = corsAllowedSchemes,
         contentFetcher = contentFetcher,
-        idportenAuthInstaller = {
+        authInstaller = {
             authentication {
-                idPortenMock {
-                    alwaysAuthenticated = true
-                    setAsDefault = true
-                    staticLevelOfAssurance = levelOfAssurance
-                    staticUserPid = "12345"
-                }
-            }
-        },
-        tokenXAuthInstaller = {
-            authentication {
-                tokenXMock {
-                    alwaysAuthenticated = true
-                    setAsDefault = false
-                    staticLevelOfAssurance = LevelOfAssuranceTokenX.LEVEL_4
-                    staticUserPid = "12345"
+                userTokenMock {
+                    configureIssuers(Issuer.IdPorten, Issuer.Tokenx)
+                    enableDefaultAuthentication {
+                        tokenIdent = "01234567890"
+                        tokenLoa = userLoa
+                        tokenIssuer = userIssuer
+                    }
                 }
             }
         },
         navnFetcher = navnFetcher,
-        personaliaFetcher = personaliaFetcher,
     )
 }
 
@@ -109,11 +98,11 @@ internal suspend fun HttpClient.authenticatedGet(
 
 const val defaultTestContent = """{"testinnhold": "her testes det innhold"}"""
 
-val tokendigsMock = mockk<TokendingsService>().apply {
+val userTokenExchangerMock = mockk<UserTokenExchanger>().apply {
     coEvery { exchangeToken(any(), any()) } returns "<dummytoken>"
 }
 
-val azureMock = mockk<AzureService>().apply {
+val entraIdTokenFetcherMock = mockk<EntraIdTokenFetcher>().apply {
     coEvery { getAccessToken(any()) } returns "<azuretoken>"
 }
 

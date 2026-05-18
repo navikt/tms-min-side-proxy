@@ -18,14 +18,11 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 import no.nav.tms.common.logging.TeamLogs
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
-import no.nav.tms.token.support.idporten.sidecar.IdPortenLogin
-import no.nav.tms.token.support.idporten.sidecar.LevelOfAssurance.SUBSTANTIAL
-import no.nav.tms.token.support.idporten.sidecar.idPorten
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.min.side.proxy.personalia.*
-import no.nav.tms.token.support.idporten.sidecar.user.IdportenUserFactory
-import no.nav.tms.token.support.tokenx.validation.TokenXAuthenticator
-import no.nav.tms.token.support.tokenx.validation.tokenX
+import no.nav.tms.token.support.user.token.verification.LevelOfAssurance
+import no.nav.tms.token.support.user.token.verification.UserPrincipal
+import no.nav.tms.token.support.user.token.verification.userToken
 
 private val log = KotlinLogging.logger {}
 private val teamLog = TeamLogs.logger { }
@@ -35,23 +32,13 @@ fun Application.proxyApi(
     corsAllowedSchemes: String,
     contentFetcher: ContentFetcher,
     navnFetcher: NavnFetcher,
-    personaliaFetcher: PersonaliaFetcher,
-    idportenAuthInstaller: Application.() -> Unit = {
+    authInstaller: Application.() -> Unit = {
         authentication {
-            idPorten {
-                setAsDefault = true
-                levelOfAssurance = SUBSTANTIAL
+            userToken {
+                levelOfAssurance = LevelOfAssurance.Substantial
             }
         }
-        install(IdPortenLogin)
-    },
-    tokenXAuthInstaller: Application.() -> Unit = {
-        authentication {
-            tokenX {
-                setAsDefault = false
-            }
-        }
-    },
+    }
 ) {
     val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
@@ -87,8 +74,7 @@ fun Application.proxyApi(
         }
     }
 
-    idportenAuthInstaller()
-    tokenXAuthInstaller()
+    authInstaller()
 
     installTmsMicrometerMetrics {
         installMicrometerPlugin = true
@@ -113,13 +99,10 @@ fun Application.proxyApi(
                 call.respond(HttpStatusCode.OK)
             }
             get("/selector/{proxyPath...}") {
-                val response = contentFetcher.getProfilContent(accessToken, proxyPath)
+                val response = contentFetcher.getProfilContent(call.user.accessToken, proxyPath)
                 call.respondBytes(response.readRawBytes(), response.contentType(), response.status)
             }
             navnRoutes(navnFetcher)
-        }
-        authenticate(TokenXAuthenticator.name) {
-            personaliaRoutes(personaliaFetcher)
         }
     }
 
@@ -132,8 +115,7 @@ private fun Application.configureShutdownHook(contentFetcher: ContentFetcher) {
     }
 }
 
-private val RoutingContext.accessToken
-    get() = IdportenUserFactory.createIdportenUser(call).tokenString
+val RoutingCall.user get() = principal<UserPrincipal>() ?: throw IllegalStateException("Fant ikke UserPrincipal i context.")
 
 private val RoutingContext.proxyPath: String?
     get() = call.parameters.getAll("proxyPath")?.joinToString("/")

@@ -11,22 +11,21 @@ import io.ktor.server.testing.*
 import io.mockk.mockk
 import no.nav.tms.min.side.proxy.TestParameters.Companion.getParameters
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 
 class GetRoutesTest {
+
     private val testParametersMap =
         mapOf(
-            "personalia" to TestParameters("http://personalia.test"),
             "selector" to TestParameters("http://selector.test"),
         )
 
-    @ParameterizedTest
-    @ValueSource(strings = ["selector"])
-    fun `proxy get api`(tjenestePath: String) = testApplication {
+    @Test
+    fun `proxy get api`() = testApplication {
+
+        val tjenestePath = "selector"
 
         val applicationhttpClient = testApplicationHttpClient()
-        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, userTokenExchangerMock, entraIdTokenFetcherMock)
         val parameters = testParametersMap.getParameters(tjenestePath)
         val proxyRouteAssert = ProxyRouteAssertion(parameters = parameters, isNestedPath = false)
         val proxyNestedRouteAssert = ProxyRouteAssertion(parameters = parameters, isNestedPath = true)
@@ -34,7 +33,6 @@ class GetRoutesTest {
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             navnFetcher = mockk(),
-            personaliaFetcher = mockk()
         )
 
         initExternalServices(
@@ -75,11 +73,10 @@ class GetRoutesTest {
     @Test
     fun healtApiTest() = testApplication {
         val applicationhttpClient = testApplicationHttpClient()
-        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, tokendigsMock, azureMock)
+        val proxyHttpClient = ProxyHttpClient(applicationhttpClient, userTokenExchangerMock, entraIdTokenFetcherMock)
         mockApi(
             contentFetcher = contentFecther(proxyHttpClient),
             navnFetcher = mockk(),
-            personaliaFetcher = mockk()
         )
 
         client.get("/internal/isAlive").status shouldBe HttpStatusCode.OK
@@ -91,8 +88,7 @@ class GetRoutesTest {
     fun authPing() = testApplication {
         mockApi(
             contentFetcher = mockk(),
-            navnFetcher = mockk(),
-            personaliaFetcher = mockk()
+            navnFetcher = mockk()
         )
         client.get("/authPing").status shouldBe HttpStatusCode.OK
     }
