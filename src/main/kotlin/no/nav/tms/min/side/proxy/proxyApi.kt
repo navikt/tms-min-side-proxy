@@ -20,6 +20,7 @@ import no.nav.tms.common.logging.TeamLogs
 import no.nav.tms.common.metrics.installTmsMicrometerMetrics
 import no.nav.tms.common.observability.ApiMdc
 import no.nav.tms.min.side.proxy.personalia.*
+import no.nav.tms.token.support.user.login.routes.UserLoginRoutes
 import no.nav.tms.token.support.user.token.verification.LevelOfAssurance
 import no.nav.tms.token.support.user.token.verification.UserPrincipal
 import no.nav.tms.token.support.user.token.verification.userToken
@@ -91,6 +92,8 @@ fun Application.proxyApi(
     install(ContentNegotiation) {
         jackson { jsonConfig() }
     }
+
+    install(UserLoginRoutes)
 
     routing {
         metaRoutes(collectorRegistry)

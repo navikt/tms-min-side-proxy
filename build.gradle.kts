@@ -42,6 +42,7 @@ dependencies {
     implementation(Ktor.Client.contentNegotiation)
     implementation(Ktor.Serialization.jackson)
     implementation(Ktor.Server.contentNegotiation)
+    implementation(TmsKtorTokenSupport.userLoginRoutes)
     implementation(TmsKtorTokenSupport.userTokenExchange)
     implementation(TmsKtorTokenSupport.userTokenVerification)
     implementation(TmsKtorTokenSupport.entraIdTokenFetcher)
