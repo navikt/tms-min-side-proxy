@@ -39,6 +39,7 @@ fun Application.proxyApi(
                 levelOfAssurance = LevelOfAssurance.Substantial
             }
         }
+        install(UserLoginRoutes)
     }
 ) {
     val collectorRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
@@ -92,8 +93,6 @@ fun Application.proxyApi(
     install(ContentNegotiation) {
         jackson { jsonConfig() }
     }
-
-    install(UserLoginRoutes)
 
     routing {
         metaRoutes(collectorRegistry)
