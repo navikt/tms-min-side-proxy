@@ -17,13 +17,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.plugins.*
-import no.nav.tms.token.support.azure.exchange.AzureService
-import no.nav.tms.token.support.tokendings.exchange.TokendingsService
+import no.nav.tms.token.support.entraid.token.fetcher.EntraIdTokenFetcher
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchanger
 
 class ProxyHttpClient(
     private val httpClient: HttpClient,
-    private val tokendingsService: TokendingsService,
-    private val azureService: AzureService
+    private val userTokenFetcher: UserTokenExchanger,
+    private val entraIdTokenFetcher: EntraIdTokenFetcher
 ) {
     private val log = KotlinLogging.logger {  }
 
@@ -48,7 +48,7 @@ class ProxyHttpClient(
         userToken: String,
         targetApp: String
     ) = try {
-        tokendingsService.exchangeToken(userToken, targetApp)
+        userTokenFetcher.exchangeToken(userToken, targetApp)
     } catch (e: Exception) {
         throw TokendingsException(targetApp, e)
     }

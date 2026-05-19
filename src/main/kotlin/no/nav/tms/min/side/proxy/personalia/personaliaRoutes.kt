@@ -1,21 +1,43 @@
 package no.nav.tms.min.side.proxy.personalia
 
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.pipeline.*
-import no.nav.tms.token.support.tokenx.validation.user.TokenXUserFactory
+import no.nav.tms.min.side.proxy.user
 
-fun Route.personaliaRoutes(personaliaFetcher: PersonaliaFetcher) {
+fun Route.navnRoutes(navnFetcher: NavnFetcher) {
+    get("/personalia/navn") {
+        navnFetcher.getNavn(call.user)
+            .let { navn -> call.respond(Navn(navn)) }
+    }
+
+    get("/personalia/ident") {
+        call.respond(Ident(call.user.ident))
+    }
+
+    get("/navn") {
+        try {
+            navnFetcher.getNavn(call.user)
+                .let { navn -> call.respond(NavnAndIdent(navn, call.user.ident)) }
+        } catch (e: HentNavnException) {
+            call.respond(NavnAndIdent(navn = null, ident = call.user.ident))
+        }
+    }
+
+    // Legacy rute som tidligere var egen tokenx-inngang
     get("/personalia") {
         try {
-            personaliaFetcher.getNavn(user)
-                .let { navn -> call.respond(NavnAndIdent(navn, user.ident)) }
+            navnFetcher.getNavn(call.user)
+                .let { navn -> call.respond(NavnAndIdent(navn, call.user.ident)) }
         } catch (e: HentNavnException) {
-            call.respond(NavnAndIdent(navn = null, ident = user.ident))
+            call.respond(NavnAndIdent(navn = null, ident = call.user.ident))
         }
     }
 }
 
-private val RoutingContext.user
-    get() = TokenXUserFactory.createTokenXUser(call)
+data class Navn(val navn: String)
+data class Ident(val ident: String)
+
+data class NavnAndIdent(
+    val navn: String?,
+    val ident: String
+)

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.apache.Apache
+import io.ktor.client.engine.apache5.Apache5
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.*
@@ -15,9 +15,8 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.tms.common.util.config.StringEnvVar
 import no.nav.tms.min.side.proxy.personalia.NavnFetcher
-import no.nav.tms.min.side.proxy.personalia.PersonaliaFetcher
-import no.nav.tms.token.support.azure.exchange.AzureServiceBuilder
-import no.nav.tms.token.support.tokendings.exchange.TokendingsServiceBuilder
+import no.nav.tms.token.support.entraid.token.fetcher.EntraIdTokenFetcherBuilder
+import no.nav.tms.token.support.user.token.exchange.UserTokenExchangerBuilder
 
 fun main() {
     embeddedServer(
@@ -36,7 +35,7 @@ data class AppConfiguration(
     private val pdlApiUrl: String = StringEnvVar.getEnvVar("PDL_API_URL"),
     private val pdlBehandlingsnummer: String = StringEnvVar.getEnvVar("PDL_BEHANDLINGSNUMMER"),
 ) {
-    private val httpClient = HttpClient(Apache.create()) {
+    private val httpClient = HttpClient(Apache5) {
         install(ContentNegotiation) {
             jackson {
                 jsonConfig()
@@ -45,12 +44,12 @@ data class AppConfiguration(
         install(HttpTimeout)
     }
 
-    private val tokendingsService = TokendingsServiceBuilder.buildTokendingsService()
+    private val tokendingsService = UserTokenExchangerBuilder.build()
 
     private val proxyHttpClient = ProxyHttpClient(
         httpClient = httpClient,
-        tokendingsService = tokendingsService,
-        azureService = AzureServiceBuilder.buildAzureService()
+        userTokenFetcher = tokendingsService,
+        entraIdTokenFetcher = EntraIdTokenFetcherBuilder.build()
     )
 
     val contentFecther = ContentFetcher(
@@ -60,14 +59,6 @@ data class AppConfiguration(
     )
 
     val navnFetcher = NavnFetcher(
-        httpClient,
-        pdlApiUrl,
-        pdlApiClientId,
-        pdlBehandlingsnummer,
-        tokendingsService
-    )
-
-    val personaliaFetcher = PersonaliaFetcher(
         httpClient,
         pdlApiUrl,
         pdlApiClientId,
@@ -89,6 +80,5 @@ fun Application.envConfig(appConfig: AppConfiguration) {
         corsAllowedSchemes = appConfig.corsAllowedSchemes,
         contentFetcher = appConfig.contentFecther,
         navnFetcher = appConfig.navnFetcher,
-        personaliaFetcher = appConfig.personaliaFetcher,
     )
 }
