@@ -1,11 +1,8 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm").version(Kotlin.version)
-
-    id(TmsJarBundling.plugin)
-
+    alias(managed.plugins.kotlin)
+    alias(managed.plugins.tms.jarBundling)
     application
 }
 
@@ -15,57 +12,53 @@ kotlin {
     }
 }
 
+jarBundling {
+    applicationName = "app"
+    outputDirectory = "libs"
+}
+
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
-    }
+    maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     mavenLocal()
 }
 
 dependencies {
-    implementation(Caffeine.caffeine)
-    implementation(JacksonDatatype.datatypeJsr310)
-    implementation(JacksonDatatype.moduleKotlin)
-    implementation(Kotlinx.coroutines)
-    implementation(KotlinLogging.logging)
-    implementation(Ktor.Server.core)
-    implementation(Ktor.Server.netty)
-    implementation(Ktor.Server.auth)
-    implementation(Ktor.Server.authJwt)
-    implementation(Ktor.Server.defaultHeaders)
-    implementation(Ktor.Server.cors)
-    implementation(Ktor.Server.metricsMicrometer)
-    implementation(Ktor.Server.statusPages)
-    implementation(Ktor.Client.core)
-    implementation(Ktor.Client.apache5)
-    implementation(Ktor.Client.contentNegotiation)
-    implementation(Ktor.Serialization.jackson)
-    implementation(Ktor.Server.contentNegotiation)
-    implementation(TmsKtorTokenSupport.userLoginRoutes)
-    implementation(TmsKtorTokenSupport.userTokenExchange)
-    implementation(TmsKtorTokenSupport.userTokenVerification)
-    implementation(TmsKtorTokenSupport.entraIdTokenFetcher)
-    implementation(Logstash.logbackEncoder)
-    implementation(Micrometer.registryPrometheus)
-    implementation(Prometheus.metricsCore)
-    implementation(TmsCommonLib.metrics)
-    implementation(TmsCommonLib.observability)
-    implementation(TmsCommonLib.teamLogger)
-    implementation(TmsCommonLib.utils)
+    implementation(libs.caffeine)
+    implementation(libs.ktor.server.auth.jwt) // vuln i denne CVE-2026-85473, men ingen fix siden 3.6.0 er nyest
+    implementation(managed.jackson.datatypeJsr310)
+    implementation(managed.jackson.moduleKotlin)
+    implementation(managed.kotlinx.coroutines)
+    implementation(managed.kotlinLogging)
+    implementation(managed.bundles.ktorServer)
+    implementation(managed.bundles.ktorClient)
+    implementation(managed.ktor.serialization.jackson)
+    implementation(managed.ktor.server.cors)
+    implementation(managed.tms.ktorTokenSupport.userToken.loginRoutes)
+    implementation(managed.tms.ktorTokenSupport.userToken.exchange)
+    implementation(managed.tms.ktorTokenSupport.userToken.verification)
+    implementation(managed.tms.ktorTokenSupport.entraId.fetcher)
+    implementation(managed.ktor.server.defaultHeaders)
+    implementation(managed.logback.encoder)
+    implementation(managed.micrometer.registry.prometheus)
+    implementation(managed.prometheus.metric.core)
+    implementation(managed.tms.commonLib.utils)
+    implementation(managed.tms.commonLib.metrics)
+    implementation(managed.tms.commonLib.observability)
+    implementation(managed.tms.commonLib.teamLogger)
 
-    testImplementation(JunitPlatform.launcher)
-    testImplementation(JunitJupiter.api)
-    testImplementation(JunitJupiter.engine)
-    testImplementation(Ktor.Test.clientMock)
-    testImplementation(Ktor.Test.serverTestHost)
-    testImplementation(Kotest.assertionsCore)
-    testImplementation(KotlinTest.junit)
-    testImplementation(Jjwt.api)
-    testImplementation(Mockk.mockk)
-    testImplementation(TmsKtorTokenSupport.userTokenVerificationMock)
+    testImplementation(libs.kotlin.junit)
+    testImplementation(managed.junit.launcher)
+    testImplementation(managed.junit.api)
+    testImplementation(managed.junit.engine)
+    testImplementation(managed.ktor.test.clientMock)
+    testImplementation(managed.ktor.test.server)
+    testImplementation(managed.kotest.assertion)
+    testImplementation(managed.jjwt.api)
+    testImplementation(managed.mockk)
+    testImplementation(managed.tms.ktorTokenSupport.userToken.verificationMock)
 
-    testRuntimeOnly(Jjwt.impl)
+    testRuntimeOnly(managed.jjwt.impl)
 }
 
 application {
