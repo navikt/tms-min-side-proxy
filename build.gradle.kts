@@ -13,8 +13,8 @@ kotlin {
 }
 
 jarBundling {
-    applicationName = "tms-min-side-proxy"
-    outputDirectory = "build/libs"
+    applicationName = "app"
+    outputDirectory = "libs"
 }
 
 repositories {
