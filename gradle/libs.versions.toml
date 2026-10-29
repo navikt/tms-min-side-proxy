@@ -1,5 +1,5 @@
 [libraries]
 
-caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.1.8" }
+caffeine = { group = "com.github.ben-manes.caffeine", name = "caffeine", version = "3.3.1" }
 kotlin-junit = { group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version = "2.4.21" }
 ktor-server-auth-jwt = { group = "io.ktor", name = "ktor-server-auth-jwt", version = "3.6.0"}
