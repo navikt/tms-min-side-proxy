@@ -25,7 +25,6 @@ repositories {
 
 dependencies {
     implementation(libs.caffeine)
-    implementation(libs.ktor.server.auth.jwt)
 
     implementation(managed.bundles.ktorServer)
     implementation(managed.bundles.ktorClient)
@@ -35,21 +34,24 @@ dependencies {
     implementation(managed.tms.ktorTokenSupport.userToken.exchange)
     implementation(managed.tms.ktorTokenSupport.userToken.verification)
     implementation(managed.tms.ktorTokenSupport.entraId.fetcher)
-    implementation(managed.ktor.server.defaultHeaders)
-    implementation(managed.micrometer.registry.prometheus)
+    implementation(managed.micrometer.registryPrometheus)
     implementation(managed.tms.commonLib.utils)
     implementation(managed.tms.commonLib.metrics)
     implementation(managed.tms.commonLib.observability)
     implementation(managed.tms.commonLib.teamLogger)
 
-    testImplementation(managed.junit.launcher)
-    testImplementation(managed.junit.engine)
+    runtimeOnly(libs.ktor.server.auth.jwt)
+
+    testImplementation(managed.junit.api)
+    testImplementation(libs.ktor.server.auth.jwt)
     testImplementation(managed.ktor.test.server)
     testImplementation(managed.kotest.assertion)
     testImplementation(managed.mockk)
     testImplementation(managed.tms.ktorTokenSupport.userToken.verificationMock)
 
-    testRuntimeOnly(managed.jjwt.impl)
+    testRuntimeOnly(managed.junit.launcher)
+    testRuntimeOnly(managed.junit.engine)
+
 }
 
 application {
